@@ -1,0 +1,215 @@
+Antibody_Name,Target_Genes,Validation_Status,Company,Catalog_Number
+14-3-3_beta,YWHAB,Validated,Santa Cruz,sc-628
+14-3-3_epsilon_Caution,YWHAE,Caution,Santa Cruz,sc-23957
+14-3-3_zeta,YWHAZ,Validated,Santa Cruz,sc-1019
+4E-BP1,EIF4EBP1,Validated,CST,9452
+4E-BP1_pS65,EIF4EBP1,Validated,CST,9456
+4E-BP1_pT37_T46,EIF4EBP1,Validated,CST,9459
+4E-BP1_pT70,EIF4EBP1,Validated,CST,9455
+53BP1,TP53BP1,Validated,CST,4937
+A-Raf_pS299_Caution,ARAF,Caution,CST,4431
+ACC_pS79,ACACA ACACB,Validated,CST,3661
+ACC1_Caution,ACACA,Caution,Abcam,ab45174
+Acetyl-a-Tubulin (Lys40)_Caution,TUBA1B,Caution,CST,5335
+ACVRL1_Caution,ACVRL1,Caution,Abcam,ab108207
+ADAR1,ADAR,Validated,Abcam,ab88574
+Akt,AKT1 AKT2 AKT3,Validated,CST,4691
+Akt_pS473,AKT1 AKT2 AKT3,Validated,CST,9271
+Akt_pT308,AKT1 AKT2 AKT3,Validated,CST,2965
+alpha-Catenin,CTNNB1,Validated,Calbiochem,CA1030
+AMPK_alpha_Caution,PRKAA1,Caution,CST,2532
+AMPK_pT172,PRKAA1,Validated,CST,2535
+Annexin 1,ANXA1,Validated,BD Biosciences,610066
+Annexin_VII,ANXA7,Validated,BD Biosciences,610668
+AR,AR,Validated,Abcam,ab52615
+ASNS,ASNS,Validated,Sigma,HPA029318
+ATM,ATM,Validated,CST,2873
+B-Raf_Caution,BRAF,Caution,Abcam,ab33899
+B-Raf_pS445,BRAF,Validated,CST,2696
+Bad_pS112,BAD,Validated,CST,9291
+Bak_Caution,BAK1,Caution,Abcam,ab32371
+Bap1 c-4,BAP1,Validated,Santa Cruz,sc-28383
+Bax,BAX,Validated,CST,2772
+Bcl-2,BCL2,Validated,Dako,M0887
+Bcl-xL,BCL2L1,Validated,CST,2762
+Beclin_Caution,BECN1,Caution,Santa Cruz,sc-10086
+beta-Catenin,CTNNB1,Validated,CST,9562
+beta-Catenin_pT41_S45,CTNNB1,Validated,CST,9565
+beta Actin_Caution,ACTB,Caution,CST,4970
+Bid_Caution,BID,Caution,Abcam,ab32060
+Bim(CST2933),BCL2L11,Validated,Abcam,ab32158
+Bim(EP1036),BCL2L11,Validated,Epitomics,1036-1
+BRCA2_Caution,BRCA2,Caution,CST,9012
+c-Jun_pS73,JUN,Validated,CST,9164
+c-Kit,KIT,Validated,Abcam,ab32363
+c-Met_Caution,MET,Caution,CST,3127
+c-Met_pY1235,MET,Validated,CST,3129
+c-Myc_Caution,MYC,Caution,Santa Cruz,sc-764
+C-Raf(BD610151)_Caution,RAF1,Caution,BD Biosciences,610151
+C-Raf(MP05-739),RAF1,Validated,Millipore,04-739
+C-Raf_pS338,RAF1,Validated,CST,9427
+Caspase-7_cleavedD198_Caution,CASP7,Caution,CST,9491
+Caspase-8_Caution,CASP8,Caution,CST,9746
+Caveolin-1,CAV1,Validated,CST,3238
+CD20 _Caution,MS4A1,Caution,Epitomics,1632
+CD31,PECAM1,Validated,Dako,M0823
+CD49b,ITGA2,Validated,BD Biosciences,611016
+CDK1,CDK1,Validated,Abcam,ab32384
+Chk1_Caution,CHEK1,Caution,CST,2360
+Chk1_pS345_Caution,CHEK1,Caution,CST,2348
+Chk2,CHEK2,Validated,CST,3440
+Chk2_pT68_Caution,CHEK2,Caution,CST,2197
+cIAP_Caution,BIRC2,Caution,Millipore,07-759
+Claudin-7,CLDN7,Validated,Novus Biologicals,NB100-91714
+Collagen_VI,COL6A1,Validated,Santa Cruz,sc-20649
+Cyclin_B1,CCNB1,Validated,Epitomics,1495-1
+Cyclin_D1,CCND1,Validated,Santa Cruz,sc-718
+Cyclin_E1,CCNE1,Validated,Santa Cruz,sc-247
+Cyclin_E2_Caution,CCNE2,Caution,Epitomics,1142
+Di-Ras3_Caution,DIRAS3,Caution,MDACC Laboratory,Bast Lab
+DJ-1,PARK7,Validated,Abcam,ab76008
+Dvl3,DVL3,Validated,CST,3218
+E-Cadherin,CDH1,Validated,CST,3195
+eEF2_Caution,EEF2,Caution,CST,2332
+eEF2K,EEF2K,Validated,CST,3692
+EGFR,EGFR,Validated,CST,2232
+EGFR_pY1068_Caution,EGFR,Caution,CST,2234
+EGFR_pY1173,EGFR,Validated,Abcam,ab32578
+eIF4E,EIF4E,Validated,CST,9742
+eIF4G_Caution,EIF4G1,Caution,CST,2498
+ER-alpha,ESR1,Validated,Lab Vision,RM-9101-S
+ER-alpha_pS118,ESR1,Validated,Epitomics,1091-1
+ERCC1_Caution,ERCC1,Caution,Lab Vision,MS-671
+ERK2_Caution,MAPK1,Caution,Santa Cruz,sc-154
+ETS-1,ETS1,Validated,Bethyl,A303-501A
+FASN,FASN,Validated,CST,3180
+Fibronectin,FN1,Validated,Epitomics,1574-1
+FoxM1,FOXM1,Validated,CST,5436
+FOXO3a_Caution,FOXO3,Caution,CST,2497
+FOXO3a_pS318_S321_Caution,FOXO3,Caution,CST,9465
+FRA1_Caution,FOSL1,Caution,Santa Cruz,sc-605
+G6PD,G6PD,Validated,Santa Cruz,sc-373887
+Gab2,GAB2,Validated,CST,3239
+GAPDH_Caution,GAPDH,Caution,Life Technologies,AM4300
+GATA3,GATA3,Validated,BD Biosciences,558686
+GSK-3-BETA_Caution,GSK3B,Caution,CST,9315
+GSK3-alpha-beta,GSK3A GSK3B,Validated,Santa Cruz,sc-7291
+GSK3-alpha-beta_pS21_S9,GSK3A GSK3B,Validated,CST,9331
+GSK3_pS9,GSK3A GSK3B,Validated,CST,9336
+HER2,ERBB2,Validated,Lab Vision,MS-325-P1
+HER2_pY1248_Caution,ERBB2,Caution,R&D Systems,AF1768
+HER3,ERBB3,Validated,Santa Cruz,sc-285
+HER3_pY1289_Caution,ERBB3,Caution,CST,4791
+Heregulin,NRG1,Validated,CST,2573
+HSP70_Caution,HSPA1A,Caution,CST,4872
+IGFBP2,IGFBP2,Validated,CST,3922
+INPP4B,INPP4B,Validated,CST,4039
+IRS1,IRS1,Validated,Millipore,06-248
+JAK2,JAK2,Validated,CST,3230
+JNK_pT183_Y185,MAPK8,Validated,CST,4668
+JNK2_Caution,MAPK9,Caution,CST,4672
+Ku80_Caution,XRCC5,Caution,CST,2180
+Lck,LCK,Validated,CST,2752
+MAPK_pT202_Y204,MAPK1 MAPK3,Validated,CST,4377
+MDM2_pS166,MDM2,Validated,CST,3521
+MDMX_MDM4(BetIHC-00108)_Caution,MDM4,Caution,Bethyl,IHC-00108
+MEK1,MAP2K1,Validated,Epitomics,1235-1
+MEK1_pS217_S221,MAP2K1,Validated,CST,9154
+MIG-6,ERRFI1,Validated,Sigma,WH0054206M1
+Mre11_Caution,MRE11A,Caution,CST,4847
+MSH2,MSH2,Validated,CST,2850
+MSH6_Caution,MSH6,Caution,Novus Biologicals,22030002
+mTOR,MTOR,Validated,CST,2983
+mTOR_pS2448_Caution,MTOR,Caution,CST,2971
+MYH11,MYH11,Validated,Novus Biologicals,21370002
+Myosin IIa pS1943,MYH9,Validated,CST,5026
+N-Cadherin,CDH2,Validated,CST,4061
+N-Ras,NRAS,Validated,Santa Cruz,sc-31
+NDRG1_pT346,NDRG1,Validated,CST,3217
+NF-kB-p65_pS536_Caution,NFKB1,Caution,CST,3033
+NF2_Caution,NF2,Caution,Novus Biologicals,22710002
+Notch1,NOTCH1,Validated,CST,3268
+P-Cadherin_Caution,CDH3,Caution,CST,2130
+p14 Arf(BetA300-340A)_Caution,CDKN2A,Caution,Bethyl,A300-340A
+p21,CDKN1A,Validated,Santa Cruz,sc-397
+p27,CDKN1B,Validated,Abcam,ab32034
+p27_pT157_Caution,CDKN1B,Caution,R&D Systems,AF1555
+p27_pT198,CDKN1B,Validated,Abcam,ab64949 
+p38 alpha MAPK,MAPK14,Validated,CST,9228
+p38_MAPK,MAPK14,Validated,CST,9212
+p38_pT180_Y182,MAPK14,Validated,CST,9211
+p53_Caution,TP53,Caution,CST,9282
+p62 Lck ligand_Caution,SQSTM1,Caution,BD Transduction Lab,610833
+p70S6K,RPS6KB1,Validated,Abcam,ab32529
+p70S6K_pT389,RPS6KB1,Validated,CST,9205
+p90RSK_Caution,RPS6KA1,Caution,CST,9347
+p90RSK_pT359_S363_Caution,RPS6KA1,Caution,CST,9344
+p90RSK_pT573_Caution,RPS6KA1,Caution,CST,9346
+PAI-1,SERPINE1,Validated,BD Biosciences,612024
+PARP_cleaved_Caution,PARP1,Caution,CST,9546
+Paxillin_Caution,PXN,Caution,Epitomics,1500-1
+PCNA_Caution,PCNA,Caution,Abcam,ab29
+PDCD4_Caution,PDCD4,Caution,Rockland,600-401-965
+PDK1,PDK1,Validated,CST,3062
+PDK1_pS241,PDK1,Validated,CST,3061
+PEA15,PEA15,Validated,CST,2780
+PEA15_pS116,PEA15,Validated,Invitrogen,44-836G
+PI3K-p110-alpha_Caution,PIK3CA,Caution,CST,4255
+PI3K-p85,PIK3R1,Validated,Millipore,06-195
+PKC-alpha,PRKCA,Validated,Millipore,05-154
+PKC-alpha_pS657_Caution,PRKCA,Caution,Millipore,06-822
+PKC-delta_pS664,PRKCD,Validated,Millipore,07-875
+PKC-pan_BetaII_pS660,PRKCB,Validated,CST,9371
+Porin,VDAC1,Validated,,
+PR,PGR,Validated,Abcam,ab32085
+PRAS40_pT246,AKT1S1,Validated,Life Technologies,441100G
+PRDX1,PRDX1,Validated,Abcam,ab102739
+PREX1,PREX1,Validated,Abcam,ab102739
+PTEN,PTEN,Validated,CST,9552
+Rab25,RAB25,Validated,CST,4314
+Rad50,RAD50,Validated,Millipore,05-525
+RAD51,RAD51,Validated,CST,8875
+Raptor,RPTOR,Validated,CST,2280
+Rb_Caution,RB1,Caution,CST,9309
+Rb_pS807_S811,RB1,Validated,CST,9308
+RBM15,RBM15,Validated,Novus Biologicals,21390002
+Rictor_Caution,RICTOR,Caution,CST,2114
+Rictor_pT1135,RICTOR,Validated,CST,3806
+RSK1-2-3_Caution,RPS6KA1 RPS6KA2 RPS6KA3,Caution,CST,9347
+S6_pS235_S236,RPS6,Validated,CST,2211
+S6_pS240_S244,RPS6,Validated,CST,2215
+SCD1,SCD,Validated,Santa Cruz,sc-58420
+SETD2_Caution,SETD2,Caution,Abcam,ab69836
+SF2,SRSF1,Validated,Invitrogen,32-4500
+Shc_pY317,SHC1,Validated,CST,2431
+SHP-2_pY542_Caution,PTPN11,Caution,CST,3751
+Smac_Caution,DIABLO,Caution,CST,2954
+Smad1,SMAD1,Validated,Abcam,ab33902
+Smad3,SMAD3,Validated,Abcam,ab40854
+Smad4,SMAD4,Validated,Santa Cruz,sc-7966
+Snail_Caution,SNAI1,Caution,CST,3895
+Src,SRC,Validated,Millipore,05-184
+Src_pY416_Caution,SRC,Caution,CST,2101
+Src_pY527,SRC,Validated,CST,2105
+STAT3_Caution,STAT3,Caution,CST,4904
+STAT3_pY705,STAT3,Validated,CST,9131
+STAT5-alpha,STAT5A,Validated,Abcam,ab32043
+Stathmin,STMN1,Validated,Abcam,ab52630
+Syk,SYK,Validated,Santa Cruz,sc-1240
+TAZ,WWTR1,Validated,CST,2149
+TFRC,TFRC,Validated,Novus Biologicals,22500002
+TIGAR,C12orf5,Validated,Abcam,ab137573
+Transglutaminase,TGM2,Validated,Lab Vision,MS-224-P1
+TSC1_Caution,TSC1,Caution,CST,4906
+TTF1,TTF1,Validated,Abcam,ab76013
+Tuberin,TSC2,Validated,Abcam,ab32554
+Tuberin_pT1462,TSC2,Validated,CST,3617
+VAV1_Caution,VAV1,Caution,,
+VEGFR2,KDR,Validated,CST,2479
+VHL_Caution,VHL,Caution,BD Biosciences,556347
+XBP1_Caution,XBP1,Caution,Santa Cruz,sc-32136
+XRCC1_Caution,XRCC1,Caution,CST,2735
+YAP_Caution,YAP1,Caution,Santa Cruz,sc-15407
+YAP_pS127_Caution,YAP1,Caution,CST,4911
+YB-1,YBX1,Validated,Novus Biologicals,17250002
+YB-1_pS102,YBX1,Validated,CST,2900
