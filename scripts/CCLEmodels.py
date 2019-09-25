@@ -6,7 +6,7 @@ Created on Fri Jul 19 14:18:14 2019
 
 """
 
-
+##############################################################################
 # Importing the libraries
 import warnings
 import numpy as np
@@ -43,14 +43,21 @@ from sklearn.neural_network import MLPRegressor
 import pandas as pd
 from pandas.plotting import scatter_matrix
 import seaborn as sns
+sns.set(context='talk')
 import scipy as sc
 from scipy.stats import norm
 import numba
+#Acceleration
+@numba.jit
+def f(x):
+	return x
+@numba.njit
+def f(x):
+	return x
 import platform
 from sklearn.model_selection import train_test_split
 from mpl_toolkits.mplot3d import Axes3D
 
-sns.set(context='talk')
 print("Operating system:", platform.system(), platform.release())
 import sys
 print("Python version:", sys.version)
@@ -59,45 +66,7 @@ print("Pandas version:", pd.__version__)
 print("Seaborn version:", sns.__version__)
 print("Numba version:", numba.__version__)
 
-
-#Reduce dataframe memory usage
-def reduce_mem_usage(df):
-	""" iterate through all the columns of a dataframe and modify the data type
-		to reduce memory usage.
-	"""
-	start_mem = df.memory_usage().sum() / 1024**2
-	print('Memory usage of dataframe is {:.2f} MB'.format(start_mem))
-
-	for col in df.columns:
-		col_type = df[col].dtype
-
-		if col_type != object:
-			c_min = df[col].min()
-			c_max = df[col].max()
-			if str(col_type)[:3] == 'int':
-				if c_min > np.iinfo(np.int8).min and c_max < np.iinfo(np.int8).max:
-					df[col] = df[col].astype(np.int8)
-				elif c_min > np.iinfo(np.int16).min and c_max < np.iinfo(np.int16).max:
-					df[col] = df[col].astype(np.int16)
-				elif c_min > np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
-					df[col] = df[col].astype(np.int32)
-				elif c_min > np.iinfo(np.int64).min and c_max < np.iinfo(np.int64).max:
-					df[col] = df[col].astype(np.int64)
-			else:
-				if c_min > np.finfo(np.float16).min and c_max < np.finfo(np.float16).max:
-					df[col] = df[col].astype(np.float16)
-				elif c_min > np.finfo(np.float32).min and c_max < np.finfo(np.float32).max:
-					df[col] = df[col].astype(np.float32)
-				else:
-					df[col] = df[col].astype(np.float64)
-		else:
-			df[col] = df[col].astype('category')
-
-	end_mem = df.memory_usage().sum() / 1024**2
-	print('Memory usage after optimization is: {:.2f} MB'.format(end_mem))
-	print('Decreased by {:.1f}%'.format(100 * (start_mem - end_mem) / start_mem))
-
-	return df
+##############################################################################
 
 
 #Load data
@@ -110,47 +79,9 @@ dfMeta_dropped = dfMeta.drop(columns=['CCLE_ID', 'DepMap_ID'])
 dfDrug_dropped = dfDrug.drop(columns=['CCLE Cell Line Name', 'Primary Cell Line Name', 'Compound', 'Target', 'Doses (uM)', 'Activity Data (median)', 'Activity SD', 'Num Data', 'FitType'])
 
 
-#Sometimes it changes some values in the dataframe, let's check it doesnt' change anything
-df_test = pd.DataFrame()
-dfProt_opt = reduce_mem_usage(dfProt)
 
-for col in dfProt_dropped:
-    df_test[col] = dfProt[col] - dfProt_opt[col]
 
-#Mean, max and min for all columns should be 0
-df_test.describe().loc['mean']
-df_test.describe().loc['max']
-df_test.describe().loc['min']
 
-df_test = pd.DataFrame()
-dfMeta_opt = reduce_mem_usage(dfMeta)
-
-for col in dfMeta_dropped:
-    df_test[col] = dfMeta[col] - dfMeta_opt[col]
-
-#Mean, max and min for all columns should be 0
-df_test.describe().loc['mean']
-df_test.describe().loc['max']
-df_test.describe().loc['min']
-
-df_test = pd.DataFrame()
-dfDrug_opt = reduce_mem_usage(dfDrug)
-
-for col in dfDrug_dropped:
-    df_test[col] = dfDrug[col] - dfDrug_opt[col]
-
-#Mean, max and min for all columns should be 0
-df_test.describe().loc['mean']
-df_test.describe().loc['max']
-df_test.describe().loc['min']
-
-#Acceleration
-@numba.jit
-def f(x):
-	return x
-@numba.njit
-def f(x):
-	return x
 
 
 #Extract drug-specific data
