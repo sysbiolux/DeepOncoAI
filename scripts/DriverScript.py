@@ -7,10 +7,10 @@ Created on Fri Jul 19 14:18:14 2019
 """
 
 from data_characterization import explore_shape, reduce_mem_usage, show_me_the_data
-from data_preprocessing import reformat_drugs, eliminate_sparse_data
+from data_preprocessing import reformat_drugs, eliminate_sparse_data, impute_missing_data
 from outputs_engineering import *
 from feature_engineering import *
-from data_modeling import *
+from data_modeling import get_models, make_pipeline, evaluate_model, robust_evaluate_model, evaluate_models, summarize_results
 
 import pandas as pd
 import seaborn as sns
@@ -39,6 +39,28 @@ dfDrug = eliminate_sparse_data(dfDrug, colThreshold = 0.8, lineThreshold = 0.8)
 # Visualize the data
 show_me_the_data(dfProt)
 show_me_the_data(dfDrug)
+
+# Impute data if necessary
+dfProtImputed = impute_missing_data(dfProt)
+dfDrugImputed = impute_missing_data(dfDrug)
+
+
+
+
+
+#Acceleration
+@numba.jit
+def f(x):
+	return x
+@numba.njit
+def f(x):
+	return x
+
+
+
+# Get Outputs as z-scores
+
+
 
 
 

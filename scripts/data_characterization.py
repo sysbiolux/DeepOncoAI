@@ -89,7 +89,6 @@ def best_fit_distribution(df, bins=200, ax=None):
 	# Best holders
 	best_distribution = st.norm
 	best_params = (0.0, 1.0)
-	best_sse = np.inf
 	best_pval = 0
 
 	# Estimate distribution parameters from data
@@ -113,7 +112,6 @@ def best_fit_distribution(df, bins=200, ax=None):
 
 				# Calculate fitted PDF and error with fit in distribution
 				pdf = distribution.pdf(x, loc=loc, scale=scale, *arg)
-				sse = np.sum(np.power(y - pdf, 2.0))
 				ks, pval = st.kstest(df.values, distribution.cdf)
 				print(ks, pval)
 
@@ -121,7 +119,6 @@ def best_fit_distribution(df, bins=200, ax=None):
 				try:
 					if ax:
 						pd.Series(pdf, x).plot(ax=ax)
-					end
 				except Exception:
 					pass
 
@@ -129,7 +126,6 @@ def best_fit_distribution(df, bins=200, ax=None):
 				if pval > best_pval:
 					best_distribution = distribution
 					best_params = params
-					best_sse = sse
 					best_pval = pval
 
 		except Exception:

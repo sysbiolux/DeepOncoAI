@@ -22,9 +22,29 @@ def reformat_drugs(df):
 	will be placed on the same line in different columns."""
 	drugNames = dfDrug_opt['Compound'].unique()
 	dfDrug_opt['Compound'].value_counts()
+	# concatenate the drug info with one line per cell line
+	Merged = pd.DataFrame()
 
+	for thisDrug in drugNames:
+		dfDrug_opt_spec = dfDrug_opt.loc[dfDrug_opt['Compound'] == thisDrug]
+		dfDrug_opt_spec_clean = dfDrug_opt_spec.drop(columns =['Primary Cell Line Name', 'Compound', 'Target', 'Doses (uM)', 'Activity Data (median)', 'Activity SD', 'Num Data', 'FitType'])
+		dfDrug_opt_spec_clean.columns=['CCLE Cell Line Name', thisDrug+'_IC50', thisDrug+'_Amax', thisDrug+'_ActArea']
 
+		#Merge dataset
+		Merged = pd.merge(Merged, dfDrug_opt_spec_clean, how='left', on='CCLE Cell Line Name', sort=False, suffixes=('_x', '_y'), copy=True, indicator=False, validate=None)
+
+	merged_df = Merged.set_index('CCLE Cell Line Name')
 
 
 
 	return merged_df
+
+
+def impute_missing_data:
+	"""
+
+
+
+
+
+
