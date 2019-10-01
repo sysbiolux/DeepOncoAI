@@ -15,6 +15,8 @@ from data_modeling import get_models, make_pipeline, evaluate_model, robust_eval
 import pandas as pd
 import seaborn as sns
 sns.set(context='talk')
+import numba
+
 
 ###############################################################################
 # Import the data
@@ -44,10 +46,6 @@ show_me_the_data(dfDrug)
 dfProtImputed = impute_missing_data(dfProt)
 dfDrugImputed = impute_missing_data(dfDrug)
 
-
-
-
-
 #Acceleration
 @numba.jit
 def f(x):
@@ -55,8 +53,6 @@ def f(x):
 @numba.njit
 def f(x):
 	return x
-
-
 
 # Get Outputs as z-scores
 
