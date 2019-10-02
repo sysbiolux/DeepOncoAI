@@ -8,14 +8,22 @@ Created on Fri Jul 19 14:18:14 2019
 
 from data_characterization import explore_shape, reduce_mem_usage, show_me_the_data
 from data_preprocessing import reformat_drugs, eliminate_sparse_data, impute_missing_data
-from outputs_engineering import *
-from feature_engineering import *
+from outputs_engineering import transform_zscores, get_drug_response
+from feature_engineering import add_polynomials
 from data_modeling import get_models, make_pipeline, evaluate_model, robust_evaluate_model, evaluate_models, summarize_results
+
 
 import pandas as pd
 import seaborn as sns
 sns.set(context='talk')
 import numba
+#Acceleration
+@numba.jit
+def f(x):
+	return x
+@numba.njit
+def f(x):
+	return x
 
 
 ###############################################################################
@@ -46,15 +54,46 @@ show_me_the_data(dfDrug)
 dfProtImputed = impute_missing_data(dfProt)
 dfDrugImputed = impute_missing_data(dfDrug)
 
-#Acceleration
-@numba.jit
-def f(x):
-	return x
-@numba.njit
-def f(x):
-	return x
 
 # Get Outputs as z-scores
+drugZScores = transform_zscores(dfDrugImputed)
+
+# Get Outputs as Resistant, Sensitive, Intermediate
+thresholdR = -2
+thresholdS = 2
+drugResponse = get_drug_response(drugZScores, thresholdR, thresholdS)
+
+# Discretization
+dfCategorical = categorize_data(df)
+
+
+
+
+
+
+
+
+
+
+
+# Add complexity with polynomial combinations
+polynomialDegree = 2
+dfExtended = add_polynomials(dfProtImputed, degree = polynomialDegree)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -18,16 +18,21 @@ import matplotlib.pyplot as plt
 def explore_shape(df):
 	"""accepts a pandas dataframe and returns its dimensions as well as a
 	graph of the presence of data."""
-	#TODO: return shape of the dataframe and percentage of missing data
-	#TODO: display and save matrix of dataframe with missing data indicated
 
-	return (nLines, nColumns, percentMissing)
+	myShape = df.shape
+	nLines = myShape[0]
+	nColumns = myShape[1]
+	fractionMissing = df.isna().mean()
+	plt.figure()
+	sns.heatmap(df.isnull(), cbar=False)
+
+
+	return (nLines, nColumns, fractionMissing)
 
 # Reduce dataframe memory usage
 def reduce_mem_usage(df):
 	"""reduces memory usage for large pandas dataframes by changing datatypes per column into the ones
 	that need the least number of bytes (int8 if possible, otherwise int16 etc...)"""
-	### iterate through all the columns of a dataframe and modify the data type to reduce memory usage.
 
 	df_orig = df
 	start_mem = df.memory_usage().sum() / 1024**2
