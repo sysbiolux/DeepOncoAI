@@ -22,7 +22,7 @@ def explore_shape(df):
 	myShape = df.shape
 	nLines = myShape[0]
 	nColumns = myShape[1]
-	fractionMissing = df.isna().mean()
+	fractionMissing = df.isna().mean().mean()
 	plt.figure()
 	sns.heatmap(df.isnull(), cbar=False)
 
@@ -34,13 +34,13 @@ def reduce_mem_usage(df):
 	"""reduces memory usage for large pandas dataframes by changing datatypes per column into the ones
 	that need the least number of bytes (int8 if possible, otherwise int16 etc...)"""
 
-	df_orig = df
+	df_orig = df.copy()
 	start_mem = df.memory_usage().sum() / 1024**2
 	print('Memory usage of dataframe is {:.2f} MB'.format(start_mem))
 
 	for col in df.columns:
 		col_type = df[col].dtype
-
+#		print(col_type) #for debugging
 		if col_type != object:
 			c_min = df[col].min()
 			c_max = df[col].max()
@@ -60,22 +60,25 @@ def reduce_mem_usage(df):
 					df[col] = df[col].astype(np.float32)
 				else:
 					df[col] = df[col].astype(np.float64)
-		else:
-			df[col] = df[col].astype('category')
+#		else:
+#			df[col] = df[col].astype('category')
 
 	end_mem = df.memory_usage().sum() / 1024**2
+	print('Memory usage of dataframe after optimization is {:.2f} MB'.format(end_mem))
 
 	df_test = pd.DataFrame()
 
 	for col in df:
-		df_test[col] = df_orig[col] - df[col]
+		col_type = df[col].dtype
+#		print(col_type) for debugging
+		if col_type != object:
+			df_test[col] = df_orig[col] - df[col]
 
 	#Mean, max and min for all columns should be 0
-	mean_test = df_test.describe().loc['mean']
-	max_test = df_test.describe().loc['max']
-	min_test = df_test.describe().loc['min']
+	mean_test = df_test.describe().loc['mean'].mean()
+	max_test = df_test.describe().loc['max'].max()
+	min_test = df_test.describe().loc['min'].min()
 
-	print('Memory usage after optimization is: {:.2f} MB'.format(end_mem))
 	print('Decreased by {:.1f}%'.format(100 * (start_mem - end_mem) / start_mem))
 	print('Min, Max and Mean of pre/post differences: {:.2f}, {:.2f}, {:.2f}'.format(min_test, max_test, mean_test))
 

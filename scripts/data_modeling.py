@@ -194,6 +194,4 @@ def summarize_results(results, predicted, y_test, thisCol, maximize=True, top_n=
 
 	return scores
 
-coltodrop = list(df_norm_scaled.iloc[:,0:214].columns)
-dfdropped = df_norm_scaled.drop(columns = coltodrop)
-colnames = list(dfdropped.columns)
+

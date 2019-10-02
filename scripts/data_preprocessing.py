@@ -28,9 +28,9 @@ def reformat_drugs(df):
 	for thisDrug in drugNames:
 		df_spec = df.loc[df['Compound'] == thisDrug]
 		df_spec_clean = df_spec.drop(columns =['Primary Cell Line Name', 'Compound', 'Target', 'Doses (uM)', 'Activity Data (median)', 'Activity SD', 'Num Data', 'FitType'])
-		df_spec_clean.columns=['CCLE Cell Line Name', thisDrug+'_IC50', thisDrug+'_Amax', thisDrug+'_ActArea']
+		df_spec_clean.columns=['CCLE Cell Line Name', thisDrug+'_EC50', thisDrug+'_IC50', thisDrug+'_Amax', thisDrug+'_ActArea']
 
-		#Merge dataset
+		#Merge dataset (this bugs)
 		Merged = pd.merge(Merged, df_spec_clean, how='left', on='CCLE Cell Line Name', sort=False, suffixes=('_x', '_y'), copy=True, indicator=False, validate=None)
 
 	merged_df = Merged.set_index('CCLE Cell Line Name')
