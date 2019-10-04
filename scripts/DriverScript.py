@@ -7,7 +7,7 @@ Created on Fri Jul 19 14:18:14 2019
 """
 
 from data_characterization import explore_shape, reduce_mem_usage, show_me_the_data
-from data_preprocessing import reformat_drugs, eliminate_sparse_data, impute_missing_data
+from data_preprocessing import reformat_drugs, eliminate_sparse_data, impute_missing_data, remove_outliers
 from outputs_engineering import transform_zscores, get_drug_response
 from feature_engineering import add_polynomials, categorize_data
 from data_modeling import get_models, make_pipeline, evaluate_model, robust_evaluate_model, evaluate_models, summarize_results
@@ -36,10 +36,7 @@ dfDrug = reduce_mem_usage(dfDrug)
 
 # Check the data
 nCellLinesRPPA, nFeatures, percentMissingRPPA = explore_shape(dfProt)
-dfDrug = reformat_drugs(dfDrug)
 nCellLinesDrug, nOutputs, percentMissingDrug = explore_shape(dfDrug)
-
-# Drop unnecessary columns
 
 
 # Reshape the drug info
@@ -54,19 +51,24 @@ show_me_the_data(dfProt)
 show_me_the_data(dfDrug)
 
 # Impute data if necessary
-dfProtImputed = impute_missing_data(dfProt)
-dfDrugImputed = impute_missing_data(dfDrug)
+dfProt_I = impute_missing_data(dfProt)
+dfDrug_I = impute_missing_data(dfDrug)
+
+# Remove outliers
+
+dfDrug_I_O = remove_outliers(dfDrug_I)
+dfProt_I_O = remove_outliers(dfDrug_I)
 
 # Get Outputs as z-scores
-drugZScores = transform_zscores(dfDrugImputed)
+drugZScores = transform_zscores(dfDrug_I_O)
 
-# Get Outputs as Resistant, Sensitive, Intermediate
+# Get Outputs as Resistant (-1), Sensitive (1), Intermediate (0)
 thresholdR = -2
 thresholdS = 2
 drugResponse = get_drug_response(drugZScores, thresholdR, thresholdS)
 
 # Outputs discretization
-dfCategorical = categorize_data(dfProtImputed)
+drugResponseCategorical = categorize_data(drugResponse)
 
 
 
@@ -82,7 +84,7 @@ dfCategorical = categorize_data(dfProtImputed)
 
 # Add complexity with polynomial combinations
 polynomialDegree = 2
-dfExtended = add_polynomials(dfProtImputed, degree = polynomialDegree)
+dfExtended = add_polynomials(dfProt_I_O, degree = polynomialDegree)
 
 
 
