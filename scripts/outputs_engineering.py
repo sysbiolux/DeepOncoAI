@@ -21,9 +21,11 @@ def get_drug_response(df, thresholdR, thresholdS):
 		1 = Sensitive
 		values in df indicate response to drug (like Act Area)"""
 	from sklearn.preprocessing import binarize as bn
+	import pandas as pd
 	dfSens = bn(df, threshold = thresholdS) #Resistants will get 0, while Intermediates and Sensitives get 1
 	dfNotR = bn(df, threshold = thresholdR) #Sensitives get 1 more, others get 0
 	dfAll = dfSens + dfNotR -1
+	dfAll = pd.DataFrame(data = dfAll, index=df.index, columns=df.columns)
 	return dfAll
 
 

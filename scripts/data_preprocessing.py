@@ -9,18 +9,16 @@ import numpy as np
 import pandas as pd
 
 
-def eliminate_sparse_data(df, colThreshold = 0.5, lineThreshold = 0.5):
+def eliminate_sparse_data(df, colThreshold = 0.5, rowThreshold = 0.5):
 	"""drops the columns and lines that do not satisfy the thresholds in term of
 	presence of data"""
-	df_orig = df.copy()
+	#df_orig = df.copy()
 	colFil = 1 - df.isna().mean()
-	rowFil = 
+	rowFil = 1 - df.isna().mean(axis = 1)
 	
-		if df[col].isna().mean() < colThreshold:
-			df_orig.drop([col])
-	for row in df.r
-	#TODO: drop columns and samples based on the thresholds
-	#TODO: print the fraction of data that has been removed
+	df = df.loc[rowFil > rowThreshold, :]
+	df = df.loc[:,colFil > colThreshold]
+	
 	return df
 
 def reformat_drugs(df):
@@ -49,6 +47,8 @@ def reformat_drugs(df):
 def impute_missing_data(df, method = 'average'):
 	"""imputes computed values for missing data according to the specified method"""
 	##TODO: 
+	if method == 'average':
+		df = df.fillna(df.mean())
 	
 	return df
 

@@ -90,6 +90,12 @@ def best_fit_distribution(df, bins=200, ax=None):
 	# Get histogram of original data
 	y, x = np.histogram(df, bins=bins, density=True)
 	x = (x + np.roll(x, -1))[:-1] / 2.0
+	
+	import scipy.stats as st
+	import statsmodels as sm
+	import seaborn as sns
+	import matplotlib
+	import matplotlib.pyplot as plt
 
 	# Distributions to check
 	DISTRIBUTIONS = [st.alpha,st.beta,st.chi2,st.expon,st.exponnorm,st.gamma,st.logistic,st.loggamma,st.lognorm,st.norm,st.powerlaw,st.uniform]
@@ -143,27 +149,30 @@ def best_fit_distribution(df, bins=200, ax=None):
 
 def make_pdf(dist, params, size=10000):
 	"""Generate distributions's Probability Distribution Function """
-
+	import scipy.stats as st
+	import numpy as np
+	import statsmodels as sm
+	import seaborn as sns
+	import matplotlib
+	import matplotlib.pyplot as plt
+	
 	# Separate parts of parameters
 	arg = params[:-2]
 	loc = params[-2]
 	scale = params[-1]
+	
+	best_dist = getattr(st, dist)
 
 	# Get sane start and end points of distribution
-	start = dist.ppf(0.01, *arg, loc=loc, scale=scale) if arg else dist.ppf(0.01, loc=loc, scale=scale)
-	end = dist.ppf(0.99, *arg, loc=loc, scale=scale) if arg else dist.ppf(0.99, loc=loc, scale=scale)
+	start = best_dist.ppf(0.01, *arg, loc=loc, scale=scale) if arg else best_dist.ppf(0.01, loc=loc, scale=scale)
+	end = best_dist.ppf(0.99, *arg, loc=loc, scale=scale) if arg else best_dist.ppf(0.99, loc=loc, scale=scale)
 
 	# Build PDF and turn into pandas Series
 	x = np.linspace(start, end, size)
-	y = dist.pdf(x, loc=loc, scale=scale, *arg)
+	y = best_dist.pdf(x, loc=loc, scale=scale, *arg)
 	pdf = pd.Series(y, x)
 
 	return pdf
-
-
-
-
-
 
 
 def show_me_the_data(df):
@@ -177,9 +186,9 @@ def show_me_the_data(df):
 		df2 = df[col]
 		bestDistrib, bestParams = best_fit_distribution(df2)
 		pdf = make_pdf(bestDistrib, bestParams)
-		f, axes = plt.subplots(1, 2)
-		sns.distplot(df2, kde=True, rug=True, ax=axes[0], label='data')
-		sns.distplot(pdf, hist=False, kde=True, ax=axes[0], label=bestDistrib.name)
+		f, axes = plt.subplots(1, 1)
+		sns.distplot(df2, kde=True, rug=True, label='data')
+		sns.lineplot(x=pdf.index, y=pdf, label=bestDistrib)
 		plt.legend()
 
 

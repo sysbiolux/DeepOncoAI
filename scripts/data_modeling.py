@@ -38,21 +38,85 @@ from sklearn.ensemble import GradientBoostingRegressor
 import xgboost as xgb
 from sklearn.neural_network import MLPRegressor
 import pandas as pd
-from pandas.plotting import scatter_matrix
+from sklearn.datasets import make_classification
+from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import RidgeClassifier
+from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import ExtraTreeClassifier
+from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+
 import seaborn as sns
 sns.set(context='talk')
-import scipy as sc
-from scipy.stats import norm
-import numba
 
-import platform
-from sklearn.model_selection import train_test_split
-from mpl_toolkits.mplot3d import Axes3D
 
-def get_models(models=dict()):
+def get_classification_models(models=dict(), depth = 1):
 	# linear models
+	models['logistic'] = LogisticRegression()
+	if depth == 1:
+		alpha = [0.01, 0.2, 0.5, 0.8, 0.99, 1.0]
+	else:
+		alpha = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 1.0]
+	
+	for a in alpha:
+		models['ridge-'+str(a)] = RidgeClassifier(alpha=a)
+	models['sgd'] = SGDClassifier(max_iter=1000, tol=1e-3)
+	models['pa'] = PassiveAggressiveClassifier(max_iter=1000, tol=1e-3)
+	# non-linear models
+	if depth == 1:
+		n_neighbors = [1, 2, 3, 5, 10, 20, 50]
+	else:
+		n_neighbors = range(1, 100)
+	
+	for k in n_neighbors:
+		models['knn-'+str(k)] = KNeighborsClassifier(n_neighbors=k)
+	models['cart'] = DecisionTreeClassifier()
+	models['extra'] = ExtraTreeClassifier()
+	models['svml'] = SVC(kernel='linear')
+	models['svmp'] = SVC(kernel='poly')
+	if depth == 1:
+		c_values = [0.01, 0.2, 0.5, 0.8, 0.99]
+	c_values = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 1.0]
+	for c in c_values:
+		models['svmr'+str(c)] = SVC(C=c)
+	models['bayes'] = GaussianNB()
+	# ensemble models
+	n_trees = 100
+	models['ada'] = AdaBoostClassifier(n_estimators=n_trees)
+	models['bag'] = BaggingClassifier(n_estimators=n_trees)
+	models['rf'] = RandomForestClassifier(n_estimators=n_trees)
+	models['et'] = ExtraTreesClassifier(n_estimators=n_trees)
+	models['gbm'] = GradientBoostingClassifier(n_estimators=n_trees)
+	models['xgb'] = xgb.XGBClassifier(n_estimators=n_trees, nthread=-1)
+	
+	print('Defined %d models' % len(models))
+	return models
+ 
+
+
+
+
+def get_regression_models(models=dict(), depth = 1):
+	# linear models
+	
 	models['lr'] = LinearRegression()
-	alpha = [0.0, 0.01, 0.1, 0.2, 0.5, 0.7, 1, 2]
+	if depth == 1:
+		alpha = [0.0, 0.01, 0.5, 2]
+	else:
+		alpha = [0.0, 0.01, 0.1, 0.2, 0.5, 0.7, 1, 2]
+
 	for a in alpha:
 		models['lasso-'+str(a)] = Lasso(alpha=a)
 	for a in alpha:
@@ -61,35 +125,56 @@ def get_models(models=dict()):
 		for a2 in alpha:
 			name = 'en-' + str(a1) + '-' + str(a2)
 			models[name] = ElasticNet(a1, a2)
-	models['huber'] = HuberRegressor()
-	models['lars'] = Lars()
-	models['llars'] = LassoLars()
-	models['pa'] = PassiveAggressiveRegressor(max_iter=10000, tol=1e-4)
-	models['ranscac'] = RANSACRegressor()
-	models['sgd'] = SGDRegressor(max_iter=10000, tol=1e-4)
-	models['theil'] = TheilSenRegressor(n_jobs=-1)
+	if depth > 1:
+		
+		models['huber'] = HuberRegressor()
+		models['lars'] = Lars()
+		models['llars'] = LassoLars()
+		models['pa'] = PassiveAggressiveRegressor(max_iter=10000, tol=1e-4)
+		models['ranscac'] = RANSACRegressor()
+		models['sgd'] = SGDRegressor(max_iter=10000, tol=1e-4)
+		models['theil'] = TheilSenRegressor(n_jobs=-1)
+	
 	# non-linear models
-	n_neighbors = [1, 2, 3, 5, 7, 10, 20]
+	if depth == 1:
+		n_neighbors = [2, 5, 7, 20]
+	else:
+		n_neighbors = [2, 3, 4, 5, 7, 10, 20, 50]
+	
 	for k in n_neighbors:
 		models['knn-'+str(k)] = KNeighborsRegressor(n_neighbors=k)
 	models['cart'] = DecisionTreeRegressor()
 	models['extra'] = ExtraTreeRegressor()
 	models['svml'] = SVR(kernel='linear')
 	models['svmp'] = SVR(kernel='poly')
-	c_values = [0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.99, 1]
+	if depth == 1:
+		c_values = [0.01, 0.2, 0.5, 0.75, 0.99, 1]
+	else:
+		c_values = [0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.99, 1]
+		
 	for c in c_values:
 		models['svmr'+str(c)] = SVR(C=c)
 	# ensemble models
-	n_trees = 500
+	if depth == 1:
+		n_trees = 200
+	else:
+		n_trees = 2000
+	
 	models['ada'] = AdaBoostRegressor(n_estimators=n_trees)
 	models['bag'] = BaggingRegressor(n_estimators=n_trees, n_jobs=-1)
 	models['rf'] = RandomForestRegressor(n_estimators=n_trees, n_jobs=-1)
 	models['et'] = ExtraTreesRegressor(n_estimators=n_trees, n_jobs=-1)
 	models['gbm'] = GradientBoostingRegressor(n_estimators=n_trees)
 	models['xgb'] = xgb.XGBRegressor(n_estimators=n_trees, nthread=-1)
-	n1_values = [1, 10, 100]
-	n2_values = [1, 10, 100]
-	n3_values = [1, 10, 100]
+	if depth == 1:
+		n1_values = [1, 10, 100]
+		n2_values = [1, 10, 100]
+		n3_values = [1, 10, 100]
+	else:
+		n1_values = [1, 5, 10, 50, 200]
+		n2_values = [1, 5, 10, 50, 200]
+		n3_values = [1, 5, 10, 50, 200]
+	
 	for n1 in n1_values:
 		for n2 in n2_values:
 			for n3 in n3_values:
