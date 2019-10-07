@@ -7,12 +7,13 @@ Created on Fri Jul 19 14:18:14 2019
 """
 
 from data_characterization import explore_shape, reduce_mem_usage, show_me_the_data
-from data_preprocessing import reformat_drugs, eliminate_sparse_data, impute_missing_data, remove_outliers
+from data_preprocessing import reformat_drugs, eliminate_sparse_data, impute_missing_data, remove_outliers, get_PCA, get_TSNE
 from outputs_engineering import transform_zscores, get_drug_response
 from feature_engineering import add_polynomials, categorize_data
-from data_modeling import get_regression_models, get_classification_models, make_pipeline, evaluate_model, robust_evaluate_model, evaluate_models, summarize_results
+from data_modeling import get_regression_models, get_classification_models, evaluate_models, summarize_results
 
-
+from sklearn.model_selection import train_test_split
+import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -28,6 +29,11 @@ def f(x):
 def f(x):
 	return x
 
+
+###############################################################################
+	
+Goal = 'classification'
+Target = 'ActArea'
 
 ###############################################################################
 # Import the data
@@ -51,11 +57,9 @@ dfProt = eliminate_sparse_data(dfProt, colThreshold = 0.8, rowThreshold = 0.1)
 dfDrug = eliminate_sparse_data(dfDrug, colThreshold = 0.8, rowThreshold = 0.1)
 
 #Choosing the right target: 'IC50', 'Amax', 'EC50', or 'ActArea'
-Target = 'ActArea'
+
 cols = [col for col in dfDrug.columns if Target in col]
 dfDrug = dfDrug[cols]
-
-
 
 
 # Impute data if necessary
@@ -93,10 +97,6 @@ thresholdR = 0.4
 thresholdS = 0.6
 drugResponse = get_drug_response(dfDrug_I_O_N, thresholdR, thresholdS)
 
-
-
-
-
 # Outputs discretization
 drugResponseCategorical = categorize_data(drugResponse)
 
@@ -112,14 +112,10 @@ dfTargets = dfMerged[drugResponse.columns]
 dfTargetsZscores = dfMergedZscores[drugZScores.columns]
 
 #Dimension reduction
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
 targets = [-1, 0, 1]
 colors = ['r', 'b', 'g']
 
-pca = PCA(n_components=2)
-principalComponents = pca.fit_transform(dfPredictors)
-df_PCs = pd.DataFrame(data = principalComponents, index = dfPredictors.index, columns = ['PC1', 'PC2'])
+df_PCs = get_PCA(dfPredictors, n_components = 2)
 
 for drug in dfTargets.columns:
 	fig, ax = plt.subplots()
@@ -131,13 +127,8 @@ for drug in dfTargets.columns:
 		
 	ax.legend(['R', 'I', 'S'])
 	
-print(pca.explained_variance_ratio_)
 
-
-tsne = TSNE(n_components=2, verbose=1)
-tsneComponents = tsne.fit_transform(dfPredictors)
-
-df_TSNEs = pd.DataFrame(data = tsneComponents, index = dfPredictors.index, columns = ['TSNE1', 'TSNE2'])
+df_TSNEs = get_TSNE(dfPredictors, n_components = 2)
 
 for drug in dfTargets.columns:
 	fig, ax = plt.subplots()
@@ -156,49 +147,49 @@ dfPredictors = pd.merge(dfPredictors, pd.merge(df_PCs, df_TSNEs, left_index = Tr
 
 #############################################################################
 
-from sklearn.model_selection import train_test_split
-import numpy as np
 
-for thisCol in dfTargetsZscores.columns:
-	#Withold a test set
-	X_train, X_test, y_train, y_test = train_test_split(dfPredictors, dfTargetsZscores[thisCol], test_size=0.2, random_state=42)
-	index = y_train.index[y_train.apply(np.isnan)]
-	todrop = index.values.tolist()
-	X_train = X_train.drop(todrop)
-	y_train = y_train.drop(todrop)
-	index = y_test.index[y_test.apply(np.isnan)]
-	todrop = index.values.tolist()
-	X_test = X_test.drop(todrop)
-	y_test = y_test.drop(todrop)
-	# get model list
-	models = get_regression_models(depth = 1)
-	# evaluate models
-	results, predicted = evaluate_models(X_train, y_train, models, X_test, metric='neg_mean_squared_error')
-	# summarize results
-	summarize_results(results, predicted, y_test, thisCol)
+if Goal == 'regression':
+	for thisCol in dfTargetsZscores.columns:
+		#Withold a test set
+		X_train, X_test, y_train, y_test = train_test_split(dfPredictors, dfTargetsZscores[thisCol], test_size=0.2, random_state=42)
+		index = y_train.index[y_train.apply(np.isnan)]
+		todrop = index.values.tolist()
+		X_train = X_train.drop(todrop)
+		y_train = y_train.drop(todrop)
+		index = y_test.index[y_test.apply(np.isnan)]
+		todrop = index.values.tolist()
+		X_test = X_test.drop(todrop)
+		y_test = y_test.drop(todrop)
+		# get model list
+		models = get_regression_models(depth = 1)
+		# evaluate models
+		results, predicted = evaluate_models(X_train, y_train, models, X_test, metric='neg_mean_squared_error')
+		# summarize results
+		thisScores = summarize_results(results, predicted, y_test, thisCol)
 
-
-for thisCol in dfTargets.columns:
-	#Withold a test set
-	X_train, X_test, y_train, y_test = train_test_split(dfPredictors, dfTargets[thisCol], test_size=0.2, random_state=42)
+if Goal == 'classification':
+	LD = []
+	for thisCol in dfTargets.columns:
+		#Withold a test set
+		X_train, X_test, y_train, y_test = train_test_split(dfPredictors, dfTargets[thisCol], test_size=0.2, random_state=42)
+		
+		index = y_train.index[y_train.apply(np.isnan)]
+		todrop = index.values.tolist()
+		X_train = X_train.drop(todrop)
+		y_train = y_train.drop(todrop)
+		index = y_test.index[y_test.apply(np.isnan)]
+		todrop = index.values.tolist()
+		X_test = X_test.drop(todrop)
+		y_test = y_test.drop(todrop)
+		# get model list
+		models = get_classification_models(depth = 1)
+		# evaluate models
+		results, predicted = evaluate_models(X_train, y_train, models, X_test, metric='accuracy')
+		# summarize results
+		thisScores = summarize_results(results, predicted, y_test, thisCol)
+	LD = [LD, thisScores]
 	
-	index = y_train.index[y_train.apply(np.isnan)]
-	todrop = index.values.tolist()
-	X_train = X_train.drop(todrop)
-	y_train = y_train.drop(todrop)
-	index = y_test.index[y_test.apply(np.isnan)]
-	todrop = index.values.tolist()
-	X_test = X_test.drop(todrop)
-	y_test = y_test.drop(todrop)
-	# get model list
-	models = get_classification_models(depth = 1)
-	# evaluate models
-	results, predicted = evaluate_models(X_train, y_train, models, X_test, metric='accuracy')
-	# summarize results
-	summarize_results(results, predicted, y_test, thisCol)
-
-
-
+	
 
 
 

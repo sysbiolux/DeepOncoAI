@@ -48,6 +48,8 @@ from sklearn.linear_model import RidgeClassifier
 from sklearn.linear_model import SGDClassifier
 from sklearn.linear_model import PassiveAggressiveClassifier
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import RadiusNeighborsClassifier
+from sklearn.neighbors import NearestCentroid
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.tree import ExtraTreeClassifier
 from sklearn.svm import SVC
@@ -72,6 +74,7 @@ def get_classification_models(models=dict(), depth = 1):
 	
 	for a in alpha:
 		models['ridge-'+str(a)] = RidgeClassifier(alpha=a)
+
 	models['sgd'] = SGDClassifier(max_iter=1000, tol=1e-3)
 	models['pa'] = PassiveAggressiveClassifier(max_iter=1000, tol=1e-3)
 	# non-linear models
@@ -82,6 +85,10 @@ def get_classification_models(models=dict(), depth = 1):
 	
 	for k in n_neighbors:
 		models['knn-'+str(k)] = KNeighborsClassifier(n_neighbors=k)
+		
+	for k in n_neighbors:
+		models['rnc-'+str(k)] = RadiusNeighborsClassifier(radius = k/20)
+	models['near'] = NearestCentroid()
 	models['cart'] = DecisionTreeClassifier()
 	models['extra'] = ExtraTreeClassifier()
 	models['svml'] = SVC(kernel='linear')
@@ -93,7 +100,10 @@ def get_classification_models(models=dict(), depth = 1):
 		models['svmr'+str(c)] = SVC(C=c)
 	models['bayes'] = GaussianNB()
 	# ensemble models
-	n_trees = 100
+	if depth == 1:
+		n_trees = 200
+	else:
+		n_trees = 2000
 	models['ada'] = AdaBoostClassifier(n_estimators=n_trees)
 	models['bag'] = BaggingClassifier(n_estimators=n_trees)
 	models['rf'] = RandomForestClassifier(n_estimators=n_trees)
@@ -197,6 +207,7 @@ def make_pipeline(model):
 
 # evaluate a single model
 def evaluate_model(X, y, model, folds, metric):
+	from data_modeling import make_pipeline
 	# create the pipeline
 	pipeline = make_pipeline(model)
 	# evaluate model
@@ -206,6 +217,7 @@ def evaluate_model(X, y, model, folds, metric):
 
 # evaluate a model and try to trap errors and and hide warnings
 def robust_evaluate_model(X, y, model, X_test, folds, metric):
+	from data_modeling import evaluate_model
 	scores = None
 	try:
 		with warnings.catch_warnings():
@@ -220,6 +232,7 @@ def robust_evaluate_model(X, y, model, X_test, folds, metric):
 
 # evaluate a dict of models {name:object}, returns {name:score}
 def evaluate_models(X, y, models, X_test, folds=10, metric='accuracy'):
+	from data_modeling import robust_evaluate_model
 	results = dict()
 	predicted = dict()
 	for name, model in models.items():

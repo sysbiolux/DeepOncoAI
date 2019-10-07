@@ -58,6 +58,26 @@ def remove_outliers(df, method = 'normal', param = 0.05):
 	
 	return df
 
+def get_PCA(df, n_components = 2):
+	"""adds columns corresponding to the PCA components of the dataset"""
+	from sklearn.decomposition import PCA
+	
+	pca = PCA(n_components = 2)
+	principalComponents = pca.fit_transform(df)
+	df_PCs = pd.DataFrame(data = principalComponents, index = df.index, columns = ['PC1', 'PC2'])
+	print(pca.explained_variance_ratio_)
+	
+	return df_PCs
+
+def get_TSNE(df, n_components = 2):
+	from sklearn.manifold import TSNE
+	
+	tsne = TSNE(n_components=2, verbose=1)
+	tsneComponents = tsne.fit_transform(df)
+	
+	df_TSNEs = pd.DataFrame(data = tsneComponents, index = df.index, columns = ['TSNE1', 'TSNE2'])
+	
+	return df_TSNEs
 
 
 
