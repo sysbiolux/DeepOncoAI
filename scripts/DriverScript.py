@@ -37,9 +37,9 @@ Target = 'ActArea'
 
 ###############################################################################
 # Import the data
-dfProt_orig = pd.read_csv('CCLE_RPPA_20181003_test.csv')
+dfProt_orig = pd.read_csv('CCLE_RPPA_20181003.csv')
 dfProt_orig = dfProt_orig.set_index('Unnamed: 0')
-dfDrug_orig = pd.read_csv('CCLE_NP24.2009_Drug_data_2015.02.24_test.csv')
+dfDrug_orig = pd.read_csv('CCLE_NP24.2009_Drug_data_2015.02.24.csv')
 
 dfProt = reduce_mem_usage(dfProt_orig)
 dfDrug = reduce_mem_usage(dfDrug_orig)
@@ -93,8 +93,8 @@ drugZScores = transform_zscores(dfDrug_I_O)
 
 
 # Get Outputs as Resistant (-1), Sensitive (1), Intermediate (0)
-thresholdR = 0.4
-thresholdS = 0.6
+thresholdR = 0.5
+thresholdS = 0.5
 drugResponse = get_drug_response(dfDrug_I_O_N, thresholdR, thresholdS)
 
 # Outputs discretization
@@ -128,7 +128,7 @@ for drug in dfTargets.columns:
 	ax.legend(['R', 'I', 'S'])
 
 
-df_TSNEs = get_TSNE(df_PCs, n_components = 2)
+df_TSNEs = get_TSNE(dfPredictors, n_components = 2)
 
 for drug in dfTargets.columns:
 	fig, ax = plt.subplots()
@@ -188,6 +188,9 @@ if Goal == 'classification':
 		# summarize results
 		thisScores = summarize_results(results, predicted, y_test, thisCol)
 	LD = [LD, thisScores]
+
+
+### extract the
 
 
 

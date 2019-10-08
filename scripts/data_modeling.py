@@ -108,11 +108,13 @@ def get_classification_models(models=dict(), depth = 1):
 	models['rf'] = RandomForestClassifier(n_estimators=n_trees)
 	models['et'] = ExtraTreesClassifier(n_estimators=n_trees)
 	models['gbm'] = GradientBoostingClassifier(n_estimators=n_trees)
-	models['xgb'] = xgb.XGBClassifier(n_estimators=n_trees, nthread=-1)
+	models['xgb'] = xgb.XGBClassifier(maxdepth=3, n_estimators=n_trees, nthread=-1)
+	if depth > 1:
+		models['xgbmax'] = xgb.XGBClassifier(maxdepth=3, n_estimators=n_trees, nthread=-1)
 	if depth == 1:
-		n1_values = [1, 10, 100]
-		n2_values = [1, 10, 100]
-		n3_values = [1, 10, 100]
+		n1_values = [1, 10, 30]
+		n2_values = [1, 10, 30]
+		n3_values = [1, 10, 30]
 	else:
 		n1_values = [1, 5, 10, 50, 200]
 		n2_values = [1, 5, 10, 50, 200]
@@ -245,6 +247,7 @@ def robust_evaluate_model(X, y, model, X_test, folds, metric):
 # evaluate a dict of models {name:object}, returns {name:score}
 def evaluate_models(X, y, models, X_test, folds=10, metric='accuracy'):
 	from data_modeling import robust_evaluate_model
+	import numpy as np
 	results = dict()
 	predicted = dict()
 	for name, model in models.items():
@@ -255,7 +258,7 @@ def evaluate_models(X, y, models, X_test, folds=10, metric='accuracy'):
 			# store a result
 			results[name] = scores
 			predicted[name] = predictions
-			mean_score, std_score, = mean(scores), std(scores)
+			mean_score, std_score, = np.mean(scores), np.std(scores)
 			print('>%s: %.3f (+/-%.3f)' % (name, mean_score, std_score))
 		else:
 			print('>%s: error' % name)
@@ -265,6 +268,7 @@ def evaluate_models(X, y, models, X_test, folds=10, metric='accuracy'):
 def summarize_results(results, predicted, y_test, thisCol, maximize=True, top_n=20):
 	import logging
 	import time
+	import numpy as np
 	timestamp = str(time.time())
 	logging.basicConfig(filename = 'debug_'+timestamp[0:9]+'.log',level=logging.DEBUG)
 
@@ -275,7 +279,7 @@ def summarize_results(results, predicted, y_test, thisCol, maximize=True, top_n=
 	# determine how many results to summarize
 	n = min(top_n, len(results))
 	# create a list of (name, mean(scores)) tuples
-	mean_scores = [(k,mean(v)) for k,v in results.items()]
+	mean_scores = [(k,np.mean(v)) for k,v in results.items()]
 	# sort tuples by mean score
 	mean_scores = sorted(mean_scores, key=lambda x: x[1])
 	# reverse for descending order (e.g. for accuracy)
@@ -289,10 +293,10 @@ def summarize_results(results, predicted, y_test, thisCol, maximize=True, top_n=
 	print()
 	for i in range(n):
 		name = names[i]
-		mean_score, std_score = mean(results[name]), std(results[name])
+		mean_score, std_score = np.mean(results[name]), np.std(results[name])
 		logging.debug('Rank=%d, Name=%s, Score=%.3f (+/- %.3f)' % (i+1, name, mean_score, std_score))
-		logging.debug(confusion_matrix(y_test, predicted))
-	f, axes = plt.subplots(1,1)
+		logging.debug(confusion_matrix(y_test, predicted[name]))
+	f, axes = plt.subplots(1,1, figsize=(50,100))
 	# boxplot for the top n
 	plt.boxplot(scores, labels=names)
 	_, labels = plt.xticks()
@@ -300,7 +304,7 @@ def summarize_results(results, predicted, y_test, thisCol, maximize=True, top_n=
 	thisTitle = (thisCol+'_spotcheck.png')
 	plt.savefig(thisTitle)
 
-	f, axes = plt.subplots(4,5)
+	f, axes = plt.subplots(4,5, figsize=(50,100))
 	for i in range(4):
 		for j in range(5):
 			axes[i,j].plot(y_test, predict[i*5+j], '.k')
