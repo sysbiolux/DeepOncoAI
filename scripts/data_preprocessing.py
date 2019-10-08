@@ -15,10 +15,10 @@ def eliminate_sparse_data(df, colThreshold = 0.5, rowThreshold = 0.5):
 	#df_orig = df.copy()
 	colFil = 1 - df.isna().mean()
 	rowFil = 1 - df.isna().mean(axis = 1)
-	
+
 	df = df.loc[rowFil > rowThreshold, :]
 	df = df.loc[:,colFil > colThreshold]
-	
+
 	return df
 
 def reformat_drugs(df):
@@ -46,37 +46,44 @@ def reformat_drugs(df):
 
 def impute_missing_data(df, method = 'average'):
 	"""imputes computed values for missing data according to the specified method"""
-	##TODO: 
+	##TODO:
 	if method == 'average':
 		df = df.fillna(df.mean())
-	
+
 	return df
 
 def remove_outliers(df, method = 'normal', param = 0.05):
 	"""removes outliers from each column independently according to different methods"""
-	#TODO: 
-	
+	#TODO:
+
 	return df
 
 def get_PCA(df, n_components = 2):
 	"""adds columns corresponding to the PCA components of the dataset"""
 	from sklearn.decomposition import PCA
-	
-	pca = PCA(n_components = 2)
+
+	pca = PCA(n_components = n_components)
 	principalComponents = pca.fit_transform(df)
-	df_PCs = pd.DataFrame(data = principalComponents, index = df.index, columns = ['PC1', 'PC2'])
+	colList = []
+	for n in range(1, n_components+1):
+		colList.append('PC'+str(n))
+
+	df_PCs = pd.DataFrame(data = principalComponents, index = df.index, columns = colList)
 	print(pca.explained_variance_ratio_)
-	
+
 	return df_PCs
 
 def get_TSNE(df, n_components = 2):
 	from sklearn.manifold import TSNE
-	
-	tsne = TSNE(n_components=2, verbose=1)
+
+	tsne = TSNE(n_components = n_components, verbose=1)
 	tsneComponents = tsne.fit_transform(df)
-	
-	df_TSNEs = pd.DataFrame(data = tsneComponents, index = df.index, columns = ['TSNE1', 'TSNE2'])
-	
+	colList = []
+	for n in range(1, n_components+1):
+		colList.append('PC'+str(n))
+
+	df_TSNEs = pd.DataFrame(data = tsneComponents, index = df.index, columns = colList)
+
 	return df_TSNEs
 
 

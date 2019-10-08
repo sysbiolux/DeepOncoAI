@@ -31,15 +31,15 @@ def f(x):
 
 
 ###############################################################################
-	
+
 Goal = 'classification'
 Target = 'ActArea'
 
 ###############################################################################
 # Import the data
-dfProt_orig = pd.read_csv('CCLE_RPPA_20181003.csv')
+dfProt_orig = pd.read_csv('CCLE_RPPA_20181003_test.csv')
 dfProt_orig = dfProt_orig.set_index('Unnamed: 0')
-dfDrug_orig = pd.read_csv('CCLE_NP24.2009_Drug_data_2015.02.24.csv')
+dfDrug_orig = pd.read_csv('CCLE_NP24.2009_Drug_data_2015.02.24_test.csv')
 
 dfProt = reduce_mem_usage(dfProt_orig)
 dfDrug = reduce_mem_usage(dfDrug_orig)
@@ -115,7 +115,7 @@ dfTargetsZscores = dfMergedZscores[drugZScores.columns]
 targets = [-1, 0, 1]
 colors = ['r', 'b', 'g']
 
-df_PCs = get_PCA(dfPredictors, n_components = 2)
+df_PCs = get_PCA(dfPredictors, n_components = 20)
 
 for drug in dfTargets.columns:
 	fig, ax = plt.subplots()
@@ -124,11 +124,11 @@ for drug in dfTargets.columns:
 		idx = dfTargets[drug].values == target
 		toPlot = df_PCs.iloc[idx]
 		ax.scatter(toPlot.iloc[:,0], toPlot.iloc[:,1], c = color, s = 50)
-		
-	ax.legend(['R', 'I', 'S'])
-	
 
-df_TSNEs = get_TSNE(dfPredictors, n_components = 2)
+	ax.legend(['R', 'I', 'S'])
+
+
+df_TSNEs = get_TSNE(df_PCs, n_components = 2)
 
 for drug in dfTargets.columns:
 	fig, ax = plt.subplots()
@@ -137,9 +137,9 @@ for drug in dfTargets.columns:
 		idx = dfTargets[drug].values == target
 		toPlot = df_TSNEs.iloc[idx]
 		ax.scatter(toPlot.iloc[:,0], toPlot.iloc[:,1], c = color, s = 50)
-		
+
 	ax.legend(['R', 'I', 'S'])
-	
+
 
 # Merge reduced dimension with other predictors
 
@@ -172,7 +172,7 @@ if Goal == 'classification':
 	for thisCol in dfTargets.columns:
 		#Withold a test set
 		X_train, X_test, y_train, y_test = train_test_split(dfPredictors, dfTargets[thisCol], test_size=0.2, random_state=42)
-		
+
 		index = y_train.index[y_train.apply(np.isnan)]
 		todrop = index.values.tolist()
 		X_train = X_train.drop(todrop)
@@ -184,12 +184,12 @@ if Goal == 'classification':
 		# get model list
 		models = get_classification_models(depth = 1)
 		# evaluate models
-		results, predicted = evaluate_models(X_train, y_train, models, X_test, metric='accuracy')
+		results, predicted = evaluate_models(X_train, y_train, models, X_test, metric='balanced_accuracy')
 		# summarize results
 		thisScores = summarize_results(results, predicted, y_test, thisCol)
 	LD = [LD, thisScores]
-	
-	
+
+
 
 
 

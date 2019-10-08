@@ -39,18 +39,14 @@ import xgboost as xgb
 from sklearn.neural_network import MLPRegressor
 import pandas as pd
 from sklearn.datasets import make_classification
-from sklearn.model_selection import cross_val_score
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import RidgeClassifier
 from sklearn.linear_model import SGDClassifier
 from sklearn.linear_model import PassiveAggressiveClassifier
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neighbors import RadiusNeighborsClassifier
 from sklearn.neighbors import NearestCentroid
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.tree import ExtraTreeClassifier
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
@@ -59,6 +55,8 @@ from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import confusion_matrix
 
 import seaborn as sns
 sns.set(context='talk')
@@ -68,10 +66,10 @@ def get_classification_models(models=dict(), depth = 1):
 	# linear models
 	models['logistic'] = LogisticRegression()
 	if depth == 1:
-		alpha = [0.01, 0.2, 0.5, 0.8, 0.99, 1.0]
+		alpha = [0, 0.01, 0.1, 0.5, 1.0, 2.0]
 	else:
-		alpha = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 1.0]
-	
+		alpha = [0, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 1.0]
+
 	for a in alpha:
 		models['ridge-'+str(a)] = RidgeClassifier(alpha=a)
 
@@ -82,45 +80,59 @@ def get_classification_models(models=dict(), depth = 1):
 		n_neighbors = [1, 2, 3, 5, 10, 20, 50]
 	else:
 		n_neighbors = range(1, 100)
-	
+
 	for k in n_neighbors:
 		models['knn-'+str(k)] = KNeighborsClassifier(n_neighbors=k)
-		
-	for k in n_neighbors:
-		models['rnc-'+str(k)] = RadiusNeighborsClassifier(radius = k/20)
+
 	models['near'] = NearestCentroid()
 	models['cart'] = DecisionTreeClassifier()
 	models['extra'] = ExtraTreeClassifier()
 	models['svml'] = SVC(kernel='linear')
 	models['svmp'] = SVC(kernel='poly')
 	if depth == 1:
-		c_values = [0.01, 0.2, 0.5, 0.8, 0.99]
-	c_values = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 1.0]
+		c_values = [0, 0.01, 0.2, 0.5, 0.8, 0.99]
+	else:
+		c_values = [0, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 1.0]
+
 	for c in c_values:
 		models['svmr'+str(c)] = SVC(C=c)
 	models['bayes'] = GaussianNB()
 	# ensemble models
 	if depth == 1:
-		n_trees = 200
+		n_trees = 100
 	else:
-		n_trees = 2000
+		n_trees = 1000
 	models['ada'] = AdaBoostClassifier(n_estimators=n_trees)
 	models['bag'] = BaggingClassifier(n_estimators=n_trees)
+	#model['1vsAll'] = OneVsRestClassifier
 	models['rf'] = RandomForestClassifier(n_estimators=n_trees)
 	models['et'] = ExtraTreesClassifier(n_estimators=n_trees)
 	models['gbm'] = GradientBoostingClassifier(n_estimators=n_trees)
 	models['xgb'] = xgb.XGBClassifier(n_estimators=n_trees, nthread=-1)
-	
+	if depth == 1:
+		n1_values = [1, 10, 100]
+		n2_values = [1, 10, 100]
+		n3_values = [1, 10, 100]
+	else:
+		n1_values = [1, 5, 10, 50, 200]
+		n2_values = [1, 5, 10, 50, 200]
+		n3_values = [1, 5, 10, 50, 200]
+
+	for n1 in n1_values:
+		for n2 in n2_values:
+			for n3 in n3_values:
+				models['mlp'+str(n1)+'-'+str(n2)+'-'+str(n3)] = MLPClassifier(solver='sgd', learning_rate_init=0.01, hidden_layer_sizes=(n1, n2, n3), verbose=False,  tol=0.00001, n_iter_no_change=1000, batch_size = 32, max_iter=100000)
+
 	print('Defined %d models' % len(models))
 	return models
- 
+
 
 
 
 
 def get_regression_models(models=dict(), depth = 1):
 	# linear models
-	
+
 	models['lr'] = LinearRegression()
 	if depth == 1:
 		alpha = [0.0, 0.01, 0.5, 2]
@@ -136,7 +148,7 @@ def get_regression_models(models=dict(), depth = 1):
 			name = 'en-' + str(a1) + '-' + str(a2)
 			models[name] = ElasticNet(a1, a2)
 	if depth > 1:
-		
+
 		models['huber'] = HuberRegressor()
 		models['lars'] = Lars()
 		models['llars'] = LassoLars()
@@ -144,13 +156,13 @@ def get_regression_models(models=dict(), depth = 1):
 		models['ranscac'] = RANSACRegressor()
 		models['sgd'] = SGDRegressor(max_iter=10000, tol=1e-4)
 		models['theil'] = TheilSenRegressor(n_jobs=-1)
-	
+
 	# non-linear models
 	if depth == 1:
 		n_neighbors = [2, 5, 7, 20]
 	else:
 		n_neighbors = [2, 3, 4, 5, 7, 10, 20, 50]
-	
+
 	for k in n_neighbors:
 		models['knn-'+str(k)] = KNeighborsRegressor(n_neighbors=k)
 	models['cart'] = DecisionTreeRegressor()
@@ -161,15 +173,15 @@ def get_regression_models(models=dict(), depth = 1):
 		c_values = [0.01, 0.2, 0.5, 0.75, 0.99, 1]
 	else:
 		c_values = [0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.99, 1]
-		
+
 	for c in c_values:
 		models['svmr'+str(c)] = SVR(C=c)
 	# ensemble models
 	if depth == 1:
-		n_trees = 200
+		n_trees = 100
 	else:
-		n_trees = 2000
-	
+		n_trees = 1000
+
 	models['ada'] = AdaBoostRegressor(n_estimators=n_trees)
 	models['bag'] = BaggingRegressor(n_estimators=n_trees, n_jobs=-1)
 	models['rf'] = RandomForestRegressor(n_estimators=n_trees, n_jobs=-1)
@@ -184,7 +196,7 @@ def get_regression_models(models=dict(), depth = 1):
 		n1_values = [1, 5, 10, 50, 200]
 		n2_values = [1, 5, 10, 50, 200]
 		n3_values = [1, 5, 10, 50, 200]
-	
+
 	for n1 in n1_values:
 		for n2 in n2_values:
 			for n3 in n3_values:
@@ -251,6 +263,11 @@ def evaluate_models(X, y, models, X_test, folds=10, metric='accuracy'):
 
 # print and plot the top n results
 def summarize_results(results, predicted, y_test, thisCol, maximize=True, top_n=20):
+	import logging
+	import time
+	timestamp = str(time.time())
+	logging.basicConfig(filename = 'debug_'+timestamp[0:9]+'.log',level=logging.DEBUG)
+
 	# check for no results
 	if len(results) == 0:
 		print('no results')
@@ -273,13 +290,16 @@ def summarize_results(results, predicted, y_test, thisCol, maximize=True, top_n=
 	for i in range(n):
 		name = names[i]
 		mean_score, std_score = mean(results[name]), std(results[name])
-		print('Rank=%d, Name=%s, Score=%.3f (+/- %.3f)' % (i+1, name, mean_score, std_score))
+		logging.debug('Rank=%d, Name=%s, Score=%.3f (+/- %.3f)' % (i+1, name, mean_score, std_score))
+		logging.debug(confusion_matrix(y_test, predicted))
+	f, axes = plt.subplots(1,1)
 	# boxplot for the top n
 	plt.boxplot(scores, labels=names)
 	_, labels = plt.xticks()
 	plt.setp(labels, rotation=90)
 	thisTitle = (thisCol+'_spotcheck.png')
 	plt.savefig(thisTitle)
+
 	f, axes = plt.subplots(4,5)
 	for i in range(4):
 		for j in range(5):
