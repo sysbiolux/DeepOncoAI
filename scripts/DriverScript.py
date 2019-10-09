@@ -7,7 +7,7 @@ Created on Fri Jul 19 14:18:14 2019
 """
 
 from data_characterization import explore_shape, reduce_mem_usage, show_me_the_data
-from data_preprocessing import reformat_drugs, eliminate_sparse_data, impute_missing_data, remove_outliers, get_PCA, get_TSNE
+from data_preprocessing import reformat_drugs, eliminate_sparse_data, impute_missing_data, remove_outliers, get_PCA, get_TSNE, select_top_features
 from outputs_engineering import transform_zscores, get_drug_response
 from feature_engineering import add_polynomials, categorize_data
 from data_modeling import get_regression_models, get_classification_models, evaluate_models, summarize_results
@@ -18,6 +18,10 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn import preprocessing as pp
+import logging
+import time
+timestamp = str(time.time())
+logging.basicConfig(filename = 'debug_'+timestamp[0:9]+'.log',level=logging.DEBUG)
 
 sns.set(context='talk')
 import numba
@@ -145,52 +149,46 @@ for drug in dfTargets.columns:
 
 dfPredictors = pd.merge(dfPredictors, pd.merge(df_PCs, df_TSNEs, left_index = True, right_index = True), left_index = True, right_index = True)
 
-#############################################################################
-
-
 if Goal == 'regression':
-	for thisCol in dfTargetsZscores.columns:
-		#Withold a test set
-		X_train, X_test, y_train, y_test = train_test_split(dfPredictors, dfTargetsZscores[thisCol], test_size=0.2, random_state=42)
-		index = y_train.index[y_train.apply(np.isnan)]
-		todrop = index.values.tolist()
-		X_train = X_train.drop(todrop)
-		y_train = y_train.drop(todrop)
-		index = y_test.index[y_test.apply(np.isnan)]
-		todrop = index.values.tolist()
-		X_test = X_test.drop(todrop)
-		y_test = y_test.drop(todrop)
-		# get model list
+	y = dfTargetsZscores
+if Goal == 'classification':
+	y = dfTargets
+X = dfPredictors.copy()
+
+# Perform rough feature selection
+X = select_top_features(X, y)
+
+
+##############################################################################
+
+
+
+LD = []
+for thisCol in dfTargetsZscores.columns:
+	#Withold a test set
+	X_train, X_test, y_train, y_test = train_test_split(dfPredictors, y[thisCol], test_size=0.2, random_state=42)
+	index = y_train.index[y_train.apply(np.isnan)]
+	todrop = index.values.tolist()
+	X_train = X_train.drop(todrop)
+	y_train = y_train.drop(todrop)
+	index = y_test.index[y_test.apply(np.isnan)]
+	todrop = index.values.tolist()
+	X_test = X_test.drop(todrop)
+	y_test = y_test.drop(todrop)
+	# get model list
+	if Goal == 'regression':
 		models = get_regression_models(depth = 1)
 		# evaluate models
 		results, predicted = evaluate_models(X_train, y_train, models, X_test, metric='neg_mean_squared_error')
-		# summarize results
-		thisScores = summarize_results(results, predicted, y_test, thisCol)
-
-if Goal == 'classification':
-	LD = []
-	for thisCol in dfTargets.columns:
-		#Withold a test set
-		X_train, X_test, y_train, y_test = train_test_split(dfPredictors, dfTargets[thisCol], test_size=0.2, random_state=42)
-
-		index = y_train.index[y_train.apply(np.isnan)]
-		todrop = index.values.tolist()
-		X_train = X_train.drop(todrop)
-		y_train = y_train.drop(todrop)
-		index = y_test.index[y_test.apply(np.isnan)]
-		todrop = index.values.tolist()
-		X_test = X_test.drop(todrop)
-		y_test = y_test.drop(todrop)
-		# get model list
+	if Goal == 'classification':
 		models = get_classification_models(depth = 1)
 		# evaluate models
 		results, predicted = evaluate_models(X_train, y_train, models, X_test, metric='balanced_accuracy')
-		# summarize results
-		thisScores = summarize_results(results, predicted, y_test, thisCol)
-	LD = [LD, thisScores]
+	# summarize results
+	thisScores = summarize_results(results, predicted, y_test, thisCol)
+LD = [LD, thisScores]
 
 
-### extract the
 
 
 

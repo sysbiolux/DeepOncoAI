@@ -86,6 +86,36 @@ def get_TSNE(df, n_components = 2):
 
 	return df_TSNEs
 
+def select_top_features(X, y, threshold=0):
+	# Perform rough feature selection
+	import xgboost as xgb
+	from sklearn.metrics import balanced_accuracy_score
+	from sklearn.model_selection import train_test_split
+
+	featureScores = pd.DataFrame()
+	for col in y.columns:
+		# split data into train and test sets
+		X_train, X_test, y_train, y_test = train_test_split(X, y[col], test_size=0.33, random_state=42)
+		# fit model on all training data
+		model = xgb.XGBClassifier()
+		model.fit(X_train, y_train)
+		# make predictions for test data and evaluate
+		y_pred = model.predict(X_test)
+		predictions = [round(value) for value in y_pred]
+		accuracy = balanced_accuracy_score(y_test, predictions)
+		print("Accuracy: %.2f%%" % (accuracy * 100.0))
+		if featureScores.empty:
+			featureScores = pd.Series(data=model.feature_importances_, name=col)
+		else:
+			featureScores = pd.concat([featureScores, pd.Series(data=model.feature_importances_, name=col)], axis=1)
+
+	meanFeatureScores = np.mean(featureScores, axis=1)
+	toDrop = meanFeatureScores <= threshold
+	Xd = X[X.columns[~toDrop]]
+
+	return Xd
+
+
 
 
 

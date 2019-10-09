@@ -58,6 +58,8 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import confusion_matrix
 
+import logging
+
 import seaborn as sns
 sns.set(context='talk')
 
@@ -65,7 +67,7 @@ sns.set(context='talk')
 def get_classification_models(models=dict(), depth = 1):
 	# linear models
 	models['logistic'] = LogisticRegression()
-	if depth == 1:
+	if depth < 2:
 		alpha = [0, 0.01, 0.1, 0.5, 1.0, 2.0]
 	else:
 		alpha = [0, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 1.0]
@@ -76,8 +78,8 @@ def get_classification_models(models=dict(), depth = 1):
 	models['sgd'] = SGDClassifier(max_iter=1000, tol=1e-3)
 	models['pa'] = PassiveAggressiveClassifier(max_iter=1000, tol=1e-3)
 	# non-linear models
-	if depth == 1:
-		n_neighbors = [1, 2, 3, 5, 10, 20, 50]
+	if depth < 2:
+		n_neighbors = [1, 2, 3, 5, 7, 10, 20, 30]
 	else:
 		n_neighbors = range(1, 100)
 
@@ -98,7 +100,7 @@ def get_classification_models(models=dict(), depth = 1):
 		models['svmr'+str(c)] = SVC(C=c)
 	models['bayes'] = GaussianNB()
 	# ensemble models
-	if depth == 1:
+	if depth < 2:
 		n_trees = 100
 	else:
 		n_trees = 1000
@@ -109,9 +111,17 @@ def get_classification_models(models=dict(), depth = 1):
 	models['et'] = ExtraTreesClassifier(n_estimators=n_trees)
 	models['gbm'] = GradientBoostingClassifier(n_estimators=n_trees)
 	models['xgb'] = xgb.XGBClassifier(maxdepth=3, n_estimators=n_trees, nthread=-1)
+	if depth > 2:
+		n_trees = n_trees*2
+
 	if depth > 1:
-		models['xgbmax'] = xgb.XGBClassifier(maxdepth=3, n_estimators=n_trees, nthread=-1)
-	if depth == 1:
+		models['xgbmax1'] = xgb.XGBClassifier(maxdepth=4, n_estimators=n_trees, nthread=-1)
+		models['adamax1'] = AdaBoostClassifier(n_estimators=n_trees, learning_rate=0.1)
+		models['rfmax1'] = RandomForestClassifier(n_estimators=n_trees, criterion= 'entropy', min_samples_split=4)
+		models['etmax1'] = ExtraTreesClassifier(n_estimators=n_trees, bootstrap=True, criterion= 'entropy')
+		models['gbmmax1'] = GradientBoostingClassifier(n_estimators=n_trees,  learning_rate=0.02)
+
+	if depth < 2:
 		n1_values = [1, 10, 30]
 		n2_values = [1, 10, 30]
 		n3_values = [1, 10, 30]
@@ -136,7 +146,7 @@ def get_regression_models(models=dict(), depth = 1):
 	# linear models
 
 	models['lr'] = LinearRegression()
-	if depth == 1:
+	if depth < 2:
 		alpha = [0.0, 0.01, 0.5, 2]
 	else:
 		alpha = [0.0, 0.01, 0.1, 0.2, 0.5, 0.7, 1, 2]
@@ -160,7 +170,7 @@ def get_regression_models(models=dict(), depth = 1):
 		models['theil'] = TheilSenRegressor(n_jobs=-1)
 
 	# non-linear models
-	if depth == 1:
+	if depth < 2:
 		n_neighbors = [2, 5, 7, 20]
 	else:
 		n_neighbors = [2, 3, 4, 5, 7, 10, 20, 50]
@@ -179,7 +189,7 @@ def get_regression_models(models=dict(), depth = 1):
 	for c in c_values:
 		models['svmr'+str(c)] = SVR(C=c)
 	# ensemble models
-	if depth == 1:
+	if depth < 2:
 		n_trees = 100
 	else:
 		n_trees = 1000
@@ -222,11 +232,11 @@ def make_pipeline(model):
 # evaluate a single model
 def evaluate_model(X, y, model, folds, metric):
 	from data_modeling import make_pipeline
+
 	# create the pipeline
 	pipeline = make_pipeline(model)
 	# evaluate model
 	scores = cross_val_score(pipeline, X, y, scoring=metric, cv=folds, n_jobs=-1)
-
 	return scores
 
 # evaluate a model and try to trap errors and and hide warnings
@@ -246,13 +256,18 @@ def robust_evaluate_model(X, y, model, X_test, folds, metric):
 
 # evaluate a dict of models {name:object}, returns {name:score}
 def evaluate_models(X, y, models, X_test, folds=10, metric='accuracy'):
+
 	from data_modeling import robust_evaluate_model
-	import numpy as np
+	import logging
+	import time
 	results = dict()
 	predicted = dict()
 	for name, model in models.items():
 		# evaluate the model
+		logging.debug('Fitting model %s' % (name))
+		time_start = time.clock()
 		scores, predictions = robust_evaluate_model(X, y, model, X_test, folds, metric)
+		logging.debug('Elapsed time: %.3f seconds' % ((time.clock() - time_start)))
 		# show process
 		if scores is not None:
 			# store a result
@@ -266,11 +281,8 @@ def evaluate_models(X, y, models, X_test, folds=10, metric='accuracy'):
 
 # print and plot the top n results
 def summarize_results(results, predicted, y_test, thisCol, maximize=True, top_n=20):
-	import logging
 	import time
 	import numpy as np
-	timestamp = str(time.time())
-	logging.basicConfig(filename = 'debug_'+timestamp[0:9]+'.log',level=logging.DEBUG)
 
 	# check for no results
 	if len(results) == 0:
