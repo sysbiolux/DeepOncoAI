@@ -36,6 +36,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 import xgboost as xgb
+import rotation_forest as rot
 from sklearn.neural_network import MLPRegressor
 import pandas as pd
 from sklearn.datasets import make_classification
@@ -45,6 +46,8 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.linear_model import PassiveAggressiveClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import NearestCentroid
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.gaussian_process.kernels import RBF
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.tree import ExtraTreeClassifier
@@ -57,6 +60,8 @@ from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import confusion_matrix
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from sklearn.metrics import roc_auc_score
 
 import logging
 
@@ -89,12 +94,14 @@ def get_classification_models(models=dict(), depth = 1):
 	models['near'] = NearestCentroid()
 	models['cart'] = DecisionTreeClassifier()
 	models['extra'] = ExtraTreeClassifier()
+	models['rbf'] =  GaussianProcessClassifier(1.0 * RBF(1.0))
+	models['qda'] = QuadraticDiscriminantAnalysis()
 	models['svml'] = SVC(kernel='linear')
 	models['svmp'] = SVC(kernel='poly')
 	if depth == 1:
-		c_values = [0, 0.01, 0.2, 0.5, 0.8, 0.99]
+		c_values = [0.01, 0.2, 0.5, 0.8, 0.99]
 	else:
-		c_values = [0, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 1.0]
+		c_values = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 1.0]
 
 	for c in c_values:
 		models['svmr'+str(c)] = SVC(C=c)
@@ -110,6 +117,8 @@ def get_classification_models(models=dict(), depth = 1):
 	models['rf'] = RandomForestClassifier(n_estimators=n_trees)
 	models['et'] = ExtraTreesClassifier(n_estimators=n_trees)
 	models['gbm'] = GradientBoostingClassifier(n_estimators=n_trees)
+	models['rot'] = rot.RotationForestClassifier(n_estimators=n_trees)
+	models['rotrnd'] = rot.RotationForestClassifier(n_estimators=n_trees, rotation_algo='randomized')
 	models['xgb'] = xgb.XGBClassifier(maxdepth=3, n_estimators=n_trees, nthread=-1)
 	if depth > 2:
 		n_trees = n_trees*2
@@ -119,21 +128,25 @@ def get_classification_models(models=dict(), depth = 1):
 		models['adamax1'] = AdaBoostClassifier(n_estimators=n_trees, learning_rate=0.1)
 		models['rfmax1'] = RandomForestClassifier(n_estimators=n_trees, criterion= 'entropy', min_samples_split=4)
 		models['etmax1'] = ExtraTreesClassifier(n_estimators=n_trees, bootstrap=True, criterion= 'entropy')
-		models['gbmmax1'] = GradientBoostingClassifier(n_estimators=n_trees,  learning_rate=0.02)
+		models['gbmmax1'] = GradientBoostingClassifier(n_estimators=n_trees, learning_rate=0.02)
+		models['rotmax'] = rot.RotationForestClassifier(n_estimators=n_trees)
+		models['rotrnd'] = rot.RotationForestClassifier(n_estimators=n_trees, rotation_algo='randomized')
+		models['xgbmax2'] = xgb.XGBClassifier(maxdepth=5, n_estimators=n_trees, nthread=-1)
 
-	if depth < 2:
-		n1_values = [1, 10, 30]
-		n2_values = [1, 10, 30]
-		n3_values = [1, 10, 30]
-	else:
-		n1_values = [1, 5, 10, 50, 200]
-		n2_values = [1, 5, 10, 50, 200]
-		n3_values = [1, 5, 10, 50, 200]
-
-	for n1 in n1_values:
-		for n2 in n2_values:
-			for n3 in n3_values:
-				models['mlp'+str(n1)+'-'+str(n2)+'-'+str(n3)] = MLPClassifier(solver='sgd', learning_rate_init=0.01, hidden_layer_sizes=(n1, n2, n3), verbose=False,  tol=0.00001, n_iter_no_change=1000, batch_size = 32, max_iter=100000)
+	if depth > 1.5:
+		n1_values = [2, 4, 8]
+		n2_values = [4, 8, 16]
+		n3_values = [2, 4, 8]
+		nMax = 1000
+		if depth >= 2:
+			n1_values = [2, 4, 8, 16, 32]
+			n2_values = [4, 8, 16, 32, 64]
+			n3_values = [2, 4, 8, 16, 32]
+			nMax = 10000
+		for n1 in n1_values:
+			for n2 in n2_values:
+				for n3 in n3_values:
+					models['mlp'+str(n1)+'-'+str(n2)+'-'+str(n3)] = MLPClassifier(solver='sgd', learning_rate='adaptive', learning_rate_init=0.01, hidden_layer_sizes=(n1, n2, n3), verbose=True,  tol=0.00001, n_iter_no_change=nMax/2, batch_size = 32, max_iter=nMax)
 
 	print('Defined %d models' % len(models))
 	return models
@@ -200,19 +213,20 @@ def get_regression_models(models=dict(), depth = 1):
 	models['et'] = ExtraTreesRegressor(n_estimators=n_trees, n_jobs=-1)
 	models['gbm'] = GradientBoostingRegressor(n_estimators=n_trees)
 	models['xgb'] = xgb.XGBRegressor(n_estimators=n_trees, nthread=-1)
-	if depth == 1:
-		n1_values = [1, 10, 100]
-		n2_values = [1, 10, 100]
-		n3_values = [1, 10, 100]
-	else:
-		n1_values = [1, 5, 10, 50, 200]
-		n2_values = [1, 5, 10, 50, 200]
-		n3_values = [1, 5, 10, 50, 200]
-
-	for n1 in n1_values:
-		for n2 in n2_values:
-			for n3 in n3_values:
-				models['mlp'+str(n1)+'-'+str(n2)+'-'+str(n3)] = MLPRegressor(solver='sgd', learning_rate_init=0.01, hidden_layer_sizes=(n1, n2, n3), verbose=False,  tol=0.00001, n_iter_no_change=1000, batch_size = 32, max_iter=100000)
+	if depth > 1.5:
+		n1_values = [2, 4, 8]
+		n2_values = [4, 8, 16]
+		n3_values = [2, 4, 8]
+		nMax = 1000
+		if depth >= 2:
+			n1_values = [2, 4, 8, 16, 32]
+			n2_values = [4, 8, 16, 32, 64]
+			n3_values = [2, 4, 8, 16, 32]
+			nMax = 10000
+		for n1 in n1_values:
+			for n2 in n2_values:
+				for n3 in n3_values:
+					models['mlp'+str(n1)+'-'+str(n2)+'-'+str(n3)] = MLPRegressor(solver='sgd', learning_rate='adaptive', learning_rate_init=0.01, hidden_layer_sizes=(n1, n2, n3), verbose=False,  tol=0.00001, n_iter_no_change=1000, batch_size = 32, max_iter=100000)
 	print('Defined %d models' % len(models))
 	return models
 
@@ -268,6 +282,7 @@ def evaluate_models(X, y, models, X_test, folds=10, metric='accuracy'):
 		time_start = time.clock()
 		scores, predictions = robust_evaluate_model(X, y, model, X_test, folds, metric)
 		logging.debug('Elapsed time: %.3f seconds' % ((time.clock() - time_start)))
+		print('Elapsed time: %.3f seconds' % ((time.clock() - time_start)))
 		# show process
 		if scores is not None:
 			# store a result
@@ -301,6 +316,7 @@ def summarize_results(results, predicted, y_test, thisCol, maximize=True, top_n=
 	names = [x[0] for x in mean_scores[:n]]
 	scores = [results[x[0]] for x in mean_scores[:n]]
 	predict = [predicted[x[0]] for x in mean_scores[:n]]
+	logging.debug('Target = %s' %(thisCol))
 	# print the top n
 	print()
 	for i in range(n):

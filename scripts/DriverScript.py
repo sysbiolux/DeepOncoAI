@@ -20,10 +20,7 @@ import matplotlib.pyplot as plt
 from sklearn import preprocessing as pp
 import logging
 import time
-timestamp = str(time.time())
-logging.basicConfig(filename = 'debug_'+timestamp[0:9]+'.log',level=logging.DEBUG)
 
-sns.set(context='talk')
 import numba
 #Acceleration
 @numba.jit
@@ -33,11 +30,16 @@ def f(x):
 def f(x):
 	return x
 
+timestamp = str(time.time())
+logging.basicConfig(filename = 'debug_'+timestamp[0:9]+'.log',level=logging.DEBUG)
+
+sns.set(context='talk')
+
 
 ###############################################################################
 
 Goal = 'classification'
-Target = 'ActArea'
+Target = 'IC50'
 
 ###############################################################################
 # Import the data
@@ -97,8 +99,8 @@ drugZScores = transform_zscores(dfDrug_I_O)
 
 
 # Get Outputs as Resistant (-1), Sensitive (1), Intermediate (0)
-thresholdR = 0.5
-thresholdS = 0.5
+thresholdR = np.mean(dfDrug_I_O_N, axis = 0)
+thresholdS = thresholdR
 drugResponse = get_drug_response(dfDrug_I_O_N, thresholdR, thresholdS)
 
 # Outputs discretization
@@ -114,6 +116,7 @@ dfMergedZscores = pd.merge(dfExtended, drugZScores, left_index = True, right_ind
 dfPredictors = dfMerged[dfExtended.columns]
 dfTargets = dfMerged[drugResponse.columns]
 dfTargetsZscores = dfMergedZscores[drugZScores.columns]
+
 
 #Dimension reduction
 targets = [-1, 0, 1]
@@ -155,26 +158,35 @@ if Goal == 'classification':
 	y = dfTargets
 X = dfPredictors.copy()
 
+# Visualize the data
+show_me_the_data(y)
+
+
 # Perform rough feature selection
-X = select_top_features(X, y)
+X = select_top_features(X, y, threshold=0)
 
 
 ##############################################################################
 
 
 
-LD = []
+
+
+X_train, X_test, y_train, y_test = train_test_split(X, y[thisCol], test_size=0.2, random_state=42)
+index = y_train.index[y_train.apply(np.isnan)]
+todrop = index.values.tolist()
+X_train = X_train.drop(todrop)
+y_train = y_train.drop(todrop)
+index = y_test.index[y_test.apply(np.isnan)]
+todrop = index.values.tolist()
+X_test = X_test.drop(todrop)
+y_test = y_test.drop(todrop)
+
+
 for thisCol in dfTargetsZscores.columns:
 	#Withold a test set
-	X_train, X_test, y_train, y_test = train_test_split(dfPredictors, y[thisCol], test_size=0.2, random_state=42)
-	index = y_train.index[y_train.apply(np.isnan)]
-	todrop = index.values.tolist()
-	X_train = X_train.drop(todrop)
-	y_train = y_train.drop(todrop)
-	index = y_test.index[y_test.apply(np.isnan)]
-	todrop = index.values.tolist()
-	X_test = X_test.drop(todrop)
-	y_test = y_test.drop(todrop)
+	logging.debug('Investigating %s' % (thisCol))
+	print('Investigating %s' % (thisCol))
 	# get model list
 	if Goal == 'regression':
 		models = get_regression_models(depth = 1)
@@ -186,7 +198,17 @@ for thisCol in dfTargetsZscores.columns:
 		results, predicted = evaluate_models(X_train, y_train, models, X_test, metric='balanced_accuracy')
 	# summarize results
 	thisScores = summarize_results(results, predicted, y_test, thisCol)
-LD = [LD, thisScores]
+
+
+np.set_printoptions(precision=2)
+
+# Plot non-normalized confusion matrix
+plot_confusion_matrix(y_test, predicted, classes=['R', 'S'], title='Confusion matrix, without normalization')
+
+# Plot normalized confusion matrix
+plot_confusion_matrix(y_test, y_pred, classes=classes=['R', 'S'], normalize=True, title='Normalized confusion matrix')
+
+plt.show()
 
 
 

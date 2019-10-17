@@ -90,7 +90,7 @@ def best_fit_distribution(df, bins=200, ax=None):
 	# Get histogram of original data
 	y, x = np.histogram(df, bins=bins, density=True)
 	x = (x + np.roll(x, -1))[:-1] / 2.0
-	
+
 	import scipy.stats as st
 	import statsmodels as sm
 	import seaborn as sns
@@ -155,12 +155,12 @@ def make_pdf(dist, params, size=10000):
 	import seaborn as sns
 	import matplotlib
 	import matplotlib.pyplot as plt
-	
+
 	# Separate parts of parameters
 	arg = params[:-2]
 	loc = params[-2]
 	scale = params[-1]
-	
+
 	best_dist = getattr(st, dist)
 
 	# Get sane start and end points of distribution
@@ -182,14 +182,27 @@ def show_me_the_data(df):
 
 	sns.violinplot(data=df)
 
+	ncol = df.shape[1]
+
+	l = np.intc(np.ceil(np.sqrt(ncol)))
+
+	c = np.intc(np.ceil(ncol/l))
+	np.intc
+
+	f, axes = plt.subplots(l, c, figsize=(50,100))
+
+	axes = axes.ravel()
+	count = 0
+
 	for col in df.columns:
 		df2 = df[col]
 		bestDistrib, bestParams = best_fit_distribution(df2)
 		pdf = make_pdf(bestDistrib, bestParams)
-		f, axes = plt.subplots(1, 1)
-		sns.distplot(df2, kde=True, rug=True, label='data')
-		sns.lineplot(x=pdf.index, y=pdf, label=bestDistrib)
+
+		sns.distplot(df2, kde=True, rug=True, label='data', ax=axes[count])
+		sns.lineplot(x=pdf.index, y=pdf, label=bestDistrib, ax=axes[count])
 		plt.legend()
+		count = count + 1
 
 
 

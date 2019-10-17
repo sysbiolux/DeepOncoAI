@@ -1,0 +1,1426 @@
+##############################
+DEBUG:root:Target = AEW541_IC50
+DEBUG:root:Rank=1, Name=gbm, Score=0.595 (+/- 0.085)
+DEBUG:root:[[17 21]
+ [15 39]]
+DEBUG:root:Rank=2, Name=xgb, Score=0.593 (+/- 0.085)
+DEBUG:root:[[13 25]
+ [13 41]]
+DEBUG:root:Rank=3, Name=rbf, Score=0.585 (+/- 0.100)
+DEBUG:root:[[19 19]
+ [13 41]]
+DEBUG:root:Rank=4, Name=knn-1, Score=0.583 (+/- 0.099)
+DEBUG:root:[[19 19]
+ [12 42]]
+DEBUG:root:Rank=5, Name=ada, Score=0.575 (+/- 0.112)
+DEBUG:root:[[23 15]
+ [16 38]]
+DEBUG:root:Rank=6, Name=knn-3, Score=0.564 (+/- 0.079)
+DEBUG:root:[[20 18]
+ [14 40]]
+DEBUG:root:Rank=7, Name=logistic, Score=0.561 (+/- 0.080)
+DEBUG:root:[[18 20]
+ [19 35]]
+DEBUG:root:Rank=8, Name=et, Score=0.560 (+/- 0.039)
+DEBUG:root:[[18 20]
+ [ 9 45]]
+DEBUG:root:Rank=9, Name=pa, Score=0.557 (+/- 0.050)
+DEBUG:root:[[21 17]
+ [20 34]]
+DEBUG:root:Rank=10, Name=cart, Score=0.553 (+/- 0.081)
+DEBUG:root:[[21 17]
+ [26 28]]
+DEBUG:root:Rank=11, Name=knn-10, Score=0.551 (+/- 0.073)
+DEBUG:root:[[16 22]
+ [14 40]]
+DEBUG:root:Rank=12, Name=bag, Score=0.549 (+/- 0.077)
+DEBUG:root:[[18 20]
+ [ 9 45]]
+DEBUG:root:Rank=13, Name=ridge-0.5, Score=0.544 (+/- 0.097)
+DEBUG:root:[[19 19]
+ [22 32]]
+DEBUG:root:Rank=14, Name=rf, Score=0.543 (+/- 0.036)
+DEBUG:root:[[10 28]
+ [10 44]]
+DEBUG:root:Rank=15, Name=ridge-0.01, Score=0.543 (+/- 0.102)
+DEBUG:root:[[19 19]
+ [22 32]]
+DEBUG:root:Rank=16, Name=ridge-0.1, Score=0.541 (+/- 0.102)
+DEBUG:root:[[19 19]
+ [22 32]]
+DEBUG:root:Rank=17, Name=qda, Score=0.540 (+/- 0.082)
+DEBUG:root:[[16 22]
+ [16 38]]
+DEBUG:root:Rank=18, Name=ridge-1.0, Score=0.540 (+/- 0.099)
+DEBUG:root:[[19 19]
+ [22 32]]
+DEBUG:root:Rank=19, Name=ridge-0, Score=0.539 (+/- 0.100)
+DEBUG:root:[[19 19]
+ [22 32]]
+DEBUG:root:Rank=20, Name=ridge-2.0, Score=0.538 (+/- 0.091)
+DEBUG:root:[[18 20]
+ [21 33]]
+##############################
+DEBUG:root:Target = Nilotinib_IC50
+DEBUG:root:Rank=1, Name=rbf, Score=0.599 (+/- 0.075)
+DEBUG:root:[[10 28]
+ [17 37]]
+DEBUG:root:Rank=2, Name=knn-3, Score=0.595 (+/- 0.061)
+DEBUG:root:[[11 27]
+ [13 41]]
+DEBUG:root:Rank=3, Name=logistic, Score=0.593 (+/- 0.053)
+DEBUG:root:[[15 23]
+ [10 44]]
+DEBUG:root:Rank=4, Name=knn-1, Score=0.592 (+/- 0.076)
+DEBUG:root:[[ 9 29]
+ [18 36]]
+DEBUG:root:Rank=5, Name=gbm, Score=0.588 (+/- 0.045)
+DEBUG:root:[[ 8 30]
+ [13 41]]
+DEBUG:root:Rank=6, Name=pa, Score=0.588 (+/- 0.036)
+DEBUG:root:[[16 22]
+ [14 40]]
+DEBUG:root:Rank=7, Name=svml, Score=0.584 (+/- 0.042)
+DEBUG:root:[[17 21]
+ [15 39]]
+DEBUG:root:Rank=8, Name=knn-5, Score=0.583 (+/- 0.054)
+DEBUG:root:[[ 5 33]
+ [10 44]]
+DEBUG:root:Rank=9, Name=ridge-2.0, Score=0.583 (+/- 0.024)
+DEBUG:root:[[16 22]
+ [13 41]]
+DEBUG:root:Rank=10, Name=bayes, Score=0.580 (+/- 0.084)
+DEBUG:root:[[23 15]
+ [22 32]]
+DEBUG:root:Rank=11, Name=xgb, Score=0.578 (+/- 0.057)
+DEBUG:root:[[10 28]
+ [14 40]]
+DEBUG:root:Rank=12, Name=knn-2, Score=0.576 (+/- 0.057)
+DEBUG:root:[[21 17]
+ [33 21]]
+DEBUG:root:Rank=13, Name=ridge-1.0, Score=0.571 (+/- 0.037)
+DEBUG:root:[[16 22]
+ [16 38]]
+DEBUG:root:Rank=14, Name=sgd, Score=0.566 (+/- 0.039)
+DEBUG:root:[[25 13]
+ [29 25]]
+DEBUG:root:Rank=15, Name=rf, Score=0.565 (+/- 0.047)
+DEBUG:root:[[ 8 30]
+ [ 8 46]]
+DEBUG:root:Rank=16, Name=ridge-0.5, Score=0.563 (+/- 0.053)
+DEBUG:root:[[15 23]
+ [16 38]]
+DEBUG:root:Rank=17, Name=bag, Score=0.562 (+/- 0.062)
+DEBUG:root:[[ 8 30]
+ [ 9 45]]
+DEBUG:root:Rank=18, Name=knn-10, Score=0.553 (+/- 0.044)
+DEBUG:root:[[ 7 31]
+ [15 39]]
+DEBUG:root:Rank=19, Name=knn-7, Score=0.551 (+/- 0.065)
+DEBUG:root:[[ 7 31]
+ [ 7 47]]
+DEBUG:root:Rank=20, Name=et, Score=0.548 (+/- 0.047)
+DEBUG:root:[[ 5 33]
+ [ 6 48]]
+##############################
+DEBUG:root:Target = 17-AAG_IC50
+DEBUG:root:Rank=1, Name=bayes, Score=0.625 (+/- 0.152)
+DEBUG:root:[[52 27]
+ [ 5  8]]
+DEBUG:root:Rank=2, Name=ridge-0.1, Score=0.606 (+/- 0.089)
+DEBUG:root:[[67 12]
+ [ 6  7]]
+DEBUG:root:Rank=3, Name=ridge-0.01, Score=0.603 (+/- 0.098)
+DEBUG:root:[[66 13]
+ [ 6  7]]
+DEBUG:root:Rank=4, Name=ridge-0, Score=0.603 (+/- 0.098)
+DEBUG:root:[[66 13]
+ [ 6  7]]
+DEBUG:root:Rank=5, Name=svml, Score=0.602 (+/- 0.083)
+DEBUG:root:[[64 15]
+ [ 7  6]]
+DEBUG:root:Rank=6, Name=ridge-2.0, Score=0.595 (+/- 0.070)
+DEBUG:root:[[70  9]
+ [ 7  6]]
+DEBUG:root:Rank=7, Name=ridge-0.5, Score=0.588 (+/- 0.082)
+DEBUG:root:[[68 11]
+ [ 6  7]]
+DEBUG:root:Rank=8, Name=ridge-1.0, Score=0.585 (+/- 0.075)
+DEBUG:root:[[68 11]
+ [ 6  7]]
+DEBUG:root:Rank=9, Name=pa, Score=0.582 (+/- 0.087)
+DEBUG:root:[[63 16]
+ [ 6  7]]
+DEBUG:root:Rank=10, Name=gbm, Score=0.560 (+/- 0.075)
+DEBUG:root:[[77  2]
+ [11  2]]
+DEBUG:root:Rank=11, Name=sgd, Score=0.557 (+/- 0.108)
+DEBUG:root:[[59 20]
+ [ 6  7]]
+DEBUG:root:Rank=12, Name=near, Score=0.555 (+/- 0.077)
+DEBUG:root:[[33 46]
+ [ 3 10]]
+DEBUG:root:Rank=13, Name=logistic, Score=0.555 (+/- 0.087)
+DEBUG:root:[[71  8]
+ [ 7  6]]
+DEBUG:root:Rank=14, Name=knn-3, Score=0.553 (+/- 0.070)
+DEBUG:root:[[73  6]
+ [ 8  5]]
+DEBUG:root:Rank=15, Name=ada, Score=0.552 (+/- 0.070)
+DEBUG:root:[[73  6]
+ [10  3]]
+DEBUG:root:Rank=16, Name=cart, Score=0.546 (+/- 0.077)
+DEBUG:root:[[66 13]
+ [10  3]]
+DEBUG:root:Rank=17, Name=knn-1, Score=0.534 (+/- 0.085)
+DEBUG:root:[[60 19]
+ [ 7  6]]
+DEBUG:root:Rank=18, Name=rbf, Score=0.531 (+/- 0.088)
+DEBUG:root:[[61 18]
+ [ 7  6]]
+DEBUG:root:Rank=19, Name=xgb, Score=0.530 (+/- 0.062)
+DEBUG:root:[[76  3]
+ [12  1]]
+DEBUG:root:Rank=20, Name=bag, Score=0.524 (+/- 0.048)
+DEBUG:root:[[78  1]
+ [12  1]]
+##############################
+DEBUG:root:Target = PHA-665752_IC50
+DEBUG:root:Rank=1, Name=bayes, Score=0.613 (+/- 0.110)
+DEBUG:root:[[ 7  5]
+ [16 64]]
+DEBUG:root:Rank=2, Name=near, Score=0.570 (+/- 0.119)
+DEBUG:root:[[ 8  4]
+ [44 36]]
+DEBUG:root:Rank=3, Name=cart, Score=0.570 (+/- 0.100)
+DEBUG:root:[[ 4  8]
+ [ 9 71]]
+DEBUG:root:Rank=4, Name=knn-2, Score=0.562 (+/- 0.112)
+DEBUG:root:[[ 2 10]
+ [12 68]]
+DEBUG:root:Rank=5, Name=ada, Score=0.554 (+/- 0.087)
+DEBUG:root:[[ 1 11]
+ [ 1 79]]
+DEBUG:root:Rank=6, Name=bag, Score=0.532 (+/- 0.068)
+DEBUG:root:[[ 0 12]
+ [ 0 80]]
+DEBUG:root:Rank=7, Name=extra, Score=0.526 (+/- 0.103)
+DEBUG:root:[[ 2 10]
+ [ 9 71]]
+DEBUG:root:Rank=8, Name=rbf, Score=0.524 (+/- 0.071)
+DEBUG:root:[[ 2 10]
+ [ 7 73]]
+DEBUG:root:Rank=9, Name=qda, Score=0.523 (+/- 0.115)
+DEBUG:root:[[ 2 10]
+ [10 70]]
+DEBUG:root:Rank=10, Name=knn-1, Score=0.522 (+/- 0.074)
+DEBUG:root:[[ 2 10]
+ [ 8 72]]
+DEBUG:root:Rank=11, Name=knn-3, Score=0.520 (+/- 0.056)
+DEBUG:root:[[ 0 12]
+ [ 2 78]]
+DEBUG:root:Rank=12, Name=gbm, Score=0.518 (+/- 0.065)
+DEBUG:root:[[ 2 10]
+ [ 3 77]]
+DEBUG:root:Rank=13, Name=ridge-2.0, Score=0.517 (+/- 0.068)
+DEBUG:root:[[ 3  9]
+ [ 2 78]]
+DEBUG:root:Rank=14, Name=pa, Score=0.512 (+/- 0.042)
+DEBUG:root:[[ 2 10]
+ [ 7 73]]
+DEBUG:root:Rank=15, Name=ridge-0.5, Score=0.511 (+/- 0.063)
+DEBUG:root:[[ 3  9]
+ [ 2 78]]
+DEBUG:root:Rank=16, Name=ridge-1.0, Score=0.503 (+/- 0.065)
+DEBUG:root:[[ 3  9]
+ [ 2 78]]
+DEBUG:root:Rank=17, Name=ridge-0.1, Score=0.502 (+/- 0.069)
+DEBUG:root:[[ 3  9]
+ [ 3 77]]
+DEBUG:root:Rank=18, Name=xgb, Score=0.500 (+/- 0.000)
+DEBUG:root:[[ 0 12]
+ [ 0 80]]
+DEBUG:root:Rank=19, Name=et, Score=0.500 (+/- 0.000)
+DEBUG:root:[[ 0 12]
+ [ 0 80]]
+DEBUG:root:Rank=20, Name=svmr0.99, Score=0.500 (+/- 0.000)
+DEBUG:root:[[ 0 12]
+ [ 0 80]]
+##############################
+DEBUG:root:Target = Lapatinib_IC50
+DEBUG:root:Rank=1, Name=near, Score=0.670 (+/- 0.096)
+DEBUG:root:[[11 11]
+ [18 52]]
+DEBUG:root:Rank=2, Name=bayes, Score=0.662 (+/- 0.087)
+DEBUG:root:[[12 10]
+ [13 57]]
+DEBUG:root:Rank=3, Name=xgb, Score=0.628 (+/- 0.050)
+DEBUG:root:[[ 5 17]
+ [ 1 69]]
+DEBUG:root:Rank=4, Name=logistic, Score=0.616 (+/- 0.071)
+DEBUG:root:[[ 4 18]
+ [ 9 61]]
+DEBUG:root:Rank=5, Name=ridge-0.5, Score=0.616 (+/- 0.060)
+DEBUG:root:[[ 8 14]
+ [10 60]]
+DEBUG:root:Rank=6, Name=gbm, Score=0.616 (+/- 0.072)
+DEBUG:root:[[ 6 16]
+ [ 3 67]]
+DEBUG:root:Rank=7, Name=knn-10, Score=0.610 (+/- 0.080)
+DEBUG:root:[[ 6 16]
+ [ 7 63]]
+DEBUG:root:Rank=8, Name=knn-2, Score=0.609 (+/- 0.102)
+DEBUG:root:[[11 11]
+ [19 51]]
+DEBUG:root:Rank=9, Name=ridge-1.0, Score=0.607 (+/- 0.063)
+DEBUG:root:[[ 7 15]
+ [10 60]]
+DEBUG:root:Rank=10, Name=ridge-0.1, Score=0.605 (+/- 0.049)
+DEBUG:root:[[ 8 14]
+ [11 59]]
+DEBUG:root:Rank=11, Name=ridge-0.01, Score=0.603 (+/- 0.048)
+DEBUG:root:[[ 8 14]
+ [11 59]]
+DEBUG:root:Rank=12, Name=ridge-0, Score=0.601 (+/- 0.046)
+DEBUG:root:[[ 8 14]
+ [11 59]]
+DEBUG:root:Rank=13, Name=bag, Score=0.601 (+/- 0.105)
+DEBUG:root:[[ 4 18]
+ [ 1 69]]
+DEBUG:root:Rank=14, Name=et, Score=0.601 (+/- 0.070)
+DEBUG:root:[[ 1 21]
+ [ 1 69]]
+DEBUG:root:Rank=15, Name=ridge-2.0, Score=0.600 (+/- 0.066)
+DEBUG:root:[[ 9 13]
+ [10 60]]
+DEBUG:root:Rank=16, Name=rf, Score=0.593 (+/- 0.050)
+DEBUG:root:[[ 1 21]
+ [ 1 69]]
+DEBUG:root:Rank=17, Name=ada, Score=0.585 (+/- 0.091)
+DEBUG:root:[[ 7 15]
+ [ 4 66]]
+DEBUG:root:Rank=18, Name=knn-7, Score=0.584 (+/- 0.068)
+DEBUG:root:[[ 4 18]
+ [ 5 65]]
+DEBUG:root:Rank=19, Name=knn-1, Score=0.582 (+/- 0.134)
+DEBUG:root:[[ 8 14]
+ [11 59]]
+DEBUG:root:Rank=20, Name=extra, Score=0.577 (+/- 0.093)
+DEBUG:root:[[ 9 13]
+ [ 8 62]]
+##############################
+DEBUG:root:Target = Nutlin-3_IC50
+DEBUG:root:Rank=1, Name=knn-2, Score=0.777 (+/- 0.154)
+DEBUG:root:[[ 0  9]
+ [ 5 78]]
+DEBUG:root:Rank=2, Name=rbf, Score=0.680 (+/- 0.235)
+DEBUG:root:[[ 0  9]
+ [ 2 81]]
+DEBUG:root:Rank=3, Name=knn-1, Score=0.680 (+/- 0.235)
+DEBUG:root:[[ 0  9]
+ [ 2 81]]
+DEBUG:root:Rank=4, Name=bayes, Score=0.673 (+/- 0.183)
+DEBUG:root:[[ 3  6]
+ [ 9 74]]
+DEBUG:root:Rank=5, Name=ada, Score=0.647 (+/- 0.200)
+DEBUG:root:[[ 0  9]
+ [ 0 83]]
+DEBUG:root:Rank=6, Name=pa, Score=0.613 (+/- 0.166)
+DEBUG:root:[[ 2  7]
+ [ 3 80]]
+DEBUG:root:Rank=7, Name=svml, Score=0.605 (+/- 0.166)
+DEBUG:root:[[ 0  9]
+ [ 4 79]]
+DEBUG:root:Rank=8, Name=knn-3, Score=0.566 (+/- 0.115)
+DEBUG:root:[[ 0  9]
+ [ 0 83]]
+DEBUG:root:Rank=9, Name=logistic, Score=0.565 (+/- 0.109)
+DEBUG:root:[[ 0  9]
+ [ 2 81]]
+DEBUG:root:Rank=10, Name=near, Score=0.564 (+/- 0.182)
+DEBUG:root:[[ 8  1]
+ [42 41]]
+DEBUG:root:Rank=11, Name=ridge-2.0, Score=0.563 (+/- 0.113)
+DEBUG:root:[[ 0  9]
+ [ 1 82]]
+DEBUG:root:Rank=12, Name=sgd, Score=0.561 (+/- 0.113)
+DEBUG:root:[[ 0  9]
+ [ 0 83]]
+DEBUG:root:Rank=13, Name=ridge-1.0, Score=0.558 (+/- 0.111)
+DEBUG:root:[[ 0  9]
+ [ 1 82]]
+DEBUG:root:Rank=14, Name=gbm, Score=0.555 (+/- 0.166)
+DEBUG:root:[[ 1  8]
+ [ 4 79]]
+DEBUG:root:Rank=15, Name=bag, Score=0.547 (+/- 0.151)
+DEBUG:root:[[ 0  9]
+ [ 1 82]]
+DEBUG:root:Rank=16, Name=xgb, Score=0.544 (+/- 0.099)
+DEBUG:root:[[ 0  9]
+ [ 0 83]]
+DEBUG:root:Rank=17, Name=ridge-0.5, Score=0.531 (+/- 0.095)
+DEBUG:root:[[ 1  8]
+ [ 1 82]]
+DEBUG:root:Rank=18, Name=ridge-0.1, Score=0.523 (+/- 0.093)
+DEBUG:root:[[ 1  8]
+ [ 1 82]]
+DEBUG:root:Rank=19, Name=ridge-0.01, Score=0.523 (+/- 0.093)
+DEBUG:root:[[ 1  8]
+ [ 3 80]]
+DEBUG:root:Rank=20, Name=ridge-0, Score=0.523 (+/- 0.093)
+DEBUG:root:[[ 1  8]
+ [ 4 79]]
+##############################
+DEBUG:root:Target = AZD0530_IC50
+DEBUG:root:Rank=1, Name=ada, Score=0.667 (+/- 0.077)
+DEBUG:root:[[ 6 25]
+ [ 7 54]]
+DEBUG:root:Rank=2, Name=sgd, Score=0.612 (+/- 0.085)
+DEBUG:root:[[ 6 25]
+ [ 4 57]]
+DEBUG:root:Rank=3, Name=ridge-0.01, Score=0.608 (+/- 0.081)
+DEBUG:root:[[15 16]
+ [18 43]]
+DEBUG:root:Rank=4, Name=ridge-0, Score=0.608 (+/- 0.081)
+DEBUG:root:[[15 16]
+ [18 43]]
+DEBUG:root:Rank=5, Name=ridge-0.1, Score=0.605 (+/- 0.078)
+DEBUG:root:[[14 17]
+ [16 45]]
+DEBUG:root:Rank=6, Name=bayes, Score=0.604 (+/- 0.080)
+DEBUG:root:[[12 19]
+ [12 49]]
+DEBUG:root:Rank=7, Name=ridge-1.0, Score=0.603 (+/- 0.091)
+DEBUG:root:[[ 8 23]
+ [14 47]]
+DEBUG:root:Rank=8, Name=ridge-0.5, Score=0.603 (+/- 0.089)
+DEBUG:root:[[11 20]
+ [15 46]]
+DEBUG:root:Rank=9, Name=near, Score=0.601 (+/- 0.073)
+DEBUG:root:[[15 16]
+ [14 47]]
+DEBUG:root:Rank=10, Name=pa, Score=0.600 (+/- 0.072)
+DEBUG:root:[[ 5 26]
+ [ 5 56]]
+DEBUG:root:Rank=11, Name=xgb, Score=0.599 (+/- 0.060)
+DEBUG:root:[[ 4 27]
+ [ 3 58]]
+DEBUG:root:Rank=12, Name=ridge-2.0, Score=0.596 (+/- 0.081)
+DEBUG:root:[[ 8 23]
+ [12 49]]
+DEBUG:root:Rank=13, Name=logistic, Score=0.593 (+/- 0.083)
+DEBUG:root:[[ 7 24]
+ [ 7 54]]
+DEBUG:root:Rank=14, Name=svml, Score=0.591 (+/- 0.081)
+DEBUG:root:[[ 7 24]
+ [ 9 52]]
+DEBUG:root:Rank=15, Name=bag, Score=0.588 (+/- 0.045)
+DEBUG:root:[[ 6 25]
+ [ 3 58]]
+DEBUG:root:Rank=16, Name=gbm, Score=0.582 (+/- 0.062)
+DEBUG:root:[[ 3 28]
+ [ 1 60]]
+DEBUG:root:Rank=17, Name=knn-5, Score=0.579 (+/- 0.041)
+DEBUG:root:[[ 5 26]
+ [ 5 56]]
+DEBUG:root:Rank=18, Name=et, Score=0.563 (+/- 0.072)
+DEBUG:root:[[ 5 26]
+ [ 1 60]]
+DEBUG:root:Rank=19, Name=rbf, Score=0.563 (+/- 0.064)
+DEBUG:root:[[10 21]
+ [14 47]]
+DEBUG:root:Rank=20, Name=rf, Score=0.562 (+/- 0.050)
+DEBUG:root:[[ 7 24]
+ [ 2 59]]
+##############################
+DEBUG:root:Target = PF2341066_IC50
+DEBUG:root:Rank=1, Name=xgb, Score=0.698 (+/- 0.088)
+DEBUG:root:[[11 19]
+ [ 8 54]]
+DEBUG:root:Rank=2, Name=bag, Score=0.675 (+/- 0.095)
+DEBUG:root:[[12 18]
+ [12 50]]
+DEBUG:root:Rank=3, Name=bayes, Score=0.670 (+/- 0.074)
+DEBUG:root:[[16 14]
+ [11 51]]
+DEBUG:root:Rank=4, Name=gbm, Score=0.666 (+/- 0.103)
+DEBUG:root:[[13 17]
+ [ 7 55]]
+DEBUG:root:Rank=5, Name=rf, Score=0.651 (+/- 0.077)
+DEBUG:root:[[14 16]
+ [10 52]]
+DEBUG:root:Rank=6, Name=logistic, Score=0.646 (+/- 0.055)
+DEBUG:root:[[14 16]
+ [12 50]]
+DEBUG:root:Rank=7, Name=pa, Score=0.645 (+/- 0.069)
+DEBUG:root:[[15 15]
+ [24 38]]
+DEBUG:root:Rank=8, Name=et, Score=0.641 (+/- 0.066)
+DEBUG:root:[[12 18]
+ [ 7 55]]
+DEBUG:root:Rank=9, Name=svml, Score=0.636 (+/- 0.082)
+DEBUG:root:[[15 15]
+ [15 47]]
+DEBUG:root:Rank=10, Name=ada, Score=0.633 (+/- 0.072)
+DEBUG:root:[[15 15]
+ [15 47]]
+DEBUG:root:Rank=11, Name=knn-3, Score=0.632 (+/- 0.060)
+DEBUG:root:[[ 7 23]
+ [10 52]]
+DEBUG:root:Rank=12, Name=sgd, Score=0.630 (+/- 0.075)
+DEBUG:root:[[ 8 22]
+ [ 4 58]]
+DEBUG:root:Rank=13, Name=knn-5, Score=0.616 (+/- 0.082)
+DEBUG:root:[[ 8 22]
+ [10 52]]
+DEBUG:root:Rank=14, Name=knn-20, Score=0.613 (+/- 0.063)
+DEBUG:root:[[11 19]
+ [ 3 59]]
+DEBUG:root:Rank=15, Name=ridge-1.0, Score=0.603 (+/- 0.052)
+DEBUG:root:[[12 18]
+ [15 47]]
+DEBUG:root:Rank=16, Name=ridge-2.0, Score=0.599 (+/- 0.064)
+DEBUG:root:[[12 18]
+ [15 47]]
+DEBUG:root:Rank=17, Name=cart, Score=0.598 (+/- 0.078)
+DEBUG:root:[[17 13]
+ [23 39]]
+DEBUG:root:Rank=18, Name=ridge-0.5, Score=0.595 (+/- 0.059)
+DEBUG:root:[[12 18]
+ [17 45]]
+DEBUG:root:Rank=19, Name=near, Score=0.594 (+/- 0.090)
+DEBUG:root:[[24  6]
+ [36 26]]
+DEBUG:root:Rank=20, Name=knn-10, Score=0.584 (+/- 0.093)
+DEBUG:root:[[14 16]
+ [ 8 54]]
+##############################
+DEBUG:root:Target = L-685458_IC50
+DEBUG:root:Rank=1, Name=bayes, Score=0.670 (+/- 0.100)
+DEBUG:root:[[14  8]
+ [14 56]]
+DEBUG:root:Rank=2, Name=knn-2, Score=0.615 (+/- 0.109)
+DEBUG:root:[[13  9]
+ [16 54]]
+DEBUG:root:Rank=3, Name=gbm, Score=0.609 (+/- 0.116)
+DEBUG:root:[[ 9 13]
+ [ 6 64]]
+DEBUG:root:Rank=4, Name=near, Score=0.605 (+/- 0.140)
+DEBUG:root:[[15  7]
+ [16 54]]
+DEBUG:root:Rank=5, Name=svml, Score=0.604 (+/- 0.119)
+DEBUG:root:[[ 7 15]
+ [ 8 62]]
+DEBUG:root:Rank=6, Name=knn-5, Score=0.599 (+/- 0.100)
+DEBUG:root:[[ 7 15]
+ [ 1 69]]
+DEBUG:root:Rank=7, Name=rbf, Score=0.598 (+/- 0.110)
+DEBUG:root:[[ 9 13]
+ [ 9 61]]
+DEBUG:root:Rank=8, Name=knn-1, Score=0.598 (+/- 0.110)
+DEBUG:root:[[ 9 13]
+ [ 9 61]]
+DEBUG:root:Rank=9, Name=pa, Score=0.595 (+/- 0.101)
+DEBUG:root:[[14  8]
+ [11 59]]
+DEBUG:root:Rank=10, Name=knn-7, Score=0.592 (+/- 0.100)
+DEBUG:root:[[ 9 13]
+ [ 1 69]]
+DEBUG:root:Rank=11, Name=ridge-0.5, Score=0.590 (+/- 0.100)
+DEBUG:root:[[ 8 14]
+ [10 60]]
+DEBUG:root:Rank=12, Name=knn-10, Score=0.589 (+/- 0.107)
+DEBUG:root:[[ 8 14]
+ [ 1 69]]
+DEBUG:root:Rank=13, Name=xgb, Score=0.586 (+/- 0.108)
+DEBUG:root:[[10 12]
+ [ 2 68]]
+DEBUG:root:Rank=14, Name=ridge-0.1, Score=0.585 (+/- 0.102)
+DEBUG:root:[[ 8 14]
+ [13 57]]
+DEBUG:root:Rank=15, Name=bag, Score=0.582 (+/- 0.103)
+DEBUG:root:[[10 12]
+ [ 4 66]]
+DEBUG:root:Rank=16, Name=ridge-1.0, Score=0.582 (+/- 0.104)
+DEBUG:root:[[ 9 13]
+ [10 60]]
+DEBUG:root:Rank=17, Name=logistic, Score=0.582 (+/- 0.120)
+DEBUG:root:[[10 12]
+ [ 6 64]]
+DEBUG:root:Rank=18, Name=ridge-0.01, Score=0.580 (+/- 0.107)
+DEBUG:root:[[ 8 14]
+ [13 57]]
+DEBUG:root:Rank=19, Name=ridge-0, Score=0.580 (+/- 0.107)
+DEBUG:root:[[ 8 14]
+ [13 57]]
+DEBUG:root:Rank=20, Name=cart, Score=0.580 (+/- 0.086)
+DEBUG:root:[[ 6 16]
+ [14 56]]
+##############################
+DEBUG:root:Target = ZD-6474_IC50
+DEBUG:root:Rank=1, Name=near, Score=0.590 (+/- 0.102)
+DEBUG:root:[[15 18]
+ [14 45]]
+DEBUG:root:Rank=2, Name=bayes, Score=0.580 (+/- 0.089)
+DEBUG:root:[[16 17]
+ [13 46]]
+DEBUG:root:Rank=3, Name=ridge-2.0, Score=0.577 (+/- 0.070)
+DEBUG:root:[[12 21]
+ [15 44]]
+DEBUG:root:Rank=4, Name=ada, Score=0.572 (+/- 0.141)
+DEBUG:root:[[16 17]
+ [11 48]]
+DEBUG:root:Rank=5, Name=ridge-0.1, Score=0.564 (+/- 0.062)
+DEBUG:root:[[13 20]
+ [21 38]]
+DEBUG:root:Rank=6, Name=bag, Score=0.564 (+/- 0.080)
+DEBUG:root:[[ 9 24]
+ [ 4 55]]
+DEBUG:root:Rank=7, Name=ridge-1.0, Score=0.562 (+/- 0.061)
+DEBUG:root:[[12 21]
+ [16 43]]
+DEBUG:root:Rank=8, Name=pa, Score=0.562 (+/- 0.096)
+DEBUG:root:[[15 18]
+ [19 40]]
+DEBUG:root:Rank=9, Name=ridge-0.5, Score=0.560 (+/- 0.059)
+DEBUG:root:[[12 21]
+ [17 42]]
+DEBUG:root:Rank=10, Name=xgb, Score=0.560 (+/- 0.058)
+DEBUG:root:[[ 8 25]
+ [ 6 53]]
+DEBUG:root:Rank=11, Name=et, Score=0.559 (+/- 0.065)
+DEBUG:root:[[ 3 30]
+ [ 1 58]]
+DEBUG:root:Rank=12, Name=logistic, Score=0.556 (+/- 0.076)
+DEBUG:root:[[12 21]
+ [11 48]]
+DEBUG:root:Rank=13, Name=ridge-0, Score=0.556 (+/- 0.069)
+DEBUG:root:[[13 20]
+ [20 39]]
+DEBUG:root:Rank=14, Name=ridge-0.01, Score=0.554 (+/- 0.067)
+DEBUG:root:[[13 20]
+ [20 39]]
+DEBUG:root:Rank=15, Name=knn-10, Score=0.553 (+/- 0.067)
+DEBUG:root:[[13 20]
+ [14 45]]
+DEBUG:root:Rank=16, Name=sgd, Score=0.553 (+/- 0.098)
+DEBUG:root:[[10 23]
+ [ 5 54]]
+DEBUG:root:Rank=17, Name=rf, Score=0.553 (+/- 0.062)
+DEBUG:root:[[ 5 28]
+ [ 2 57]]
+DEBUG:root:Rank=18, Name=knn-3, Score=0.549 (+/- 0.082)
+DEBUG:root:[[10 23]
+ [13 46]]
+DEBUG:root:Rank=19, Name=knn-7, Score=0.544 (+/- 0.108)
+DEBUG:root:[[ 6 27]
+ [12 47]]
+DEBUG:root:Rank=20, Name=knn-1, Score=0.544 (+/- 0.054)
+DEBUG:root:[[14 19]
+ [18 41]]
+##############################
+DEBUG:root:Target = Panobinostat_IC50
+DEBUG:root:Rank=1, Name=bag, Score=0.651 (+/- 0.066)
+DEBUG:root:[[53  9]
+ [17 13]]
+DEBUG:root:Rank=2, Name=bayes, Score=0.648 (+/- 0.096)
+DEBUG:root:[[41 21]
+ [ 8 22]]
+DEBUG:root:Rank=3, Name=ada, Score=0.641 (+/- 0.076)
+DEBUG:root:[[49 13]
+ [21  9]]
+DEBUG:root:Rank=4, Name=xgb, Score=0.637 (+/- 0.068)
+DEBUG:root:[[55  7]
+ [15 15]]
+DEBUG:root:Rank=5, Name=cart, Score=0.630 (+/- 0.039)
+DEBUG:root:[[48 14]
+ [17 13]]
+DEBUG:root:Rank=6, Name=gbm, Score=0.617 (+/- 0.074)
+DEBUG:root:[[51 11]
+ [15 15]]
+DEBUG:root:Rank=7, Name=knn-5, Score=0.590 (+/- 0.064)
+DEBUG:root:[[49 13]
+ [17 13]]
+DEBUG:root:Rank=8, Name=svml, Score=0.589 (+/- 0.083)
+DEBUG:root:[[47 15]
+ [19 11]]
+DEBUG:root:Rank=9, Name=logistic, Score=0.587 (+/- 0.092)
+DEBUG:root:[[51 11]
+ [18 12]]
+DEBUG:root:Rank=10, Name=pa, Score=0.586 (+/- 0.096)
+DEBUG:root:[[44 18]
+ [14 16]]
+DEBUG:root:Rank=11, Name=knn-7, Score=0.582 (+/- 0.062)
+DEBUG:root:[[52 10]
+ [19 11]]
+DEBUG:root:Rank=12, Name=et, Score=0.579 (+/- 0.088)
+DEBUG:root:[[55  7]
+ [27  3]]
+DEBUG:root:Rank=13, Name=rf, Score=0.576 (+/- 0.059)
+DEBUG:root:[[56  6]
+ [23  7]]
+DEBUG:root:Rank=14, Name=near, Score=0.572 (+/- 0.124)
+DEBUG:root:[[46 16]
+ [10 20]]
+DEBUG:root:Rank=15, Name=sgd, Score=0.567 (+/- 0.060)
+DEBUG:root:[[39 23]
+ [ 7 23]]
+DEBUG:root:Rank=16, Name=knn-3, Score=0.558 (+/- 0.093)
+DEBUG:root:[[49 13]
+ [16 14]]
+DEBUG:root:Rank=17, Name=ridge-0.5, Score=0.558 (+/- 0.099)
+DEBUG:root:[[49 13]
+ [17 13]]
+DEBUG:root:Rank=18, Name=ridge-0.1, Score=0.557 (+/- 0.094)
+DEBUG:root:[[51 11]
+ [18 12]]
+DEBUG:root:Rank=19, Name=ridge-0.01, Score=0.557 (+/- 0.101)
+DEBUG:root:[[51 11]
+ [18 12]]
+DEBUG:root:Rank=20, Name=ridge-0, Score=0.557 (+/- 0.101)
+DEBUG:root:[[51 11]
+ [17 13]]
+##############################
+DEBUG:root:Target = Sorafenib_IC50
+DEBUG:root:Rank=1, Name=bayes, Score=0.662 (+/- 0.070)
+DEBUG:root:[[13 10]
+ [18 51]]
+DEBUG:root:Rank=2, Name=knn-2, Score=0.647 (+/- 0.050)
+DEBUG:root:[[11 12]
+ [17 52]]
+DEBUG:root:Rank=3, Name=knn-10, Score=0.635 (+/- 0.074)
+DEBUG:root:[[ 8 15]
+ [ 2 67]]
+DEBUG:root:Rank=4, Name=knn-7, Score=0.629 (+/- 0.098)
+DEBUG:root:[[ 8 15]
+ [ 1 68]]
+DEBUG:root:Rank=5, Name=ridge-2.0, Score=0.618 (+/- 0.089)
+DEBUG:root:[[ 8 15]
+ [ 5 64]]
+DEBUG:root:Rank=6, Name=svml, Score=0.616 (+/- 0.092)
+DEBUG:root:[[ 8 15]
+ [ 6 63]]
+DEBUG:root:Rank=7, Name=ridge-0.5, Score=0.615 (+/- 0.095)
+DEBUG:root:[[ 7 16]
+ [ 8 61]]
+DEBUG:root:Rank=8, Name=ada, Score=0.615 (+/- 0.088)
+DEBUG:root:[[10 13]
+ [ 5 64]]
+DEBUG:root:Rank=9, Name=ridge-0.1, Score=0.614 (+/- 0.092)
+DEBUG:root:[[ 7 16]
+ [ 8 61]]
+DEBUG:root:Rank=10, Name=logistic, Score=0.612 (+/- 0.083)
+DEBUG:root:[[ 7 16]
+ [ 4 65]]
+DEBUG:root:Rank=11, Name=ridge-1.0, Score=0.606 (+/- 0.087)
+DEBUG:root:[[ 7 16]
+ [ 7 62]]
+DEBUG:root:Rank=12, Name=xgb, Score=0.605 (+/- 0.050)
+DEBUG:root:[[ 8 15]
+ [ 2 67]]
+DEBUG:root:Rank=13, Name=sgd, Score=0.604 (+/- 0.081)
+DEBUG:root:[[ 3 20]
+ [ 1 68]]
+DEBUG:root:Rank=14, Name=ridge-0.01, Score=0.604 (+/- 0.087)
+DEBUG:root:[[ 7 16]
+ [ 8 61]]
+DEBUG:root:Rank=15, Name=ridge-0, Score=0.604 (+/- 0.087)
+DEBUG:root:[[ 7 16]
+ [ 8 61]]
+DEBUG:root:Rank=16, Name=pa, Score=0.602 (+/- 0.058)
+DEBUG:root:[[ 5 18]
+ [ 2 67]]
+DEBUG:root:Rank=17, Name=bag, Score=0.596 (+/- 0.081)
+DEBUG:root:[[ 6 17]
+ [ 2 67]]
+DEBUG:root:Rank=18, Name=knn-3, Score=0.595 (+/- 0.066)
+DEBUG:root:[[ 8 15]
+ [ 3 66]]
+DEBUG:root:Rank=19, Name=gbm, Score=0.588 (+/- 0.068)
+DEBUG:root:[[ 6 17]
+ [ 4 65]]
+DEBUG:root:Rank=20, Name=cart, Score=0.581 (+/- 0.051)
+DEBUG:root:[[ 7 16]
+ [16 53]]
+##############################
+DEBUG:root:Target = Topotecan_IC50
+DEBUG:root:Rank=1, Name=bayes, Score=0.643 (+/- 0.089)
+DEBUG:root:[[42 29]
+ [10 11]]
+DEBUG:root:Rank=2, Name=svml, Score=0.627 (+/- 0.087)
+DEBUG:root:[[56 15]
+ [14  7]]
+DEBUG:root:Rank=3, Name=ada, Score=0.620 (+/- 0.097)
+DEBUG:root:[[61 10]
+ [16  5]]
+DEBUG:root:Rank=4, Name=ridge-0.5, Score=0.615 (+/- 0.109)
+DEBUG:root:[[58 13]
+ [13  8]]
+DEBUG:root:Rank=5, Name=ridge-0.1, Score=0.614 (+/- 0.110)
+DEBUG:root:[[57 14]
+ [14  7]]
+DEBUG:root:Rank=6, Name=ridge-1.0, Score=0.614 (+/- 0.098)
+DEBUG:root:[[59 12]
+ [13  8]]
+DEBUG:root:Rank=7, Name=ridge-0.01, Score=0.610 (+/- 0.093)
+DEBUG:root:[[57 14]
+ [14  7]]
+DEBUG:root:Rank=8, Name=ridge-0, Score=0.610 (+/- 0.093)
+DEBUG:root:[[57 14]
+ [15  6]]
+DEBUG:root:Rank=9, Name=ridge-2.0, Score=0.604 (+/- 0.098)
+DEBUG:root:[[60 11]
+ [12  9]]
+DEBUG:root:Rank=10, Name=sgd, Score=0.604 (+/- 0.070)
+DEBUG:root:[[57 14]
+ [14  7]]
+DEBUG:root:Rank=11, Name=logistic, Score=0.590 (+/- 0.112)
+DEBUG:root:[[59 12]
+ [15  6]]
+DEBUG:root:Rank=12, Name=extra, Score=0.587 (+/- 0.064)
+DEBUG:root:[[56 15]
+ [16  5]]
+DEBUG:root:Rank=13, Name=xgb, Score=0.578 (+/- 0.087)
+DEBUG:root:[[67  4]
+ [18  3]]
+DEBUG:root:Rank=14, Name=pa, Score=0.576 (+/- 0.070)
+DEBUG:root:[[63  8]
+ [19  2]]
+DEBUG:root:Rank=15, Name=gbm, Score=0.570 (+/- 0.054)
+DEBUG:root:[[65  6]
+ [14  7]]
+DEBUG:root:Rank=16, Name=cart, Score=0.569 (+/- 0.119)
+DEBUG:root:[[56 15]
+ [16  5]]
+DEBUG:root:Rank=17, Name=near, Score=0.567 (+/- 0.083)
+DEBUG:root:[[52 19]
+ [10 11]]
+DEBUG:root:Rank=18, Name=knn-2, Score=0.548 (+/- 0.055)
+DEBUG:root:[[65  6]
+ [19  2]]
+DEBUG:root:Rank=19, Name=knn-5, Score=0.546 (+/- 0.060)
+DEBUG:root:[[62  9]
+ [20  1]]
+DEBUG:root:Rank=20, Name=rbf, Score=0.543 (+/- 0.081)
+DEBUG:root:[[62  9]
+ [16  5]]
+##############################
+DEBUG:root:Target = LBW242_IC50
+DEBUG:root:Rank=1, Name=cart, Score=0.547 (+/- 0.096)
+DEBUG:root:[[ 0  5]
+ [12 75]]
+DEBUG:root:Rank=2, Name=gbm, Score=0.546 (+/- 0.086)
+DEBUG:root:[[ 0  5]
+ [ 3 84]]
+DEBUG:root:Rank=3, Name=sgd, Score=0.544 (+/- 0.166)
+DEBUG:root:[[ 0  5]
+ [ 1 86]]
+DEBUG:root:Rank=4, Name=ada, Score=0.543 (+/- 0.111)
+DEBUG:root:[[ 1  4]
+ [ 3 84]]
+DEBUG:root:Rank=5, Name=knn-2, Score=0.541 (+/- 0.154)
+DEBUG:root:[[ 2  3]
+ [16 71]]
+DEBUG:root:Rank=6, Name=bag, Score=0.539 (+/- 0.087)
+DEBUG:root:[[ 0  5]
+ [ 2 85]]
+DEBUG:root:Rank=7, Name=ridge-1.0, Score=0.536 (+/- 0.097)
+DEBUG:root:[[ 0  5]
+ [ 2 85]]
+DEBUG:root:Rank=8, Name=knn-3, Score=0.534 (+/- 0.085)
+DEBUG:root:[[ 0  5]
+ [ 1 86]]
+DEBUG:root:Rank=9, Name=rf, Score=0.530 (+/- 0.068)
+DEBUG:root:[[ 0  5]
+ [ 0 87]]
+DEBUG:root:Rank=10, Name=bayes, Score=0.528 (+/- 0.097)
+DEBUG:root:[[ 2  3]
+ [10 77]]
+DEBUG:root:Rank=11, Name=ridge-0.5, Score=0.527 (+/- 0.101)
+DEBUG:root:[[ 0  5]
+ [ 2 85]]
+DEBUG:root:Rank=12, Name=extra, Score=0.520 (+/- 0.107)
+DEBUG:root:[[ 1  4]
+ [ 9 78]]
+DEBUG:root:Rank=13, Name=xgb, Score=0.517 (+/- 0.050)
+DEBUG:root:[[ 0  5]
+ [ 0 87]]
+DEBUG:root:Rank=14, Name=ridge-2.0, Score=0.505 (+/- 0.045)
+DEBUG:root:[[ 0  5]
+ [ 1 86]]
+DEBUG:root:Rank=15, Name=et, Score=0.500 (+/- 0.000)
+DEBUG:root:[[ 0  5]
+ [ 0 87]]
+DEBUG:root:Rank=16, Name=svmr0.99, Score=0.500 (+/- 0.000)
+DEBUG:root:[[ 0  5]
+ [ 0 87]]
+DEBUG:root:Rank=17, Name=svmr0.8, Score=0.500 (+/- 0.000)
+DEBUG:root:[[ 0  5]
+ [ 0 87]]
+DEBUG:root:Rank=18, Name=svmr0.5, Score=0.500 (+/- 0.000)
+DEBUG:root:[[ 0  5]
+ [ 0 87]]
+DEBUG:root:Rank=19, Name=svmr0.2, Score=0.500 (+/- 0.000)
+DEBUG:root:[[ 0  5]
+ [ 0 87]]
+DEBUG:root:Rank=20, Name=svmr0.01, Score=0.500 (+/- 0.000)
+DEBUG:root:[[ 0  5]
+ [ 0 87]]
+##############################
+DEBUG:root:Target = PD-0325901_IC50
+DEBUG:root:Rank=1, Name=xgb, Score=0.704 (+/- 0.065)
+DEBUG:root:[[16 16]
+ [11 49]]
+DEBUG:root:Rank=2, Name=bayes, Score=0.688 (+/- 0.092)
+DEBUG:root:[[20 12]
+ [13 47]]
+DEBUG:root:Rank=3, Name=ada, Score=0.686 (+/- 0.072)
+DEBUG:root:[[16 16]
+ [13 47]]
+DEBUG:root:Rank=4, Name=et, Score=0.683 (+/- 0.053)
+DEBUG:root:[[14 18]
+ [ 8 52]]
+DEBUG:root:Rank=5, Name=gbm, Score=0.681 (+/- 0.068)
+DEBUG:root:[[14 18]
+ [13 47]]
+DEBUG:root:Rank=6, Name=bag, Score=0.678 (+/- 0.053)
+DEBUG:root:[[17 15]
+ [13 47]]
+DEBUG:root:Rank=7, Name=logistic, Score=0.673 (+/- 0.068)
+DEBUG:root:[[20 12]
+ [16 44]]
+DEBUG:root:Rank=8, Name=rf, Score=0.660 (+/- 0.077)
+DEBUG:root:[[18 14]
+ [ 7 53]]
+DEBUG:root:Rank=9, Name=rbf, Score=0.655 (+/- 0.105)
+DEBUG:root:[[19 13]
+ [17 43]]
+DEBUG:root:Rank=10, Name=knn-1, Score=0.653 (+/- 0.101)
+DEBUG:root:[[19 13]
+ [17 43]]
+DEBUG:root:Rank=11, Name=knn-5, Score=0.645 (+/- 0.069)
+DEBUG:root:[[17 15]
+ [10 50]]
+DEBUG:root:Rank=12, Name=knn-3, Score=0.641 (+/- 0.096)
+DEBUG:root:[[20 12]
+ [13 47]]
+DEBUG:root:Rank=13, Name=knn-7, Score=0.639 (+/- 0.071)
+DEBUG:root:[[19 13]
+ [11 49]]
+DEBUG:root:Rank=14, Name=sgd, Score=0.639 (+/- 0.070)
+DEBUG:root:[[20 12]
+ [15 45]]
+DEBUG:root:Rank=15, Name=knn-2, Score=0.636 (+/- 0.078)
+DEBUG:root:[[23  9]
+ [27 33]]
+DEBUG:root:Rank=16, Name=pa, Score=0.633 (+/- 0.074)
+DEBUG:root:[[23  9]
+ [24 36]]
+DEBUG:root:Rank=17, Name=ridge-2.0, Score=0.625 (+/- 0.079)
+DEBUG:root:[[22 10]
+ [18 42]]
+DEBUG:root:Rank=18, Name=svml, Score=0.622 (+/- 0.062)
+DEBUG:root:[[20 12]
+ [18 42]]
+DEBUG:root:Rank=19, Name=ridge-1.0, Score=0.615 (+/- 0.072)
+DEBUG:root:[[24  8]
+ [19 41]]
+DEBUG:root:Rank=20, Name=ridge-0.5, Score=0.608 (+/- 0.074)
+DEBUG:root:[[24  8]
+ [20 40]]
+##############################
+DEBUG:root:Target = PD-0332991_IC50
+DEBUG:root:Rank=1, Name=bayes, Score=0.599 (+/- 0.056)
+DEBUG:root:[[ 9 17]
+ [18 48]]
+DEBUG:root:Rank=2, Name=logistic, Score=0.592 (+/- 0.089)
+DEBUG:root:[[ 9 17]
+ [14 52]]
+DEBUG:root:Rank=3, Name=xgb, Score=0.590 (+/- 0.100)
+DEBUG:root:[[ 8 18]
+ [ 8 58]]
+DEBUG:root:Rank=4, Name=ridge-2.0, Score=0.580 (+/- 0.094)
+DEBUG:root:[[ 9 17]
+ [17 49]]
+DEBUG:root:Rank=5, Name=sgd, Score=0.575 (+/- 0.087)
+DEBUG:root:[[11 15]
+ [16 50]]
+DEBUG:root:Rank=6, Name=ridge-0, Score=0.568 (+/- 0.085)
+DEBUG:root:[[11 15]
+ [20 46]]
+DEBUG:root:Rank=7, Name=ridge-1.0, Score=0.566 (+/- 0.087)
+DEBUG:root:[[11 15]
+ [17 49]]
+DEBUG:root:Rank=8, Name=ridge-0.01, Score=0.563 (+/- 0.084)
+DEBUG:root:[[11 15]
+ [20 46]]
+DEBUG:root:Rank=9, Name=ada, Score=0.563 (+/- 0.074)
+DEBUG:root:[[ 6 20]
+ [14 52]]
+DEBUG:root:Rank=10, Name=pa, Score=0.562 (+/- 0.088)
+DEBUG:root:[[14 12]
+ [20 46]]
+DEBUG:root:Rank=11, Name=ridge-0.1, Score=0.558 (+/- 0.089)
+DEBUG:root:[[11 15]
+ [19 47]]
+DEBUG:root:Rank=12, Name=ridge-0.5, Score=0.550 (+/- 0.089)
+DEBUG:root:[[11 15]
+ [17 49]]
+DEBUG:root:Rank=13, Name=qda, Score=0.549 (+/- 0.067)
+DEBUG:root:[[ 5 21]
+ [14 52]]
+DEBUG:root:Rank=14, Name=svml, Score=0.549 (+/- 0.082)
+DEBUG:root:[[10 16]
+ [13 53]]
+DEBUG:root:Rank=15, Name=et, Score=0.549 (+/- 0.032)
+DEBUG:root:[[ 3 23]
+ [ 6 60]]
+DEBUG:root:Rank=16, Name=knn-2, Score=0.547 (+/- 0.068)
+DEBUG:root:[[14 12]
+ [32 34]]
+DEBUG:root:Rank=17, Name=gbm, Score=0.543 (+/- 0.047)
+DEBUG:root:[[ 5 21]
+ [ 8 58]]
+DEBUG:root:Rank=18, Name=knn-10, Score=0.543 (+/- 0.067)
+DEBUG:root:[[ 7 19]
+ [ 5 61]]
+DEBUG:root:Rank=19, Name=rf, Score=0.540 (+/- 0.037)
+DEBUG:root:[[ 2 24]
+ [ 6 60]]
+DEBUG:root:Rank=20, Name=bag, Score=0.539 (+/- 0.047)
+DEBUG:root:[[ 3 23]
+ [ 9 57]]
+##############################
+DEBUG:root:Target = Paclitaxel_IC50
+DEBUG:root:Rank=1, Name=sgd, Score=0.631 (+/- 0.097)
+DEBUG:root:[[87  1]
+ [ 4  0]]
+DEBUG:root:Rank=2, Name=near, Score=0.609 (+/- 0.175)
+DEBUG:root:[[61 27]
+ [ 3  1]]
+DEBUG:root:Rank=3, Name=cart, Score=0.599 (+/- 0.105)
+DEBUG:root:[[83  5]
+ [ 4  0]]
+DEBUG:root:Rank=4, Name=pa, Score=0.596 (+/- 0.106)
+DEBUG:root:[[88  0]
+ [ 4  0]]
+DEBUG:root:Rank=5, Name=bayes, Score=0.588 (+/- 0.152)
+DEBUG:root:[[73 15]
+ [ 2  2]]
+DEBUG:root:Rank=6, Name=svml, Score=0.570 (+/- 0.121)
+DEBUG:root:[[82  6]
+ [ 4  0]]
+DEBUG:root:Rank=7, Name=ridge-0.1, Score=0.556 (+/- 0.095)
+DEBUG:root:[[83  5]
+ [ 4  0]]
+DEBUG:root:Rank=8, Name=ridge-0.01, Score=0.552 (+/- 0.092)
+DEBUG:root:[[83  5]
+ [ 4  0]]
+DEBUG:root:Rank=9, Name=ridge-0, Score=0.552 (+/- 0.092)
+DEBUG:root:[[83  5]
+ [ 4  0]]
+DEBUG:root:Rank=10, Name=logistic, Score=0.552 (+/- 0.109)
+DEBUG:root:[[87  1]
+ [ 4  0]]
+DEBUG:root:Rank=11, Name=ridge-0.5, Score=0.546 (+/- 0.096)
+DEBUG:root:[[84  4]
+ [ 4  0]]
+DEBUG:root:Rank=12, Name=rbf, Score=0.518 (+/- 0.073)
+DEBUG:root:[[79  9]
+ [ 3  1]]
+DEBUG:root:Rank=13, Name=ridge-2.0, Score=0.517 (+/- 0.065)
+DEBUG:root:[[87  1]
+ [ 4  0]]
+DEBUG:root:Rank=14, Name=knn-1, Score=0.515 (+/- 0.072)
+DEBUG:root:[[79  9]
+ [ 3  1]]
+DEBUG:root:Rank=15, Name=ridge-1.0, Score=0.515 (+/- 0.066)
+DEBUG:root:[[85  3]
+ [ 4  0]]
+DEBUG:root:Rank=16, Name=extra, Score=0.510 (+/- 0.078)
+DEBUG:root:[[79  9]
+ [ 4  0]]
+DEBUG:root:Rank=17, Name=gbm, Score=0.509 (+/- 0.053)
+DEBUG:root:[[86  2]
+ [ 4  0]]
+DEBUG:root:Rank=18, Name=ada, Score=0.508 (+/- 0.053)
+DEBUG:root:[[86  2]
+ [ 4  0]]
+DEBUG:root:Rank=19, Name=xgb, Score=0.500 (+/- 0.000)
+DEBUG:root:[[88  0]
+ [ 4  0]]
+DEBUG:root:Rank=20, Name=et, Score=0.500 (+/- 0.000)
+DEBUG:root:[[88  0]
+ [ 4  0]]
+##############################
+DEBUG:root:Target = AZD6244_IC50
+DEBUG:root:Rank=1, Name=xgb, Score=0.664 (+/- 0.074)
+DEBUG:root:[[ 6 17]
+ [ 3 66]]
+DEBUG:root:Rank=2, Name=gbm, Score=0.654 (+/- 0.071)
+DEBUG:root:[[ 9 14]
+ [ 3 66]]
+DEBUG:root:Rank=3, Name=bayes, Score=0.651 (+/- 0.044)
+DEBUG:root:[[17  6]
+ [10 59]]
+DEBUG:root:Rank=4, Name=ada, Score=0.645 (+/- 0.084)
+DEBUG:root:[[ 9 14]
+ [ 8 61]]
+DEBUG:root:Rank=5, Name=rbf, Score=0.642 (+/- 0.090)
+DEBUG:root:[[ 9 14]
+ [12 57]]
+DEBUG:root:Rank=6, Name=knn-1, Score=0.642 (+/- 0.090)
+DEBUG:root:[[ 9 14]
+ [12 57]]
+DEBUG:root:Rank=7, Name=knn-2, Score=0.637 (+/- 0.075)
+DEBUG:root:[[14  9]
+ [22 47]]
+DEBUG:root:Rank=8, Name=logistic, Score=0.635 (+/- 0.091)
+DEBUG:root:[[11 12]
+ [ 7 62]]
+DEBUG:root:Rank=9, Name=ridge-0.01, Score=0.628 (+/- 0.092)
+DEBUG:root:[[14  9]
+ [18 51]]
+DEBUG:root:Rank=10, Name=knn-5, Score=0.624 (+/- 0.047)
+DEBUG:root:[[ 8 15]
+ [ 3 66]]
+DEBUG:root:Rank=11, Name=knn-3, Score=0.623 (+/- 0.075)
+DEBUG:root:[[10 13]
+ [ 5 64]]
+DEBUG:root:Rank=12, Name=ridge-0, Score=0.623 (+/- 0.088)
+DEBUG:root:[[14  9]
+ [18 51]]
+DEBUG:root:Rank=13, Name=knn-7, Score=0.622 (+/- 0.058)
+DEBUG:root:[[ 5 18]
+ [ 1 68]]
+DEBUG:root:Rank=14, Name=ridge-1.0, Score=0.620 (+/- 0.102)
+DEBUG:root:[[14  9]
+ [11 58]]
+DEBUG:root:Rank=15, Name=ridge-0.1, Score=0.620 (+/- 0.100)
+DEBUG:root:[[14  9]
+ [16 53]]
+DEBUG:root:Rank=16, Name=ridge-0.5, Score=0.620 (+/- 0.097)
+DEBUG:root:[[14  9]
+ [13 56]]
+DEBUG:root:Rank=17, Name=knn-10, Score=0.618 (+/- 0.049)
+DEBUG:root:[[ 9 14]
+ [ 2 67]]
+DEBUG:root:Rank=18, Name=svml, Score=0.616 (+/- 0.076)
+DEBUG:root:[[13 10]
+ [16 53]]
+DEBUG:root:Rank=19, Name=sgd, Score=0.615 (+/- 0.079)
+DEBUG:root:[[14  9]
+ [15 54]]
+DEBUG:root:Rank=20, Name=pa, Score=0.613 (+/- 0.094)
+DEBUG:root:[[11 12]
+ [ 4 65]]
+##############################
+DEBUG:root:Target = PLX4720_IC50
+DEBUG:root:Rank=1, Name=bayes, Score=0.649 (+/- 0.135)
+DEBUG:root:[[ 8  7]
+ [23 54]]
+DEBUG:root:Rank=2, Name=knn-2, Score=0.649 (+/- 0.117)
+DEBUG:root:[[ 6  9]
+ [14 63]]
+DEBUG:root:Rank=3, Name=near, Score=0.621 (+/- 0.094)
+DEBUG:root:[[13  2]
+ [37 40]]
+DEBUG:root:Rank=4, Name=pa, Score=0.617 (+/- 0.131)
+DEBUG:root:[[ 4 11]
+ [ 2 75]]
+DEBUG:root:Rank=5, Name=knn-1, Score=0.605 (+/- 0.121)
+DEBUG:root:[[ 4 11]
+ [ 8 69]]
+DEBUG:root:Rank=6, Name=rbf, Score=0.595 (+/- 0.103)
+DEBUG:root:[[ 4 11]
+ [ 8 69]]
+DEBUG:root:Rank=7, Name=svml, Score=0.584 (+/- 0.093)
+DEBUG:root:[[ 5 10]
+ [ 7 70]]
+DEBUG:root:Rank=8, Name=logistic, Score=0.581 (+/- 0.111)
+DEBUG:root:[[ 4 11]
+ [ 2 75]]
+DEBUG:root:Rank=9, Name=ridge-2.0, Score=0.580 (+/- 0.092)
+DEBUG:root:[[ 6  9]
+ [ 7 70]]
+DEBUG:root:Rank=10, Name=sgd, Score=0.579 (+/- 0.112)
+DEBUG:root:[[ 3 12]
+ [ 5 72]]
+DEBUG:root:Rank=11, Name=cart, Score=0.573 (+/- 0.074)
+DEBUG:root:[[ 4 11]
+ [ 5 72]]
+DEBUG:root:Rank=12, Name=knn-5, Score=0.571 (+/- 0.097)
+DEBUG:root:[[ 3 12]
+ [ 1 76]]
+DEBUG:root:Rank=13, Name=knn-3, Score=0.571 (+/- 0.091)
+DEBUG:root:[[ 3 12]
+ [ 2 75]]
+DEBUG:root:Rank=14, Name=ridge-1.0, Score=0.567 (+/- 0.093)
+DEBUG:root:[[ 6  9]
+ [ 9 68]]
+DEBUG:root:Rank=15, Name=gbm, Score=0.566 (+/- 0.108)
+DEBUG:root:[[ 5 10]
+ [ 2 75]]
+DEBUG:root:Rank=16, Name=bag, Score=0.562 (+/- 0.069)
+DEBUG:root:[[ 5 10]
+ [ 0 77]]
+DEBUG:root:Rank=17, Name=ridge-0.01, Score=0.562 (+/- 0.083)
+DEBUG:root:[[ 6  9]
+ [ 9 68]]
+DEBUG:root:Rank=18, Name=ridge-0, Score=0.559 (+/- 0.084)
+DEBUG:root:[[ 6  9]
+ [ 9 68]]
+DEBUG:root:Rank=19, Name=ridge-0.1, Score=0.555 (+/- 0.094)
+DEBUG:root:[[ 6  9]
+ [ 9 68]]
+DEBUG:root:Rank=20, Name=ada, Score=0.554 (+/- 0.056)
+DEBUG:root:[[ 3 12]
+ [ 0 77]]
+##############################
+DEBUG:root:Target = RAF265_IC50
+DEBUG:root:Rank=1, Name=gbm, Score=0.643 (+/- 0.082)
+DEBUG:root:[[50 16]
+ [13 13]]
+DEBUG:root:Rank=2, Name=xgb, Score=0.620 (+/- 0.066)
+DEBUG:root:[[48 18]
+ [16 10]]
+DEBUG:root:Rank=3, Name=ada, Score=0.611 (+/- 0.068)
+DEBUG:root:[[50 16]
+ [15 11]]
+DEBUG:root:Rank=4, Name=bag, Score=0.609 (+/- 0.043)
+DEBUG:root:[[56 10]
+ [18  8]]
+DEBUG:root:Rank=5, Name=logistic, Score=0.596 (+/- 0.081)
+DEBUG:root:[[41 25]
+ [15 11]]
+DEBUG:root:Rank=6, Name=pa, Score=0.592 (+/- 0.073)
+DEBUG:root:[[24 42]
+ [ 8 18]]
+DEBUG:root:Rank=7, Name=svml, Score=0.591 (+/- 0.092)
+DEBUG:root:[[39 27]
+ [15 11]]
+DEBUG:root:Rank=8, Name=ridge-1.0, Score=0.588 (+/- 0.100)
+DEBUG:root:[[39 27]
+ [15 11]]
+DEBUG:root:Rank=9, Name=ridge-0.5, Score=0.585 (+/- 0.098)
+DEBUG:root:[[39 27]
+ [15 11]]
+DEBUG:root:Rank=10, Name=ridge-2.0, Score=0.585 (+/- 0.090)
+DEBUG:root:[[39 27]
+ [14 12]]
+DEBUG:root:Rank=11, Name=ridge-0.1, Score=0.582 (+/- 0.089)
+DEBUG:root:[[41 25]
+ [15 11]]
+DEBUG:root:Rank=12, Name=ridge-0, Score=0.582 (+/- 0.093)
+DEBUG:root:[[41 25]
+ [15 11]]
+DEBUG:root:Rank=13, Name=ridge-0.01, Score=0.580 (+/- 0.097)
+DEBUG:root:[[41 25]
+ [15 11]]
+DEBUG:root:Rank=14, Name=cart, Score=0.572 (+/- 0.051)
+DEBUG:root:[[42 24]
+ [16 10]]
+DEBUG:root:Rank=15, Name=rf, Score=0.568 (+/- 0.047)
+DEBUG:root:[[56 10]
+ [20  6]]
+DEBUG:root:Rank=16, Name=knn-7, Score=0.565 (+/- 0.105)
+DEBUG:root:[[45 21]
+ [17  9]]
+DEBUG:root:Rank=17, Name=et, Score=0.563 (+/- 0.052)
+DEBUG:root:[[59  7]
+ [19  7]]
+DEBUG:root:Rank=18, Name=knn-5, Score=0.558 (+/- 0.096)
+DEBUG:root:[[45 21]
+ [13 13]]
+DEBUG:root:Rank=19, Name=bayes, Score=0.557 (+/- 0.036)
+DEBUG:root:[[42 24]
+ [16 10]]
+DEBUG:root:Rank=20, Name=knn-3, Score=0.554 (+/- 0.071)
+DEBUG:root:[[43 23]
+ [10 16]]
+##############################
+DEBUG:root:Target = TAE684_IC50
+DEBUG:root:Rank=1, Name=xgb, Score=0.659 (+/- 0.072)
+DEBUG:root:[[44  9]
+ [21 18]]
+DEBUG:root:Rank=2, Name=gbm, Score=0.648 (+/- 0.089)
+DEBUG:root:[[40 13]
+ [18 21]]
+DEBUG:root:Rank=3, Name=rf, Score=0.624 (+/- 0.078)
+DEBUG:root:[[39 14]
+ [23 16]]
+DEBUG:root:Rank=4, Name=bag, Score=0.618 (+/- 0.075)
+DEBUG:root:[[42 11]
+ [18 21]]
+DEBUG:root:Rank=5, Name=et, Score=0.606 (+/- 0.048)
+DEBUG:root:[[41 12]
+ [18 21]]
+DEBUG:root:Rank=6, Name=ada, Score=0.605 (+/- 0.083)
+DEBUG:root:[[36 17]
+ [20 19]]
+DEBUG:root:Rank=7, Name=logistic, Score=0.581 (+/- 0.084)
+DEBUG:root:[[38 15]
+ [18 21]]
+DEBUG:root:Rank=8, Name=knn-7, Score=0.575 (+/- 0.056)
+DEBUG:root:[[36 17]
+ [17 22]]
+DEBUG:root:Rank=9, Name=sgd, Score=0.575 (+/- 0.086)
+DEBUG:root:[[29 24]
+ [13 26]]
+DEBUG:root:Rank=10, Name=cart, Score=0.570 (+/- 0.068)
+DEBUG:root:[[37 16]
+ [20 19]]
+DEBUG:root:Rank=11, Name=knn-5, Score=0.570 (+/- 0.053)
+DEBUG:root:[[36 17]
+ [19 20]]
+DEBUG:root:Rank=12, Name=knn-20, Score=0.568 (+/- 0.045)
+DEBUG:root:[[38 15]
+ [27 12]]
+DEBUG:root:Rank=13, Name=bayes, Score=0.568 (+/- 0.072)
+DEBUG:root:[[35 18]
+ [15 24]]
+DEBUG:root:Rank=14, Name=rbf, Score=0.565 (+/- 0.064)
+DEBUG:root:[[34 19]
+ [16 23]]
+DEBUG:root:Rank=15, Name=knn-1, Score=0.565 (+/- 0.068)
+DEBUG:root:[[34 19]
+ [16 23]]
+DEBUG:root:Rank=16, Name=ridge-2.0, Score=0.562 (+/- 0.076)
+DEBUG:root:[[41 12]
+ [20 19]]
+DEBUG:root:Rank=17, Name=knn-10, Score=0.558 (+/- 0.064)
+DEBUG:root:[[41 12]
+ [22 17]]
+DEBUG:root:Rank=18, Name=knn-2, Score=0.557 (+/- 0.036)
+DEBUG:root:[[43 10]
+ [24 15]]
+DEBUG:root:Rank=19, Name=ridge-0.01, Score=0.557 (+/- 0.079)
+DEBUG:root:[[40 13]
+ [19 20]]
+DEBUG:root:Rank=20, Name=ridge-0, Score=0.557 (+/- 0.079)
+DEBUG:root:[[40 13]
+ [19 20]]
+##############################
+DEBUG:root:Target = TKI258_IC50
+DEBUG:root:Rank=1, Name=bayes, Score=0.654 (+/- 0.059)
+DEBUG:root:[[32 12]
+ [13 35]]
+DEBUG:root:Rank=2, Name=gbm, Score=0.644 (+/- 0.065)
+DEBUG:root:[[22 22]
+ [10 38]]
+DEBUG:root:Rank=3, Name=xgb, Score=0.639 (+/- 0.056)
+DEBUG:root:[[19 25]
+ [ 9 39]]
+DEBUG:root:Rank=4, Name=ada, Score=0.637 (+/- 0.064)
+DEBUG:root:[[24 20]
+ [13 35]]
+DEBUG:root:Rank=5, Name=et, Score=0.624 (+/- 0.060)
+DEBUG:root:[[16 28]
+ [ 8 40]]
+DEBUG:root:Rank=6, Name=rf, Score=0.611 (+/- 0.044)
+DEBUG:root:[[22 22]
+ [11 37]]
+DEBUG:root:Rank=7, Name=near, Score=0.609 (+/- 0.094)
+DEBUG:root:[[36  8]
+ [25 23]]
+DEBUG:root:Rank=8, Name=bag, Score=0.605 (+/- 0.056)
+DEBUG:root:[[24 20]
+ [12 36]]
+DEBUG:root:Rank=9, Name=knn-10, Score=0.602 (+/- 0.073)
+DEBUG:root:[[14 30]
+ [11 37]]
+DEBUG:root:Rank=10, Name=knn-30, Score=0.600 (+/- 0.058)
+DEBUG:root:[[ 9 35]
+ [ 4 44]]
+DEBUG:root:Rank=11, Name=cart, Score=0.588 (+/- 0.084)
+DEBUG:root:[[22 22]
+ [23 25]]
+DEBUG:root:Rank=12, Name=knn-20, Score=0.587 (+/- 0.081)
+DEBUG:root:[[ 8 36]
+ [ 7 41]]
+DEBUG:root:Rank=13, Name=knn-5, Score=0.583 (+/- 0.080)
+DEBUG:root:[[15 29]
+ [ 8 40]]
+DEBUG:root:Rank=14, Name=pa, Score=0.581 (+/- 0.054)
+DEBUG:root:[[ 5 39]
+ [ 6 42]]
+DEBUG:root:Rank=15, Name=rbf, Score=0.580 (+/- 0.077)
+DEBUG:root:[[16 28]
+ [11 37]]
+DEBUG:root:Rank=16, Name=knn-7, Score=0.579 (+/- 0.072)
+DEBUG:root:[[13 31]
+ [ 9 39]]
+DEBUG:root:Rank=17, Name=knn-1, Score=0.578 (+/- 0.076)
+DEBUG:root:[[17 27]
+ [10 38]]
+DEBUG:root:Rank=18, Name=svml, Score=0.567 (+/- 0.058)
+DEBUG:root:[[17 27]
+ [14 34]]
+DEBUG:root:Rank=19, Name=logistic, Score=0.565 (+/- 0.074)
+DEBUG:root:[[18 26]
+ [13 35]]
+DEBUG:root:Rank=20, Name=knn-2, Score=0.558 (+/- 0.087)
+DEBUG:root:[[31 13]
+ [19 29]]
+##############################
+DEBUG:root:Target = Erlotinib_IC50
+DEBUG:root:Rank=1, Name=near, Score=0.685 (+/- 0.090)
+DEBUG:root:[[ 9  9]
+ [20 54]]
+DEBUG:root:Rank=2, Name=bayes, Score=0.669 (+/- 0.100)
+DEBUG:root:[[10  8]
+ [ 9 65]]
+DEBUG:root:Rank=3, Name=cart, Score=0.655 (+/- 0.053)
+DEBUG:root:[[ 4 14]
+ [ 8 66]]
+DEBUG:root:Rank=4, Name=ridge-0.01, Score=0.638 (+/- 0.094)
+DEBUG:root:[[ 6 12]
+ [ 2 72]]
+DEBUG:root:Rank=5, Name=ridge-0, Score=0.637 (+/- 0.095)
+DEBUG:root:[[ 6 12]
+ [ 2 72]]
+DEBUG:root:Rank=6, Name=knn-2, Score=0.631 (+/- 0.148)
+DEBUG:root:[[ 6 12]
+ [11 63]]
+DEBUG:root:Rank=7, Name=ridge-0.1, Score=0.630 (+/- 0.078)
+DEBUG:root:[[ 7 11]
+ [ 2 72]]
+DEBUG:root:Rank=8, Name=ridge-1.0, Score=0.625 (+/- 0.084)
+DEBUG:root:[[ 5 13]
+ [ 2 72]]
+DEBUG:root:Rank=9, Name=ridge-2.0, Score=0.624 (+/- 0.067)
+DEBUG:root:[[ 3 15]
+ [ 2 72]]
+DEBUG:root:Rank=10, Name=ridge-0.5, Score=0.621 (+/- 0.085)
+DEBUG:root:[[ 6 12]
+ [ 2 72]]
+DEBUG:root:Rank=11, Name=pa, Score=0.621 (+/- 0.073)
+DEBUG:root:[[ 7 11]
+ [ 5 69]]
+DEBUG:root:Rank=12, Name=svml, Score=0.618 (+/- 0.078)
+DEBUG:root:[[ 8 10]
+ [ 5 69]]
+DEBUG:root:Rank=13, Name=logistic, Score=0.612 (+/- 0.059)
+DEBUG:root:[[ 5 13]
+ [ 1 73]]
+DEBUG:root:Rank=14, Name=ada, Score=0.606 (+/- 0.090)
+DEBUG:root:[[ 4 14]
+ [ 2 72]]
+DEBUG:root:Rank=15, Name=gbm, Score=0.605 (+/- 0.071)
+DEBUG:root:[[ 1 17]
+ [ 1 73]]
+DEBUG:root:Rank=16, Name=rbf, Score=0.603 (+/- 0.091)
+DEBUG:root:[[ 3 15]
+ [ 5 69]]
+DEBUG:root:Rank=17, Name=knn-1, Score=0.601 (+/- 0.091)
+DEBUG:root:[[ 2 16]
+ [ 5 69]]
+DEBUG:root:Rank=18, Name=sgd, Score=0.597 (+/- 0.107)
+DEBUG:root:[[ 7 11]
+ [ 5 69]]
+DEBUG:root:Rank=19, Name=bag, Score=0.592 (+/- 0.064)
+DEBUG:root:[[ 2 16]
+ [ 1 73]]
+DEBUG:root:Rank=20, Name=knn-5, Score=0.579 (+/- 0.075)
+DEBUG:root:[[ 1 17]
+ [ 1 73]]
