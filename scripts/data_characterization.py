@@ -180,14 +180,13 @@ def show_me_the_data(df):
 	import seaborn as sns
 	from data_characterization import best_fit_distribution, make_pdf
 
-	sns.violinplot(data=df)
+	f, axes = plt.subplots(figsize=(50,100))
+	zg = sns.violinplot(data=df, ax=axes)
+	zg.set_xticklabels(zg.get_xticklabels(), rotation=45)
 
 	ncol = df.shape[1]
-
 	l = np.intc(np.ceil(np.sqrt(ncol)))
-
 	c = np.intc(np.ceil(ncol/l))
-	np.intc
 
 	f, axes = plt.subplots(l, c, figsize=(50,100))
 
@@ -196,12 +195,15 @@ def show_me_the_data(df):
 
 	for col in df.columns:
 		df2 = df[col]
-		bestDistrib, bestParams = best_fit_distribution(df2)
-		pdf = make_pdf(bestDistrib, bestParams)
+		df2 = df2.dropna()
+		#bestDistrib, bestParams = best_fit_distribution(df2)
+		#pdf = make_pdf(bestDistrib, bestParams)
 
-		sns.distplot(df2, kde=True, rug=True, label='data', ax=axes[count])
-		sns.lineplot(x=pdf.index, y=pdf, label=bestDistrib, ax=axes[count])
-		plt.legend()
+		zg = sns.distplot(df2, kde=True, rug=True, label='data', ax=axes[count])
+		zg.set_xlim(-1,1)
+
+		#zg.set_title(col)
+		#sns.lineplot(x=pdf.index, y=pdf, label=bestDistrib, ax=axes[count])
 		count = count + 1
 
 

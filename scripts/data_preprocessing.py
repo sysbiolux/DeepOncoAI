@@ -80,7 +80,7 @@ def get_TSNE(df, n_components = 2):
 	tsneComponents = tsne.fit_transform(df)
 	colList = []
 	for n in range(1, n_components+1):
-		colList.append('PC'+str(n))
+		colList.append('TSNE'+str(n))
 
 	df_TSNEs = pd.DataFrame(data = tsneComponents, index = df.index, columns = colList)
 
@@ -95,15 +95,23 @@ def select_top_features(X, y, threshold=0):
 	featureScores = pd.DataFrame()
 	for col in y.columns:
 		# split data into train and test sets
-		X_train, X_test, y_train, y_test = train_test_split(X, y[col], test_size=0.33, random_state=42)
+		X_train, X_test, y_train, y_test = train_test_split(X, y[col], test_size=0.25, random_state=42)
+		index = y_train.index[y_train.apply(np.isnan)]
+		todrop = index.values.tolist()
+		X_train = X_train.drop(todrop)
+		y_train = y_train.drop(todrop)
+		index = y_test.index[y_test.apply(np.isnan)]
+		todrop = index.values.tolist()
+		X_test = X_test.drop(todrop)
+		y_test = y_test.drop(todrop)
 		# fit model on all training data
-		model = xgb.XGBClassifier()
+		model = xgb.XGBClassifier(max_depth=5, n_estimators=200)
 		model.fit(X_train, y_train)
 		# make predictions for test data and evaluate
 		y_pred = model.predict(X_test)
 		predictions = [round(value) for value in y_pred]
 		accuracy = balanced_accuracy_score(y_test, predictions)
-		print("Accuracy: %.2f%%" % (accuracy * 100.0))
+		print("Balanced accuracy: %.2f%%" % (accuracy * 100.0))
 		if featureScores.empty:
 			featureScores = pd.Series(data=model.feature_importances_, name=col)
 		else:

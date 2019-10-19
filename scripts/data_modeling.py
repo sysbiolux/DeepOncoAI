@@ -36,7 +36,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 import xgboost as xgb
-import rotation_forest as rot
+#import rotation_forest as rot
 from sklearn.neural_network import MLPRegressor
 import pandas as pd
 from sklearn.datasets import make_classification
@@ -73,9 +73,9 @@ def get_classification_models(models=dict(), depth = 1):
 	# linear models
 	models['logistic'] = LogisticRegression()
 	if depth < 2:
-		alpha = [0, 0.01, 0.1, 0.5, 1.0, 2.0]
+		alpha = [0.01, 0.1, 0.5, 1.0, 2.0]
 	else:
-		alpha = [0, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 1.0]
+		alpha = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 1.0]
 
 	for a in alpha:
 		models['ridge-'+str(a)] = RidgeClassifier(alpha=a)
@@ -96,15 +96,15 @@ def get_classification_models(models=dict(), depth = 1):
 	models['extra'] = ExtraTreeClassifier()
 	models['rbf'] =  GaussianProcessClassifier(1.0 * RBF(1.0))
 	models['qda'] = QuadraticDiscriminantAnalysis()
-	models['svml'] = SVC(kernel='linear')
-	models['svmp'] = SVC(kernel='poly')
+	models['svml'] = SVC(kernel='linear', probability=True)
+	models['svmp'] = SVC(kernel='poly', probability=True)
 	if depth == 1:
 		c_values = [0.01, 0.2, 0.5, 0.8, 0.99]
 	else:
 		c_values = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 1.0]
 
 	for c in c_values:
-		models['svmr'+str(c)] = SVC(C=c)
+		models['svmr'+str(c)] = SVC(C=c, probability=True)
 	models['bayes'] = GaussianNB()
 	# ensemble models
 	if depth < 2:
@@ -117,8 +117,8 @@ def get_classification_models(models=dict(), depth = 1):
 	models['rf'] = RandomForestClassifier(n_estimators=n_trees)
 	models['et'] = ExtraTreesClassifier(n_estimators=n_trees)
 	models['gbm'] = GradientBoostingClassifier(n_estimators=n_trees)
-	models['rot'] = rot.RotationForestClassifier(n_estimators=n_trees)
-	models['rotrnd'] = rot.RotationForestClassifier(n_estimators=n_trees, rotation_algo='randomized')
+#	models['rot'] = rot.RotationForestClassifier(n_estimators=n_trees)
+#	models['rotrnd'] = rot.RotationForestClassifier(n_estimators=n_trees, rotation_algo='randomized')
 	models['xgb'] = xgb.XGBClassifier(maxdepth=3, n_estimators=n_trees, nthread=-1)
 	if depth > 2:
 		n_trees = n_trees*2
@@ -129,8 +129,8 @@ def get_classification_models(models=dict(), depth = 1):
 		models['rfmax1'] = RandomForestClassifier(n_estimators=n_trees, criterion= 'entropy', min_samples_split=4)
 		models['etmax1'] = ExtraTreesClassifier(n_estimators=n_trees, bootstrap=True, criterion= 'entropy')
 		models['gbmmax1'] = GradientBoostingClassifier(n_estimators=n_trees, learning_rate=0.02)
-		models['rotmax'] = rot.RotationForestClassifier(n_estimators=n_trees)
-		models['rotrnd'] = rot.RotationForestClassifier(n_estimators=n_trees, rotation_algo='randomized')
+#		models['rotmax'] = rot.RotationForestClassifier(n_estimators=n_trees)
+#		models['rotrnd'] = rot.RotationForestClassifier(n_estimators=n_trees, rotation_algo='randomized')
 		models['xgbmax2'] = xgb.XGBClassifier(maxdepth=5, n_estimators=n_trees, nthread=-1)
 
 	if depth > 1.5:
@@ -324,24 +324,24 @@ def summarize_results(results, predicted, y_test, thisCol, maximize=True, top_n=
 		mean_score, std_score = np.mean(results[name]), np.std(results[name])
 		logging.debug('Rank=%d, Name=%s, Score=%.3f (+/- %.3f)' % (i+1, name, mean_score, std_score))
 		logging.debug(confusion_matrix(y_test, predicted[name]))
-	f, axes = plt.subplots(1,1, figsize=(50,100))
+	f, axes = plt.subplots(1,1, figsize=(30, 50))
 	# boxplot for the top n
 	plt.boxplot(scores, labels=names)
 	_, labels = plt.xticks()
 	plt.setp(labels, rotation=90)
-	thisTitle = (thisCol+'_spotcheck.png')
+	thisTitle = (thisCol+'_spotcheck.pdf')
 	plt.savefig(thisTitle)
 
-	f, axes = plt.subplots(4,5, figsize=(50,100))
-	for i in range(4):
-		for j in range(5):
-			axes[i,j].plot(y_test, predict[i*5+j], '.k')
-			axes[i,j].set_title(names[i*5+j])
-	f.suptitle(thisCol+'_Best_models_predictions')
-	figManager = plt.get_current_fig_manager()
-	figManager.window.showMaximized()
-	plt.savefig(thisCol+'_predictions.png')
+#	f, axes = plt.subplots(4,5, figsize=(50,100))
+#	for i in range(4):
+#		for j in range(5):
+#			axes[i,j].plot(y_test, predict[i*5+j], '.k')
+#			axes[i,j].set_title(names[i*5+j])
+#	f.suptitle(thisCol+'_Best_models_predictions')
+#	figManager = plt.get_current_fig_manager()
+#	figManager.window.showMaximized()
+#	plt.savefig(thisCol+'_predictions.png')
 
-	return scores
+	return names, scores, predict
 
 
