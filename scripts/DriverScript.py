@@ -21,7 +21,6 @@ import matplotlib.pyplot as plt
 from sklearn import preprocessing as pp
 from sklearn import metrics
 import logging
-import time
 from datetime import datetime
 
 import numba
@@ -198,7 +197,7 @@ for thisTarget in Targets:
 			y_test = y_test.drop(todrop)
 
 
-			print('Investigating %s' % (thisCol))
+			print('Investigating %s with strategy %s' % (thisCol, strategy))
 			# get model list
 			if Goal == 'regression':
 				models = get_regression_models(depth = 1)
@@ -209,7 +208,7 @@ for thisTarget in Targets:
 				# evaluate models
 				results, predicted = evaluate_models(X_train, y_train, models, X_test, metric='balanced_accuracy')
 			# summarize results
-			thisNames, thisScores, thisPredict = summarize_results(results, predicted, y_test, thisCol)
+			thisNames, thisScores, thisPredict = summarize_results(results, predicted, y_test, thisCol, strategy)
 
 			np.set_printoptions(precision=2)
 			fig, ax = plt.subplots(3,4, figsize=(30, 50))
@@ -232,7 +231,7 @@ for thisTarget in Targets:
 			plot_roc(y_test, X_test, y_train, X_train, thisNames, models, item=2, ax=ax[10])
 			plot_decision_boundary(y_test, X_test, y_train, X_train, thisNames, models, item=2, ax=ax[11])
 			plt.show()
-			plt.savefig('Best3Models_'+thisCol+'.pdf')
+			plt.savefig('Best3Models_'+thisCol+'_Strategy'+str(strategy)+'.pdf')
 
 
 

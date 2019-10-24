@@ -81,8 +81,9 @@ def plot_decision_boundary(y_test, X_test, y_train, X_train, thisNames, models, 
 		
 	Z = clf.predict(Xfake)
 	ZPCs = pca.transform(Xfake)
+	missed = clf.predict(X_test) != y_test
 	
-	ax.scatter(ZPCs[:,0], ZPCs[:,1], c=Z, cmap='coolwarm', alpha=0.5, linewidths=0)
+	ax.scatter(ZPCs[:,0], ZPCs[:,1], c=Z, s=5, cmap='coolwarm', alpha=0.5, linewidths=0)
 #	ax.scatter(PCs[:,0], PCs[:,1], c=y, s=20, cmap='bwr', edgecolor='k')
 	ax.set_title('Decision boundary')
 

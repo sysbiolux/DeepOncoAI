@@ -295,7 +295,7 @@ def evaluate_models(X, y, models, X_test, folds=10, metric='accuracy'):
 	return (results, predicted)
 
 # print and plot the top n results
-def summarize_results(results, predicted, y_test, thisCol, maximize=True, top_n=20):
+def summarize_results(results, predicted, y_test, thisCol, strategy=0, maximize=True, top_n=20):
 	import time
 	import numpy as np
 
@@ -329,7 +329,7 @@ def summarize_results(results, predicted, y_test, thisCol, maximize=True, top_n=
 	plt.boxplot(scores, labels=names)
 	_, labels = plt.xticks()
 	plt.setp(labels, rotation=90)
-	thisTitle = (thisCol+'_spotcheck.pdf')
+	thisTitle = (thisCol+'_Strategy'+str(strategy)+'_spotcheck.pdf')
 	plt.savefig(thisTitle)
 
 #	f, axes = plt.subplots(4,5, figsize=(50,100))
