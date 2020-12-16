@@ -1,0 +1,6 @@
+data:
+  omics:
+    - name: RPPA
+      database: CCLE
+    - name: DRUGS
+      database: CCLE
