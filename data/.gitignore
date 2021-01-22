@@ -1,0 +1,15 @@
+*
+!.gitignore
+desktop.ini
+CCLE_RNAseq_genes_rpkm_20180929.csv
+Cell_line_RMA_proc_basalExp.txt
+GDSC_PANCANCER_Genetic_feature_Fri Jul 19 13_04_02 2019.csv
+CCLE_miRNA_20181103.csv
+CCLE_NP24.2009_Drug_data_2015.02.24.csv
+CCLE_metabolomics_20190502.csv
+CCLE_RPPA_20181003.csv
+Binarized_IC50.xlsx
+Drug_responses_CCLE_GDSC.xlsx
+SPEED_Scores.xlsx
+
+
