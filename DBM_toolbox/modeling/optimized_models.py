@@ -127,6 +127,12 @@ models = [
 		'alpha': ParameterBound(10e-6, 10e-2, logarithmic=True)}}
 	]
 
+def get_estimator_list():
+	estimator_list = list()
+	for model in models:
+		estimator = model['estimator_method'].split('_')[-1]
+		estimator_list.append(estimator)
+	return estimator_list
 
 def cross_validate_evaluation(estimator, data, targets):
 	cv = StratifiedKFold(n_splits=5)
@@ -149,7 +155,7 @@ def retrieve_original_parameters(optimizer_parameters, parameter_bounds):
 	return original_parameters
 
 
-def optimize_estimator(estimator_method, parameter_bounds, data,
+def bayes_optimize_estimator(estimator_method, parameter_bounds, data,
 targets, n_trials):
 	def instantiate_cross_validate_evaluation(**kwargs):
 		estimator = estimator_method(**kwargs)
@@ -171,10 +177,10 @@ targets, n_trials):
 	return optimizer.max, opt_model
 
 
-def get_optimal_models(data, targets, n_trials):
+def bayes_optimize_models(data, targets, n_trials):
 	optimal_models = list()
 	for model in models:
-		maximum_value, optimal_model = optimize_estimator(model['estimator_method'],
+		maximum_value, optimal_model = bayes_optimize_estimator(model['estimator_method'],
 														  model['parameter_bounds'],
 														  data,
 														  targets,

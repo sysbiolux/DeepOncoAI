@@ -2,9 +2,10 @@ import pandas as pd
 from DBM_toolbox.data_manipulation.dataset_class import Dataset
 
 class KeepFeaturesFilter:
-	def __init__(self, features, omic):
+	def __init__(self, features, omic, database):
 		self.features = features
 		self.omic = omic
+		self.database = database
 
 	def apply(self, dataset):
 		# TODO: this takes too much time!
@@ -27,7 +28,7 @@ class KeepFeaturesFilter:
 		return Dataset(dataframe=filtered_dataframe, omic=retained_omic, database=retained_database)
 
 	def __repr__(self):
-		return f"KeepFeaturesFilter({self.features}, {self.omic})"
+		return f'KeepFeaturesFilter({self.features}, {self.omic})'
 
 
 class KeepDenseRowsFilter:

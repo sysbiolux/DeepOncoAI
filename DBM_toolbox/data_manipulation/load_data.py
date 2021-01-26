@@ -5,7 +5,7 @@ import pandas as pd
 from DBM_toolbox.data_manipulation.dataset_class import Dataset
 from DBM_toolbox.data_manipulation import preprocessing
 
-def read_data(folder, omic, database, nrows=None):
+def read_data(folder, omic, database, nrows=None, keywords=None):
 	if database == 'CCLE':
 		filename = {
 			'RNA' : 'CCLE_RNASeq_genes_rpkm_20180929.csv',
@@ -31,6 +31,9 @@ def read_data(folder, omic, database, nrows=None):
 	
 	if omic == 'DRUGS':
 		dataset = preprocessing.reformat_drugs(dataset)
+		if keywords is not None:
+			for this_keyword in keywords:
+				dataset = preprocessing.select_drug_metric(dataset, this_keyword)
 	else:
 		dataset = preprocessing.preprocess_data(dataset)
 		

@@ -1,58 +1,55 @@
 import numpy as np
 import pandas as pd
-from DBM_toolbox.data_manipulation.filter import KeepFeaturesFilter
+from DBM_toolbox.data_manipulation.filter_class import KeepFeaturesFilter
 import xgboost as xgb
-from sklearn.metrics import balanced_accuracy_score
+# from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import mean_squared_error
 
 class Rule:
 	def create_filter(self, dataset):
 		pass
 
-
+# TODO: these rules could also be database-specific
 class HighestVarianceRule(Rule):
-	def __init__(self, fraction, omic):
+	def __init__(self, fraction, omic, database):
+		# TODO: Add check on fraction
 		self.fraction = fraction
 		self.omic = omic
+		self.database = database
 
 	def create_filter(self, dataset):
 		dataframe = dataset.to_pandas(omic=self.omic)
 		variances = dataframe.var().sort_values(ascending=False)
 		number_of_features_to_keep = int(round(len(variances) * self.fraction))
 		features_to_keep = variances.iloc[:number_of_features_to_keep].index
-		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic)
+		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic, database=self.database)
 
 
 class ColumnDensityRule(Rule):
-	def __init__(self, density_fraction, omic):
-		self.density_fraction = density_fraction
+	def __init__(self, completeness_threshold, omic, database):
+		if completeness_threshold < 0 or completeness_threshold > 1:
+			raise ValueError('ColumnDensityRule completeness_threshold should be in [0, 1]')
+		self.density_fraction = completeness_threshold
 		self.omic = omic
+		self.database = database
 
 	def create_filter(self, dataset):
 		dataframe = dataset.to_pandas(omic=self.omic)
 		completeness = dataframe.isna().mean(axis = 0).sort_values(ascending=False)
 		number_of_features_to_keep = int(round(len(completeness) * self.density_fraction))
 		features_to_keep = completeness.iloc[:number_of_features_to_keep].index
-		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic)
+		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic, database=self.database)
 
-# class SampleDensityRule(Rule):
-# 	def __init__(self, density_fraction, omic):
-# 		self.density_fraction = density_fraction
-
-# 	def create_filter(self, dataset):
-# 		dataframe = dataset.to_pandas(omic=self.omic)
-# 		completeness = dataframe.isna().mean(axis = 1).sort_values(ascending=False)
-# 		number_of_samples_to_keep = int(round(len(completeness) * self.fraction))
-# 		samples_to_keep = completeness.iloc[:number_of_samples_to_keep].index
-# 		return KeepDenseRowsFilter(features=samples_to_keep, omic=self.omic)
 	
 class FeatureImportanceRule(Rule):
-	def __init__(self, fraction, omic):
+	def __init__(self, fraction, omic, database):
+		# TODO: Add check on fraction allowed values
 		self.fraction = fraction
 		self.omic = omic
-	
+		self.database = database
+		
 	def create_filter(self, dataset, target_df):
-		dataframe = dataset.to_pandas(omic=self.omic)
+		dataframe = dataset.to_pandas(omic=self.omic, database=self.database)
 		if len(target_df.shape) == 1:
 			target_df = target_df.to_frame()
 # 		index = target_df.index[target_df.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
@@ -71,18 +68,20 @@ class FeatureImportanceRule(Rule):
 		print(importances)
 		number_of_features_to_keep = int(round(len(importances) * self.fraction))
 		features_to_keep = importances.iloc[:number_of_features_to_keep].index
-		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic)
+		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic, database=self.database)
 		
 class FeaturePredictivityRule(Rule):
-	def __init__(self, fraction, omic):
+	def __init__(self, fraction, omic, database):
+		# TODO: Add check on fraction allowed values
 		self.fraction = fraction
 		self.omic = omic
+		self.database = database
 	
 	def create_filter(self, dataset, target_df):
-		dataframe = dataset.to_pandas(omic=self.omic)
+		dataframe = dataset.to_pandas(omic=self.omic, database=self.database)
 		if len(target_df.shape) == 1: ### utility to do this (takes a long time) on several targets?
 			target_df = target_df.to_frame()
-# 		index = target_df.index[target_df.apply(np.isnan)]   ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+# 		index = target_df.index[target_df.apply(np.isnan)]   ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost so we need to drop them
 # 		to_drop = index.values.tolist()
 # 		dataframe = dataframe.drop(to_drop)
 # 		target_df = target_df.drop(to_drop)
@@ -112,7 +111,7 @@ class FeaturePredictivityRule(Rule):
 		
 		number_of_features_to_keep = int(round(len(predictivities) * self.fraction))
 		features_to_keep = predictivities.iloc[:number_of_features_to_keep].index
-		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic)
+		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic, database=self.database)
 		
 
 

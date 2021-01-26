@@ -1,6 +1,188 @@
+# DBM toolbox config file
+
 data:
   omics:
     - name: RPPA
       database: CCLE
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_variance
+          fraction_retained: 0.8
+          enabled: true
+      feature_engineering:
+        feature_selection:
+          - name: importance
+            fraction_selected: 0.03
+            enabled: true
+          - name: predictivity
+            fraction_selected: 0.03
+            enabled: true
+        transformations:
+          - name: PCA
+            n_components: 2
+            enabled: true
+          - name: ICA
+            n_components: 10
+            enabled: true
+          - name: RP
+            n_components: 10
+            enabled: true
+          - name: TSNE
+            n_components: 2
+            enabled: true
+          - name: Poly
+            degree: 2
+            enabled: true
+          - name: OR
+            enabled: true
+    - name: RNA
+      database: CCLE
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_variance
+          fraction_retained: 0.1
+          enabled: true
+      feature_engineering:
+        feature_selection:
+          - name: importance
+            fraction_selected: 0.001
+            enabled: true
+          - name: predictivity
+            fraction_selected: 0.001
+            enabled: false
+        transformations:
+          - name: PCA
+            n_components: 5
+            enabled: true
+          - name: ICA
+            n_components: 10
+            enabled: false
+          - name: RP
+            n_components: 10
+            enabled: false
+          - name: TSNE
+            n_components: 2
+            enabled: true
+          - name: Poly
+            degree: 2
+            enabled: false
+          - name: OR
+            enabled: false
+    - name: MIRNA
+      database: CCLE
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_variance
+          fraction_retained: 0.1
+          enabled: true
+      feature_engineering:
+        feature_selection:
+          - name: importance
+            fraction_selected: 0.001
+            enabled: true
+          - name: predictivity
+            fraction_selected: 0.001
+            enabled: false
+        transformations:
+          - name: PCA
+            n_components: 5
+            enabled: true
+          - name: ICA
+            n_components: 10
+            enabled: false
+          - name: RP
+            n_components: 10
+            enabled: false
+          - name: TSNE
+            n_components: 2
+            enabled: true
+          - name: Poly
+            degree: 2
+            enabled: false
+          - name: OR
+            enabled: false
+    # - name: RNA
+    #   database: GDSC
+    #   filtering:
+    #     - name: sample_completeness
+    #       threshold: 0.95
+    #       enabled: true
+    #     - name: feature_completeness
+    #       threshold: 0.95
+    #       enabled: true
+    #     - name: feature_variance
+    #       fraction_retained: 0.1
+    #       enabled: true
+    #   feature_engineering:
+    #     feature_selection:
+    #       - name: importance
+    #         fraction_selected: 0.001
+    #         enabled: true
+    #       - name: predictivity
+    #         fraction_selected: 0.001
+    #         enabled: true
+    #     transformations:
+    #       - name: PCA
+    #         n_components: 5
+    #         enabled: true
+    #       - name: ICA
+    #         n_components: 10
+    #         enabled: false
+    #       - name: RP
+    #         n_components: 10
+    #         enabled: false
+    #       - name: TSNE
+    #         n_components: 2
+    #         enabled: true
+    #       - name: Poly
+    #         degree: 2
+    #         enabled: false
+    #       - name: OR
+    #         enabled: false
+  targets:
     - name: DRUGS
       database: CCLE
+      responses: ActArea
+      target_drug_name: AEW541 # TODO: how to have more than one target? so far feature engineering will consider all targets combined
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+      normalization:
+        - name: unit
+          enabled: true
+      target_engineering:
+        - name: quantization
+          upper_bound_resistant: 0.48
+          lower_bound_sensitive: 0.52
+          enabled: true
+        - name: thresholding # TODO: implement this
+          upper_bound_resistant: 0.25
+          lower_bound_sensitive: 0.75
+          enabled: false
+modeling:
+  general:
+    - name: use_tumor_type
+      enabled: true
+    - name: search_depth
+      enabled: true
+      value: 20
+    - name: sampling
+      enabled: false # TODO: implement this
+      value: upsample_minority_class_SMOTE
+    
