@@ -21,7 +21,7 @@ def get_polynomials(df, degree = None):
 	poly = PolynomialFeatures(degree)
 	df_transformed = poly.fit_transform(df)
 	df_polynomial = pd.DataFrame(data = df_transformed, index = df.index, columns = poly.get_feature_names())
-	return make_dataset(df_polynomial, omic='poly', database='engineered')
+	return make_dataset(df_polynomial, omic='poly', database='ENGINEERED')
 
 def get_boolean_or(df):
 	"""adds boolean OR combinations of the features to the dataset
@@ -36,4 +36,4 @@ def get_boolean_or(df):
 			or_value = 1 - ((1 - A) * (1 - B))
 			df_boolean['BoolOR' + str(count)] = or_value
 	
-	return make_dataset(df_boolean, omic='boolean', database='engineered')
+	return make_dataset(df_boolean, omic='boolean', database='ENGINEERED')

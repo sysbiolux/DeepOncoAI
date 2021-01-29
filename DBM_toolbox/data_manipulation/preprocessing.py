@@ -66,6 +66,11 @@ def preprocess_data(dataset, flag=None):
 				dataset = preprocess_gdsc_mirna(dataset, flag=flag)
 			if omic[0] == 'DNA':
 				dataset = preprocess_gdsc_dna(dataset, flag=flag)
+		elif database[0] == 'OWN':
+			if omic[0] == 'PATHWAY':
+				dataset = preprocess_features_pathway(dataset, flag=flag)
+			if omic[0] == 'TOPOLOGY':
+				dataset = preprocess_features_topology(dataset, flag=flag)
 	return dataset
 
 
@@ -122,6 +127,20 @@ def preprocess_gdsc_mirna(dataset, flag=None):
 def preprocess_gdsc_dna(dataset, flag=None):
 	## TODO: preprocessing steps here
 	pass
+
+def preprocess_features_pathway(dataset, flag=None):
+	## TODO: preprocessing steps here
+	pass
+
+def preprocess_features_topology(dataset, flag=None):
+	## TODO: preprocessing steps here
+	# @Apurva
+	df = dataset.dataframe
+	
+	# additional steps if necessary
+	
+	return dataset_class.Dataset(df, omic='TOPOLOGY', database='OWN')
+
 
 def rescale_data(df):
 	'''Normalization by mapping to the [0 1] interval (each feature independently)

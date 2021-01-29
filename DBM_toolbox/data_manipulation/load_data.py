@@ -24,8 +24,20 @@ def read_data(folder, omic, database, nrows=None, keywords=None):
 			'DNA' : 'placeholder',
 			'DRUGS' : 'GDSC2_fitted_dose_response_25Feb20.csv',
 			}[omic]
+	elif database == 'OWN':
+		filename = {
+			'PATHWAY' : 'SPEED_Scores.xlsx', 
+			'TOPOLOGY' : 'YourFileNameHere.csv', # @ Apurva
+			}[omic]
 	
-	dataframe = pd.read_csv(os.path.join(folder, filename), nrows=nrows)
+	file_string, file_extension = os.path.splitext(filename)
+	
+	if file_extension == '.csv':
+		dataframe = pd.read_csv(os.path.join(folder, filename), nrows=nrows)
+	elif file_extension == '.txt':
+		pass ## TODO: implement here
+	elif file_extension == '.xlsx':
+		pass ## TODO: implement here
 	
 	dataset = Dataset(dataframe=dataframe, omic=omic, database=database)
 	
