@@ -134,7 +134,8 @@ def preprocess_features_pathway(dataset, flag=None):
 
 def preprocess_features_topology(dataset, flag=None):
 	## TODO: preprocessing steps here
-	# @Apurva
+	# @Apurva could stay empty if your output is directly workable,
+	# but maybe we want to add things here later
 	df = dataset.dataframe
 	
 	# additional steps if necessary
