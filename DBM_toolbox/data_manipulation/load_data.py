@@ -5,7 +5,7 @@ import pandas as pd
 from DBM_toolbox.data_manipulation.dataset_class import Dataset
 from DBM_toolbox.data_manipulation import preprocessing
 
-def read_data(folder, omic, database, nrows=None):
+def read_data(folder, omic, database, nrows=None, keywords=None):
 	if database == 'CCLE':
 		filename = {
 			'RNA' : 'CCLE_RNASeq_genes_rpkm_20180929.csv',
@@ -24,13 +24,28 @@ def read_data(folder, omic, database, nrows=None):
 			'DNA' : 'placeholder',
 			'DRUGS' : 'GDSC2_fitted_dose_response_25Feb20.csv',
 			}[omic]
+	elif database == 'OWN':
+		filename = {
+			'PATHWAY' : 'SPEED_Scores.xlsx', 
+			'TOPOLOGY' : 'YourFileNameHere.csv', # @ Apurva
+			}[omic]
 	
-	dataframe = pd.read_csv(os.path.join(folder, filename), nrows=nrows)
+	file_string, file_extension = os.path.splitext(filename)
+	
+	if file_extension == '.csv':
+		dataframe = pd.read_csv(os.path.join(folder, filename), nrows=nrows)
+	elif file_extension == '.txt':
+		pass ## TODO: implement here
+	elif file_extension == '.xlsx':
+		pass ## TODO: implement here
 	
 	dataset = Dataset(dataframe=dataframe, omic=omic, database=database)
 	
 	if omic == 'DRUGS':
 		dataset = preprocessing.reformat_drugs(dataset)
+		if keywords is not None:
+			for this_keyword in keywords:
+				dataset = preprocessing.select_drug_metric(dataset, this_keyword)
 	else:
 		dataset = preprocessing.preprocess_data(dataset)
 		

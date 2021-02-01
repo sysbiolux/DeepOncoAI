@@ -2,9 +2,10 @@ import pandas as pd
 from DBM_toolbox.data_manipulation.dataset_class import Dataset
 
 class KeepFeaturesFilter:
-	def __init__(self, features, omic):
+	def __init__(self, features, omic, database):
 		self.features = features
 		self.omic = omic
+		self.database = database
 
 	def apply(self, dataset):
 		# TODO: this takes too much time!
@@ -13,7 +14,6 @@ class KeepFeaturesFilter:
 		retained_omic = pd.Series()
 		retained_database = pd.Series()
 		for this_feature in dataframe.columns:
-# 			print(dataset.omic[this_feature])
 			if dataset.omic[this_feature] != self.omic:
 				features_to_keep.append(this_feature)
 				retained_omic = pd.concat([retained_omic, pd.Series(dataset.omic[this_feature], index=[this_feature])])
@@ -27,7 +27,7 @@ class KeepFeaturesFilter:
 		return Dataset(dataframe=filtered_dataframe, omic=retained_omic, database=retained_database)
 
 	def __repr__(self):
-		return f"KeepFeaturesFilter({self.features}, {self.omic})"
+		return f'KeepFeaturesFilter({self.features}, {self.omic})'
 
 
 class KeepDenseRowsFilter:

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
+'''
 
-"""
+'''
 
 import pandas as pd
 import numpy as np
 from DBM_toolbox.data_manipulation import dataset_class
+
 
 def reformat_drugs(dataset):
 	df = dataset.dataframe
@@ -14,9 +15,9 @@ def reformat_drugs(dataset):
 	if all(x == database[0] for x in database) and all(x == 'DRUGS' for x in omic):
 		if database[0] == 'CCLE':
 			
-			"""reshapes a CCLE pandas dataframe from 'one line per datapoint' to a more convenient
+			'''reshapes a CCLE pandas dataframe from 'one line per datapoint' to a more convenient
 			'one line per sample' format, meaning the response of a given cell line to different drugs
-			will be placed on the same line in different columns."""
+			will be placed on the same line in different columns.'''
 			
 			drugNames = df['Compound'].unique()
 			df['Compound'].value_counts()
@@ -65,6 +66,11 @@ def preprocess_data(dataset, flag=None):
 				dataset = preprocess_gdsc_mirna(dataset, flag=flag)
 			if omic[0] == 'DNA':
 				dataset = preprocess_gdsc_dna(dataset, flag=flag)
+		elif database[0] == 'OWN':
+			if omic[0] == 'PATHWAY':
+				dataset = preprocess_features_pathway(dataset, flag=flag)
+			if omic[0] == 'TOPOLOGY':
+				dataset = preprocess_features_topology(dataset, flag=flag)
 	return dataset
 
 
@@ -104,8 +110,15 @@ def preprocess_ccle_dna(dataset, flag=None):
 	pass
 
 def preprocess_gdsc_rna(dataset, flag=None):
-	## TODO: preprocessing steps here
-	pass
+	df = dataset.dataframe
+	if flag == None:
+# 		df['GeneTrans'] = df['Description'] + '_' + df['Name']
+# 		df = df.set_index(['GeneTrans'])
+# 		df = df.drop(['Description', 'Name'], axis=1)
+# 		df = df.transpose()
+		df = np.log2(df + 1)
+		
+	return dataset_class.Dataset(df, omic='RNA', database='GDSC')
 
 def preprocess_gdsc_mirna(dataset, flag=None):
 	## TODO: preprocessing steps here
@@ -115,13 +128,28 @@ def preprocess_gdsc_dna(dataset, flag=None):
 	## TODO: preprocessing steps here
 	pass
 
+def preprocess_features_pathway(dataset, flag=None):
+	## TODO: preprocessing steps here
+	pass
+
+def preprocess_features_topology(dataset, flag=None):
+	## TODO: preprocessing steps here
+	# @Apurva could stay empty if your output is directly workable,
+	# but maybe we want to add things here later
+	df = dataset.dataframe
+	
+	# additional steps if necessary
+	
+	return dataset_class.Dataset(df, omic='TOPOLOGY', database='OWN')
+
+
 def rescale_data(df):
-	"""Normalization by mapping to the [0 1] interval (each feature independently)
-	this is the same as maxScaler? should we leave it?"""
+	'''Normalization by mapping to the [0 1] interval (each feature independently)
+	this is the same as maxScaler? should we leave it?'''
 	return (df - df.min()) / (df.max() - df.min())
 
 def impute_missing_data(df, method = 'average'):
-	"""imputes computed values for missing data according to the specified method"""
+	'''imputes computed values for missing data according to the specified method'''
 	##TODO: implement other methods of imputation
 	if method == 'average':
 		df = df.fillna(df.mean())
@@ -152,4 +180,16 @@ def get_tumor_type(df):
 		df_tumors[col] = pd.to_numeric(df_tumors[col])
 	
 	return df_tumors
+
+def select_drug_metric(dataset, metric):
+	omic = dataset.omic
+	database = dataset.database
+	df = dataset.dataframe
+	is_selected = df.columns.str.contains(metric, regex=False)
+	df = df.loc[:, is_selected]
+	omic = omic.loc[is_selected]
+	database = database.loc[is_selected]
+	sparse_dataset = dataset_class.Dataset(df, omic=omic, database=database)
+	
+	return sparse_dataset
 
