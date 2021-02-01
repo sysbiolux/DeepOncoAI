@@ -1,4 +1,5 @@
 import yaml
+import logging
 
 from DBM_toolbox.data_manipulation import load_data, rule, preprocessing
 from DBM_toolbox.feature_engineering.targets import ternarization
@@ -13,7 +14,7 @@ parse_filter_dict = {'sample_completeness': lambda this_filter, omic, database: 
 }
 
 parse_selection_dict = {'importance': lambda selection, omic, database: rule.FeatureImportanceRule(fraction=selection['fraction_selected'], omic=omic, database=database),
-						  'predictivity': lambda selection, omic, database: rule.FeaturePredictivityRule(fraction=selection['fraction_selected'], omic=omic, database=database)
+						'predictivity': lambda selection, omic, database: rule.FeaturePredictivityRule(fraction=selection['fraction_selected'], omic=omic, database=database)
 }
 
 parse_transformation_dict = {'PCA': lambda dataframe, transformation, omic: components.get_PCs(dataframe, n_components=transformation['n_components']),
@@ -55,37 +56,18 @@ class Config:
 			self.raw_dict = yaml.load(f, Loader=yaml.FullLoader)
 
 	def read_data(self):
+		nrows = self.raw_dict['data'].get("maximum_rows", None)
 		omic = self.raw_dict['data']['omics'][0]
 		full_dataset = load_data.read_data('data', omic=omic['name'], database=omic['database'])
 		for omic in self.raw_dict['data']['omics'][1:]:
-			additional_dataset = load_data.read_data('data', omic=omic['name'], database=omic['database'])
+			additional_dataset = load_data.read_data('data', omic=omic['name'], database=omic['database'], nrows=nrows)
 			full_dataset = full_dataset.merge_with(additional_dataset)
 		
 		targets = self.raw_dict['data']['targets']
 		for target in targets:
-# 			print(target)
 			target_metric = target['responses']
 			target_name = target['target_drug_name']
 			additional_dataset = load_data.read_data('data', omic=target['name'], database=target['database'], keywords=[target_name, target_metric])
-			# TODO: include here quantization
-			for item in target['normalization']:
-				if 'enabled' in item and not item['enabled']:
-					pass
-				else:
-					if item['name'] == 'unit':
-						normalized_df = preprocessing.rescale_data(additional_dataset.dataframe)
-						additional_dataset = dataset_class.Dataset(dataframe=normalized_df, omic=additional_dataset.omic, database=additional_dataset.database)
-			
-			
-			for item in target['target_engineering']:
-				if 'enabled' in item and not item['enabled']:
-					pass
-				else:
-					if item['name'] == 'quantization':
-						thresholdR = item['upper_bound_resistant']
-						thresholdS = item['lower_bound_sensitive']
-						quantized_df = ternarization.get_drug_response(additional_dataset.dataframe, thresholdR=thresholdR, thresholdS=thresholdS)
-						additional_dataset = dataset_class.Dataset(dataframe=quantized_df, omic=additional_dataset.omic, database=additional_dataset.database)
 			full_dataset = full_dataset.merge_with(additional_dataset)
 		return full_dataset
 
@@ -135,6 +117,7 @@ class Config:
 		for omic in omics:
 			transformations_dict = omic['feature_engineering']['transformations']
 			for transformation in transformations_dict:
+				logging.info(transformation)
 				new_features = parse_transformations(dataframe=dataframe, transformation=transformation, omic=omic, database=database)
 				if new_features is not None:
 					if engineered_features is not None:
@@ -145,77 +128,37 @@ class Config:
 
 
 	def get_optimized_models(self, dataset):
-		
-		
 		omic_list = self.raw_dict['data']['omics']
-# 		target_list = self.raw_dict['data']['targets']
 		modeling_options = self.raw_dict['modeling']['general']
-# 		print(modeling_options)
 		for this_item in modeling_options:
 			if 'enabled' in this_item and this_item['enabled']:
-# 				print(this_item)
 				if this_item['name'] == 'search_depth':
 					depth = this_item['value']
-# 		model_list = optimized_models.get_estimator_list()
 		
 		targets = dataset.to_pandas(omic='DRUGS')
 		
 		results = dict()
 		
-		for this_target in targets.columns:
+		for target_name in targets.columns:
 			# TODO: there should be a better way to do this, this depends on the exact order of the targets, should be ok but maybe names are better
 			for this_omic in omic_list:
 				this_data = dataset.to_pandas(omic=this_omic['name'], database=this_omic['database'])
+				# print(this_target in this_data.columns)
+				# print(this_target)
+				# print(this_data)
+				this_target = targets[target_name]
+				# print(this_target.values)
+				# logging.info(this_target)
 # 				depth = modeling_options['name' == 'search_depth']['value']
 				this_result = optimized_models.bayes_optimize_models(data=this_data, targets=this_target, n_trials=depth)
 				omic_db = this_omic['name'] + '_' + this_omic['database']
-				results[omic_db][this_target] = this_result
-				
-				
+				if omic_db not in results:
+					results[omic_db] = dict()
+				results[omic_db][target_name] = this_result
+		return results
 
-	def get_best_stack(engineered_data, optimal_algos):
+	def get_best_stack(self, engineered_data, optimal_algos):
 		pass
 
-	def generate_results(best_stack, optimal_algos):
+	def generate_results(self, best_stack, optimal_algos):
 		pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

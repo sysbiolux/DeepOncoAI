@@ -1,6 +1,7 @@
 # DBM toolbox config file
 
 data:
+  # maximum_rows: 100
   omics:
     - name: RPPA
       database: CCLE
@@ -37,9 +38,9 @@ data:
             enabled: true
           - name: Poly
             degree: 2
-            enabled: true
+            enabled: false
           - name: OR
-            enabled: true
+            enabled: false
     - name: RNA
       database: CCLE
       filtering:

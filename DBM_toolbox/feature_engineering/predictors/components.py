@@ -29,11 +29,9 @@ def get_PCs(df, n_components=None, label=None):
 		column_names.append('PC' + str(n) + label)
 	df_PCs = pd.DataFrame(data=principal_components, index=df.index, columns=column_names)
 	var = pca.explained_variance_ratio_
-	comp = pca.components_
-	print('components:')
-	print(comp)
+# 	comp = pca.components_
 	print('fraction of variance explained: %.5f (PC1), %.5f (PC2)' % (var[0], var[1]))
-	return make_dataset(df_PCs, omic='PC', database='ENGINEERED')
+	return make_dataset(df_PCs, omic='PC', database='engineered')
 
 def get_ICs(df, n_components=None, label=None, random_state=42):
 	"""returns the PCs columns corresponding to the ICA components of the dataframe"""
@@ -47,7 +45,7 @@ def get_ICs(df, n_components=None, label=None, random_state=42):
 	for n in range(1, n_components+1):
 		column_names.append('IC' + str(n) + label)
 	df_ICs = pd.DataFrame(data=X_transformed, index=df.index, columns=column_names)
-	return make_dataset(df_ICs, omic='IC', database='ENGINEERED')
+	return make_dataset(df_ICs, omic='IC', database='engineered')
 
 def get_RPCs(df, n_components=2, label=None, random_state=42):
 	"""returns the PCs columns corresponding to the ICA components of the dataframe"""
@@ -59,7 +57,7 @@ def get_RPCs(df, n_components=2, label=None, random_state=42):
 	for n in range(1, n_components+1):
 		column_names.append('RPC' + str(n) + label)
 	df_RPCs = pd.DataFrame(data=X_transformed, index=df.index, columns=column_names)
-	return make_dataset(df_RPCs, omic='RPC', database='ENGINEERED')
+	return make_dataset(df_RPCs, omic='RPC', database='engineered')
 
 def get_TSNEs(df, n_components=None, label=None, random_state=42):
 	"""returns the t-SNE components of the dataframe"""
@@ -73,4 +71,4 @@ def get_TSNEs(df, n_components=None, label=None, random_state=42):
 	for n in range(1, n_components+1):
 		column_names.append('TSNE' + str(n) + label)
 	df_TSNEs = pd.DataFrame(data=tsne_components, index=df.index, columns=column_names)
-	return make_dataset(df_TSNEs, omic='TSNE', database='ENGINEERED')
+	return make_dataset(df_TSNEs, omic='TSNE', database='engineered')

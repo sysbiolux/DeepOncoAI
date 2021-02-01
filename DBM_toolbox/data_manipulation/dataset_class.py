@@ -1,3 +1,5 @@
+import logging
+
 import pandas as pd
 import numpy as np
 # from DBM_toolbox.feature_engineering.predictors import combinations, components
@@ -28,6 +30,7 @@ class Dataset:
 		resulting_dataset = self
 		if filters:
 			for individual_filter in filters:
+				logging.info(f"{individual_filter}")
 				resulting_dataset = individual_filter.apply(resulting_dataset)
 		return resulting_dataset
 
@@ -108,11 +111,9 @@ class Dataset:
 # 		return Dataset(dataframe=feature_df, omic=result_omic, database=result_database)
 
 	def impute(self, method = 'average'):
-		# TODO: make omic- and database-specific
 		return Dataset(dataframe = preprocessing.impute_missing_data(self.dataframe, method=method), omic=self.omic, database=self.database)
 	
 	def normalize(self):
-		# TODO: make omic- and database-specific
 		return Dataset(dataframe = preprocessing.rescale_data(self.dataframe), omic=self.omic, database=self.database)
 
 	def quantize(self, target_omic, quantiles=None):
@@ -122,34 +123,16 @@ class Dataset:
 		if quantiles is None:
 			quantiles = [0.333, 0.667]
 		
-		q_df = df.copy()
-		for this_feature in omic[omic == target_omic].index:
-			q = np.quantile(df[this_feature], quantiles)
-			q_df[this_feature] = 0.5
-			q_df[this_feature].mask(df[this_feature] < q[0], 0, inplace=True)
-			q_df[this_feature].mask(df[this_feature] >= q[1], 1, inplace=True)
+		q_df = df.copy() #making a copy of the original df
+		for target in omic[omic == target_omic].index: #for each target (there is only one atm)
+			q = np.quantile(df[target], quantiles) #determine which target values correspond to the quantiles
+			q_df[target] = 0.5 #start assigning 'intermediate' to all samples
+			q_df[target].mask(df[target] < q[0], 0, inplace=True) #samples below the first quantile get 0
+			q_df[target].mask(df[target] >= q[1], 1, inplace=True) #samples above get 1
+			
+			q_df = q_df[q_df[target] != 0.5]
+
+# 			# uncomment to get random values
+# 			q_df[target] = np.random.randint(low=0, high=2, size=len(q_df))
 				
 		return Dataset(dataframe=q_df, omic=omic, database=database)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Visualization
-# Comparison between multiple datasets
-
