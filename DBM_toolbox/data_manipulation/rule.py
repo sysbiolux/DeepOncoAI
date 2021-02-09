@@ -65,7 +65,7 @@ class FeatureImportanceRule(Rule):
 			importances = pd.concat([importances, scores], axis=1)
 		importances = importances.mean(axis=1).sort_values(ascending=False)
 		
-# 		print(importances)
+		print(importances)
 		number_of_features_to_keep = int(round(len(importances) * self.fraction))
 		features_to_keep = importances.iloc[:number_of_features_to_keep].index
 		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic, database=self.database)
@@ -91,6 +91,7 @@ class FeaturePredictivityRule(Rule):
 			model.fit(dataframe, target_df[this_target])
 			predicted = model.predict(dataframe)
 			base_error = mean_squared_error(target_df[this_target], predicted) #balanced_accuracy_score(target_df[this_target], predicted)
+			print(base_error)
 			base_df = dataframe.copy()
 			this_target_predictivity = []
 			for this_feature in dataframe.columns:
@@ -100,9 +101,12 @@ class FeaturePredictivityRule(Rule):
 				model.fit(dataframe, target_df[this_target])
 				shuffled_predicted = model.predict(shuffled_df)
 				shuffled_error = mean_squared_error(target_df[this_target], shuffled_predicted)
+				print(shuffled_error)
 				this_target_predictivity.append(base_error - shuffled_error)
+			print(this_target_predictivity, this_target, dataframe.columns)
 			target_predictivity = pd.Series(data=this_target_predictivity, name=this_target, index=dataframe.columns)
 			predictivities = pd.concat([predictivities, target_predictivity], axis=1)
+			print(predictivities)
 		predictivities = predictivities.mean(axis=1).sort_values(ascending=True)
 		
 		number_of_features_to_keep = int(round(len(predictivities) * self.fraction))

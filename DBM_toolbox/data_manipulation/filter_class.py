@@ -14,6 +14,7 @@ class KeepFeaturesFilter:
 		retained_omic = pd.Series()
 		retained_database = pd.Series()
 		for this_feature in dataframe.columns:
+# 			print(dataset.omic[this_feature])
 			if dataset.omic[this_feature] != self.omic:
 				features_to_keep.append(this_feature)
 				retained_omic = pd.concat([retained_omic, pd.Series(dataset.omic[this_feature], index=[this_feature])])

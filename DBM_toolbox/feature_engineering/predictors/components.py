@@ -29,7 +29,6 @@ def get_PCs(df, n_components=None, label=None):
 		column_names.append('PC' + str(n) + label)
 	df_PCs = pd.DataFrame(data=principal_components, index=df.index, columns=column_names)
 	var = pca.explained_variance_ratio_
-# 	comp = pca.components_
 	print('fraction of variance explained: %.5f (PC1), %.5f (PC2)' % (var[0], var[1]))
 	return make_dataset(df_PCs, omic='PC', database='engineered')
 

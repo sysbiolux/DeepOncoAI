@@ -45,7 +45,7 @@ def create_SVC(**kwargs):
 	return SVC(probability=True, random_state=42, **kwargs)
 
 def create_RFC(**kwargs):
-	return RFC(random_state=42, **kwargs)
+	return RFC(random_state=42, n_jobs=-1, **kwargs)
 
 def create_SVM(**kwargs):
 	return SVC(kernel='linear', probability=True, random_state=42, **kwargs)
@@ -60,13 +60,13 @@ def create_Ridge(**kwargs):
 	return RidgeClassifier(random_state=42, **kwargs)
 
 def create_ET(**kwargs):
-	return ExtraTreesClassifier(random_state=42, **kwargs)
+	return ExtraTreesClassifier(random_state=42, n_jobs=-1, **kwargs)
 
 def create_KNN(**kwargs):
-	return KNeighborsClassifier(random_state=42, **kwargs)
+	return KNeighborsClassifier(n_jobs=-1, **kwargs)
 
 def create_XGB(**kwargs):
-	return xgb.XGBClassifier(random_state=42, **kwargs)
+	return xgb.XGBClassifier(random_state=42, n_jobs=-1, **kwargs)
 
 def create_Ada(**kwargs):
 	return AdaBoostClassifier(random_state=42, **kwargs)
@@ -96,38 +96,38 @@ models = [
 	{'estimator_method': create_SVP, 'parameter_bounds': {
 		'C': ParameterBound(10e-3, 10e2, logarithmic=True), 
 		'gamma': ParameterBound(10e-4, 10e-1, logarithmic=True)}},
-	# {'estimator_method': create_Logistic, 'parameter_bounds': {
-	# 	'C': ParameterBound(10e-3, 10e2, logarithmic=True), 
-	# 	'tol': ParameterBound(10e-5, 10e-1, logarithmic=True)}},
-	# {'estimator_method': create_Ridge, 'parameter_bounds': {
-	# 	'alpha': ParameterBound(0, 1000), 
-	# 	'tol': ParameterBound(10e-5, 10e-1, logarithmic=True)}},
-	# {'estimator_method': create_ET, 'parameter_bounds': {
-	# 	'n_estimators': ParameterBound(10, 1000), 
-	# 	'max_depth': ParameterBound(2, 50)}},
-	# {'estimator_method': create_KNN, 'parameter_bounds': {
-	# 	'k': ParameterBound(1,100)}},
-	# {'estimator_method': create_XGB, 'parameter_bounds': {
-	# 	'max_depth' : ParameterBound(10, 50), 
-	# 	'n_estimators' : ParameterBound(10, 1000), 
-	# 	'learning_rate' : ParameterBound(0.001, 0.05), 
-	# 	'colsamples_bytree' : ParameterBound(0.2, 0.99)}},
-	# {'estimator_method': create_Ada, 'parameter_bounds': {
-	# 	'n_estimators' : ParameterBound(10, 1000), 
-	# 	'learning_rate' : ParameterBound(0.001, 0.05)}},
-	# {'estimator_method': create_GBM, 'parameter_bounds': {
-	# 	'learning_rate': ParameterBound(0.001, 0.1), 
-	# 	'n_estimators': ParameterBound(20, 1000), 
-	# 	'subsample': ParameterBound(0.5, 0.999), 
-	# 	'max_depth': ParameterBound(3, 20), 
-	# 	'max_features': ParameterBound(0.2, 0.999), 
-	# 	'tol': ParameterBound(10e-4, 10e2, logarithmic=True)}},
-	# {'estimator_method': create_MLP1, 'parameter_bounds': {
-	# 	'hidden_layer_sizes': ParameterBound(5, 200), 
-	# 	'alpha': ParameterBound(10e-6, 10e-2, logarithmic=True)}},
-	# {'estimator_method': create_MLP2, 'parameter_bounds': { # TODO: this needs to return a tuple, not a single value?
-	# 	'hidden_layer_sizes': ParameterBound(5, 200), 
-	# 	'alpha': ParameterBound(10e-6, 10e-2, logarithmic=True)}}
+	 {'estimator_method': create_Logistic, 'parameter_bounds': {
+	 	'C': ParameterBound(10e-3, 10e2, logarithmic=True), 
+	 	'tol': ParameterBound(10e-5, 10e-1, logarithmic=True)}},
+	 {'estimator_method': create_Ridge, 'parameter_bounds': {
+	 	'alpha': ParameterBound(0, 1000), 
+	 	'tol': ParameterBound(10e-5, 10e-1, logarithmic=True)}},
+	 {'estimator_method': create_ET, 'parameter_bounds': {
+	 	'n_estimators': ParameterBound(10, 1000, discrete=True), 
+	 	'max_depth': ParameterBound(2, 50)}},
+	 {'estimator_method': create_KNN, 'parameter_bounds': {
+	 	'n_neighbors': ParameterBound(1,100, discrete=True)}},
+	 {'estimator_method': create_XGB, 'parameter_bounds': {
+	 	'max_depth' : ParameterBound(10, 50, discrete=True), 
+	 	'n_estimators' : ParameterBound(10, 1000, discrete=True), 
+	 	'learning_rate' : ParameterBound(0.001, 0.05), 
+	 	'colsamples_bytree' : ParameterBound(0.2, 0.99)}},
+	 {'estimator_method': create_Ada, 'parameter_bounds': {
+	 	'n_estimators' : ParameterBound(10, 1000, discrete=True), 
+	 	'learning_rate' : ParameterBound(0.001, 0.05)}},
+	 {'estimator_method': create_GBM, 'parameter_bounds': {
+	 	'learning_rate': ParameterBound(0.001, 0.1), 
+	 	'n_estimators': ParameterBound(20, 1000, discrete=True), 
+	 	'subsample': ParameterBound(0.5, 0.999), 
+	 	'max_depth': ParameterBound(3, 20, discrete=True), 
+	 	'max_features': ParameterBound(0.2, 0.999), 
+	 	'tol': ParameterBound(10e-4, 10e2, logarithmic=True)}},
+	 {'estimator_method': create_MLP1, 'parameter_bounds': {
+	 	'hidden_layer_sizes': ParameterBound(5, 200, discrete=True), 
+	 	'alpha': ParameterBound(10e-6, 10e-2, logarithmic=True)}},
+	 {'estimator_method': create_MLP2, 'parameter_bounds': { # TODO: this needs to return a tuple, not a single value?
+	 	'hidden_layer_sizes': ParameterBound(5, 200, discrete=True), 
+	 	'alpha': ParameterBound(10e-6, 10e-2, logarithmic=True)}}
 	]
 
 def get_estimator_list():
@@ -179,7 +179,7 @@ targets, n_trials):
 		verbose=2
 	)
 	optimizer.maximize(n_iter=n_trials)
-	logging.info('Final result:', optimizer.max)
+	logging.info(f"Final result: {optimizer.max}")
 	optimizer_parameters = optimizer.max['params']
 	original_parameters = retrieve_original_parameters(optimizer_parameters, parameter_bounds)
 	opt_model = estimator_method(**original_parameters)

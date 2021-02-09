@@ -65,9 +65,29 @@ class Config:
 		
 		targets = self.raw_dict['data']['targets']
 		for target in targets:
+# 			print(target)
 			target_metric = target['responses']
 			target_name = target['target_drug_name']
 			additional_dataset = load_data.read_data('data', omic=target['name'], database=target['database'], keywords=[target_name, target_metric])
+			# TODO: include here quantization
+			for item in target['normalization']:
+				if 'enabled' in item and not item['enabled']:
+					pass
+				else:
+					if item['name'] == 'unit':
+						normalized_df = preprocessing.rescale_data(additional_dataset.dataframe)
+						additional_dataset = dataset_class.Dataset(dataframe=normalized_df, omic=additional_dataset.omic, database=additional_dataset.database)
+			
+			
+			for item in target['target_engineering']:
+				if 'enabled' in item and not item['enabled']:
+					pass
+				else:
+					if item['name'] == 'quantization':
+						thresholdR = item['upper_bound_resistant']
+						thresholdS = item['lower_bound_sensitive']
+						quantized_df = ternarization.get_drug_response(additional_dataset.dataframe, thresholdR=thresholdR, thresholdS=thresholdS)
+						additional_dataset = dataset_class.Dataset(dataframe=quantized_df, omic=additional_dataset.omic, database=additional_dataset.database)
 			full_dataset = full_dataset.merge_with(additional_dataset)
 		return full_dataset
 
@@ -129,11 +149,15 @@ class Config:
 
 	def get_optimized_models(self, dataset):
 		omic_list = self.raw_dict['data']['omics']
+# 		target_list = self.raw_dict['data']['targets']
 		modeling_options = self.raw_dict['modeling']['general']
+# 		print(modeling_options)
 		for this_item in modeling_options:
 			if 'enabled' in this_item and this_item['enabled']:
+# 				print(this_item)
 				if this_item['name'] == 'search_depth':
 					depth = this_item['value']
+# 		model_list = optimized_models.get_estimator_list()
 		
 		targets = dataset.to_pandas(omic='DRUGS')
 		
