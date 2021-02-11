@@ -65,7 +65,6 @@ class Config:
 		
 		targets = self.raw_dict['data']['targets']
 		for target in targets:
-# 			print(target)
 			target_metric = target['responses']
 			target_name = target['target_drug_name']
 			additional_dataset = load_data.read_data('data', omic=target['name'], database=target['database'], keywords=[target_name, target_metric])
@@ -75,19 +74,7 @@ class Config:
 					pass
 				else:
 					if item['name'] == 'unit':
-						normalized_df = preprocessing.rescale_data(additional_dataset.dataframe)
-						additional_dataset = dataset_class.Dataset(dataframe=normalized_df, omic=additional_dataset.omic, database=additional_dataset.database)
-			
-			
-			for item in target['target_engineering']:
-				if 'enabled' in item and not item['enabled']:
-					pass
-				else:
-					if item['name'] == 'quantization':
-						thresholdR = item['upper_bound_resistant']
-						thresholdS = item['lower_bound_sensitive']
-						quantized_df = ternarization.get_drug_response(additional_dataset.dataframe, thresholdR=thresholdR, thresholdS=thresholdS)
-						additional_dataset = dataset_class.Dataset(dataframe=quantized_df, omic=additional_dataset.omic, database=additional_dataset.database)
+						additional_dataset = additional_dataset.normalize()
 			full_dataset = full_dataset.merge_with(additional_dataset)
 		return full_dataset
 
@@ -181,8 +168,7 @@ class Config:
 		split_index = splitting.split(dataframe, target)
 		return split_index
 	
-	def get_optimized_models(self, dataset):
-		
+	def get_optimized_models(self, dataset, algos=None):
 		
 		omic_list = self.raw_dict['data']['omics']
 		modeling_options = self.raw_dict['modeling']['general']['search_depth']
@@ -198,9 +184,9 @@ class Config:
 			# TODO: there should be a better way to do this, this depends on the exact order of the targets, should be ok but maybe names are better
 			for this_omic in omic_list:
 				this_data = dataset.to_pandas(omic=this_omic['name'], database=this_omic['database'])
-# 				this_target = targets[target_name]
 				logging.info(f"Optimized models for {this_target} with {this_omic['name']} from {this_omic['database']}")
-				this_result = optimized_models.bayes_optimize_models(data=this_data, targets=dataset.dataframe[this_target], n_trials=depth)
+				this_result = optimized_models.bayes_optimize_models(data=this_data, targets=dataset.dataframe[this_target], n_trials=depth, algos=algos)
+				
 				omic_db = this_omic['name'] + '_' + this_omic['database']
 				results[omic_db][this_target] = this_result
 				

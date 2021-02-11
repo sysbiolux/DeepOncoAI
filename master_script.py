@@ -31,10 +31,10 @@ logging.info("Merging engineered features")
 engineered_data = filtered_data.merge_with(engineered_features)
 
 logging.info("Quantizing targets")
-filtered_data = filtered_data.quantize(target_omic="DRUGS")
+engineered_data = engineered_data.quantize(target_omic="DRUGS")
 
 logging.info("Splitting dataset for cross-validation")
-outer_index = config.split(dataset=filtered_data, split_type='outer')
+outer_index = config.split(dataset=engineered_data, split_type='outer')
 
 logging.info("Getting optimized models")
 optimal_algos = config.get_optimized_models(dataset=engineered_data)
