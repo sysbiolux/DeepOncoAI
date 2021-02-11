@@ -1,3 +1,5 @@
+import logging
+
 import pandas as pd
 import numpy as np
 from DBM_toolbox.data_manipulation import preprocessing
@@ -27,6 +29,7 @@ class Dataset:
 		resulting_dataset = self
 		if filters:
 			for individual_filter in filters:
+				logging.info(f"{individual_filter}")
 				resulting_dataset = individual_filter.apply(resulting_dataset)
 		return resulting_dataset
 

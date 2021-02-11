@@ -1,6 +1,7 @@
 # DBM toolbox config file
 
 data:
+  # maximum_rows: 100
   omics:
     - name: RPPA
       database: CCLE

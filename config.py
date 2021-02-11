@@ -15,7 +15,7 @@ parse_filter_dict = {'sample_completeness': lambda this_filter, omic, database: 
 }
 
 parse_selection_dict = {'importance': lambda selection, omic, database: rule.FeatureImportanceRule(fraction=selection['fraction_selected'], omic=omic, database=database),
-						  'predictivity': lambda selection, omic, database: rule.FeaturePredictivityRule(fraction=selection['fraction_selected'], omic=omic, database=database)
+						'predictivity': lambda selection, omic, database: rule.FeaturePredictivityRule(fraction=selection['fraction_selected'], omic=omic, database=database)
 }
 
 parse_transformation_dict = {'PCA': lambda dataframe, transformation, omic: components.get_PCs(dataframe, n_components=transformation['n_components']),
@@ -57,10 +57,11 @@ class Config:
 			self.raw_dict = yaml.load(f, Loader=yaml.FullLoader)
 
 	def read_data(self):
+		nrows = self.raw_dict['data'].get("maximum_rows", None)
 		omic = self.raw_dict['data']['omics'][0]
 		full_dataset = load_data.read_data('data', omic=omic['name'], database=omic['database'])
 		for omic in self.raw_dict['data']['omics'][1:]:
-			additional_dataset = load_data.read_data('data', omic=omic['name'], database=omic['database'])
+			additional_dataset = load_data.read_data('data', omic=omic['name'], database=omic['database'], nrows=nrows)
 			full_dataset = full_dataset.merge_with(additional_dataset)
 		
 		targets = self.raw_dict['data']['targets']
@@ -141,6 +142,7 @@ class Config:
 		for omic in omics:
 			transformations_dict = omic['feature_engineering']['transformations']
 			for transformation in transformations_dict:
+				logging.info(transformation)
 				new_features = parse_transformations(dataframe=dataframe, transformation=transformation, omic=omic, database=database)
 				if new_features is not None:
 					if engineered_features is not None:
@@ -180,7 +182,7 @@ class Config:
 		targets = dataset.to_pandas(omic='DRUGS')
 		results = dict()
 		
-		for this_target in targets.columns:
+		for target_name in targets.columns:
 			# TODO: there should be a better way to do this, this depends on the exact order of the targets, should be ok but maybe names are better
 			for this_omic in omic_list:
 				this_data = dataset.to_pandas(omic=this_omic['name'], database=this_omic['database'])
@@ -202,44 +204,3 @@ class Config:
 
 	def generate_results(self, best_stack, optimal_algos, test_dataset):
 		pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

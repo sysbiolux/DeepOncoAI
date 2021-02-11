@@ -4,6 +4,8 @@ Created on Sat Nov 21 11:32:01 2020
 
 @author: sebde
 '''
+import logging
+
 import numpy as np
 import logging
 from sklearn.ensemble import RandomForestClassifier as RFC
@@ -20,9 +22,11 @@ from bayes_opt import BayesianOptimization
 
 
 class ParameterBound:
-	def __init__(self, minimum, maximum, logarithmic=False, discrete=False):
+
+	def __init__(self, minimum, maximum, discrete=False, logarithmic=False):
 		self.minimum = minimum
 		self.maximum = maximum
+		self.discrete = discrete
 		self.logarithmic = logarithmic
 		self.discrete = discrete
 
@@ -178,7 +182,7 @@ targets, n_trials):
 		verbose=2
 	)
 	optimizer.maximize(n_iter=n_trials)
-	print('Final result:', optimizer.max)
+	logging.info(f"Final result: {optimizer.max}")
 	optimizer_parameters = optimizer.max['params']
 	original_parameters = retrieve_original_parameters(optimizer_parameters, parameter_bounds)
 	opt_model = estimator_method(**original_parameters)
