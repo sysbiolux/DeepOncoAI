@@ -1,4 +1,6 @@
 import yaml
+import logging
+from sklearn.model_selection import StratifiedKFold
 
 from DBM_toolbox.data_manipulation import load_data, rule, preprocessing
 from DBM_toolbox.feature_engineering.targets import ternarization
@@ -104,28 +106,45 @@ class Config:
 							filters.append(new_filter)
 		return filters
 
-	def select_subsets(self, dataset):
+	def select_subsets(self, datasets):
+		if isinstance(datasets, list): #TODO: this is not clean anymore. find another way to accept both single datasets and transfer from one to another
+			training_dataset = datasets[0]
+			test_dataset = datasets[1]
+		else:
+			training_dataset = datasets
 		omics = self.raw_dict['data']['omics']
-		dataframe = dataset.to_pandas()
+		training_dataframe = training_dataset.to_pandas()
+# 		test_dataframe = test_dataset.to_pandas()
 		target_name = self.raw_dict['data']['targets'][0]['target_drug_name'] #TODO: this should loop over all targets. the [0] is a temporary fix when there is only one
 		response = self.raw_dict['data']['targets'][0]['responses']
 		try:
-			target = dataframe[target_name + '_' + response]
+			target = training_dataframe[target_name + '_' + response]
 		except:
 			raise ValueError(f"Did not recognize target name with {target_name}_{response}")
-		selected_subsets = None
+		selected_training_subset = None
+		selected_test_subset = None
 		for omic in omics:
 			database = omic['database']
 			for selection in omic['feature_engineering']['feature_selection']:
 				new_selection = parse_selection(selection=selection, omic=omic['name'], database=database)
 				if new_selection is not None:
-					new_filter = new_selection.create_filter(dataset=dataset, target_df=target)
-					new_subset = dataset.apply_filters([new_filter])
-					if selected_subsets is not None:
-						selected_subsets = selected_subsets.merge_with(new_subset)
+					logging.info(f"Creating filter for {omic['name']}_{database}")
+					new_filter = new_selection.create_filter(dataset=training_dataset, target_df=target)
+					new_training_subset = training_dataset.apply_filters([new_filter])
+					if isinstance(datasets, list):
+						new_test_subset = test_dataset.apply_filters([new_filter])
+					if selected_training_subset is not None:
+						selected_training_subset = selected_training_subset.merge_with(new_training_subset)
+						if isinstance(datasets, list):
+							selected_test_subset = selected_test_subset.merge_with(new_test_subset)
 					else:
-						selected_subsets = new_subset
-		return selected_subsets
+						selected_training_subset = new_training_subset
+						if isinstance(datasets, list):
+							selected_test_subset = new_test_subset
+		if isinstance(datasets, list):
+			return selected_training_subset, selected_test_subset
+		else:
+			return selected_training_subset
 
 	def engineer_features(self, dataset):
 		omics = self.raw_dict['data']['omics']
@@ -143,40 +162,59 @@ class Config:
 						engineered_features = new_features
 		return engineered_features
 
-
+	def split(self, dataset, split_type):
+		dataframe = dataset.to_pandas()
+		modeling_options = self.raw_dict['modeling']['general']
+		if split_type == 'outer':
+			n_splits = modeling_options['outer_folds']['value']
+			random_state = modeling_options['outer_folds']['random_seed']
+		elif split_type == 'inner':
+			n_splits = modeling_options['inner_folds']['value']
+			random_state = modeling_options['inner_folds']['random_seed']
+		target_name = self.raw_dict['data']['targets'][0]['target_drug_name']
+		response = self.raw_dict['data']['targets'][0]['responses']
+		try:
+			target = dataframe[target_name + '_' + response]
+		except:
+			raise ValueError(f"Did not recognize target name with {target_name}_{response}")
+		splitting = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+		split_index = splitting.split(dataframe, target)
+		return split_index
+	
 	def get_optimized_models(self, dataset):
 		
 		
 		omic_list = self.raw_dict['data']['omics']
-# 		target_list = self.raw_dict['data']['targets']
-		modeling_options = self.raw_dict['modeling']['general']
-# 		print(modeling_options)
-		for this_item in modeling_options:
-			if 'enabled' in this_item and this_item['enabled']:
-# 				print(this_item)
-				if this_item['name'] == 'search_depth':
-					depth = this_item['value']
-# 		model_list = optimized_models.get_estimator_list()
+		modeling_options = self.raw_dict['modeling']['general']['search_depth']
+		if modeling_options['enabled']:
+			depth = modeling_options['value']
+		else:
+			depth = None
 		
 		targets = dataset.to_pandas(omic='DRUGS')
-		
 		results = dict()
 		
 		for this_target in targets.columns:
 			# TODO: there should be a better way to do this, this depends on the exact order of the targets, should be ok but maybe names are better
 			for this_omic in omic_list:
 				this_data = dataset.to_pandas(omic=this_omic['name'], database=this_omic['database'])
-# 				depth = modeling_options['name' == 'search_depth']['value']
+# 				this_target = targets[target_name]
+				logging.info(f"Optimized models for {this_target.name} with {this_omic['name']} from {this_omic['database']}")
 				this_result = optimized_models.bayes_optimize_models(data=this_data, targets=this_target, n_trials=depth)
 				omic_db = this_omic['name'] + '_' + this_omic['database']
 				results[omic_db][this_target] = this_result
 				
 				
-
-	def get_best_stack(engineered_data, optimal_algos):
+	def get_best_stack(self, dataset, algorithms, kfold):
+		
+		
+		
+		
+		
+		
 		pass
 
-	def generate_results(best_stack, optimal_algos):
+	def generate_results(self, best_stack, optimal_algos, test_dataset):
 		pass
 
 
