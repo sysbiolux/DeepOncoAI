@@ -96,7 +96,7 @@ models = [
 		'C': ParameterBound(10e-3, 10e2, logarithmic=True), 
 		'gamma': ParameterBound(10e-4, 10e-1, logarithmic=True)}},
 	 {'name': 'Logistic', 'estimator_method': create_Logistic, 'parameter_bounds': {
-	 	'C': ParameterBound(10e-3, 10e2, logarithmic=True), 
+	 	'C': ParameterBound(10e-1, 1, logarithmic=True), 
 	 	'tol': ParameterBound(10e-5, 10e-1, logarithmic=True)}},
 	 {'name': 'Ridge', 'estimator_method': create_Ridge, 'parameter_bounds': {
 	 	'alpha': ParameterBound(0, 1000), 
