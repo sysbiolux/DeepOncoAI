@@ -20,11 +20,11 @@ from bayes_opt import BayesianOptimization
 
 
 class ParameterBound:
-	def __init__(self, minimum, maximum, logarithmic=False, dicrete=False):
+	def __init__(self, minimum, maximum, logarithmic=False, discrete=False):
 		self.minimum = minimum
 		self.maximum = maximum
 		self.logarithmic = logarithmic
-		self.dicrete = dicrete
+		self.discrete = discrete
 
 	def transform_bound(self):
 		return self.transform(self.minimum), self.transform(self.maximum)
