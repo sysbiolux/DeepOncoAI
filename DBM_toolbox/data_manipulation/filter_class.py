@@ -10,20 +10,25 @@ class KeepFeaturesFilter:
 	def apply(self, dataset):
 		# TODO: this takes too much time!
 		dataframe = dataset.dataframe
-		features_to_keep = []
-		retained_omic = pd.Series()
-		retained_database = pd.Series()
-		for this_feature in dataframe.columns:
-			if dataset.omic[this_feature] != self.omic:
-				features_to_keep.append(this_feature)
-				retained_omic = pd.concat([retained_omic, pd.Series(dataset.omic[this_feature], index=[this_feature])])
-				retained_database = pd.concat([retained_database, pd.Series(dataset.database[this_feature], index=[this_feature])])
-			else:
-				if this_feature in self.features:
-					features_to_keep.append(this_feature)
-					retained_omic = pd.concat([retained_omic, pd.Series(dataset.omic[this_feature], index=[this_feature])])
-					retained_database = pd.concat([retained_database, pd.Series(dataset.database[this_feature], index=[this_feature])])
-		filtered_dataframe = dataframe[features_to_keep]
+
+		omic = dataset.omic
+		database = dataset.database
+		
+		selected = pd.DataFrame(index=omic.index, dtype=bool)
+		selected['omic'] = (omic != self.omic).values
+		selected['database'] = database != self.database
+		selected['retained'] = selected.any(axis=1)
+		print(self.features)
+		for this_feature in self.features:
+			try:
+				selected.loc[this_feature, 'retained'] = True
+			except:
+				pass
+		
+		filtered_dataframe = dataframe.loc[:, selected['retained']==True]
+		retained_omic = omic.loc[selected['retained']==True]
+		retained_database = database.loc[selected['retained']==True]
+		
 		return Dataset(dataframe=filtered_dataframe, omic=retained_omic, database=retained_database)
 
 	def __repr__(self):
