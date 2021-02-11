@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-
+master script for analysis
 '''
 ### IMPORTS
 

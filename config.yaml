@@ -28,18 +28,18 @@ data:
             enabled: true
           - name: ICA
             n_components: 10
-            enabled: true
+            enabled: false
           - name: RP
             n_components: 10
-            enabled: true
+            enabled: false
           - name: TSNE
             n_components: 2
             enabled: true
           - name: Poly
             degree: 2
-            enabled: true
+            enabled: false
           - name: OR
-            enabled: true
+            enabled: false
     - name: RNA
       database: CCLE
       filtering:
@@ -50,15 +50,15 @@ data:
           threshold: 0.95
           enabled: true
         - name: feature_variance
-          fraction_retained: 0.005
+          fraction_retained: 0.003
           enabled: true
       feature_engineering:
         feature_selection:
           - name: importance
-            fraction_selected: 0.001
+            fraction_selected: 0.002
             enabled: true
           - name: predictivity
-            fraction_selected: 0.001
+            fraction_selected: 0.002
             enabled: false
         transformations:
           - name: PCA
@@ -93,10 +93,10 @@ data:
       feature_engineering:
         feature_selection:
           - name: importance
-            fraction_selected: 0.001
+            fraction_selected: 0.002
             enabled: true
           - name: predictivity
-            fraction_selected: 0.001
+            fraction_selected: 0.002
             enabled: false
         transformations:
           - name: PCA

@@ -14,7 +14,7 @@ from sklearn.random_projection import GaussianRandomProjection
 
 def make_dataset(dataframe, omic=None, database=None):
 	dataset = dataset_class.Dataset(dataframe=dataframe, omic=omic, database=database)
-	return dataset
+	return dataset.normalize()
 
 def get_PCs(df, n_components=None, label=None):
 	"""returns the PCs columns corresponding to the PCA components of the dataframe"""

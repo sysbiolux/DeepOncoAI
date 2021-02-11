@@ -199,8 +199,8 @@ class Config:
 			for this_omic in omic_list:
 				this_data = dataset.to_pandas(omic=this_omic['name'], database=this_omic['database'])
 # 				this_target = targets[target_name]
-				logging.info(f"Optimized models for {this_target.name} with {this_omic['name']} from {this_omic['database']}")
-				this_result = optimized_models.bayes_optimize_models(data=this_data, targets=this_target, n_trials=depth)
+				logging.info(f"Optimized models for {this_target} with {this_omic['name']} from {this_omic['database']}")
+				this_result = optimized_models.bayes_optimize_models(data=this_data, targets=dataset.dataframe[this_target], n_trials=depth)
 				omic_db = this_omic['name'] + '_' + this_omic['database']
 				results[omic_db][this_target] = this_result
 				
