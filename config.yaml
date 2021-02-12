@@ -13,15 +13,15 @@ data:
           threshold: 0.95
           enabled: true
         - name: feature_variance
-          fraction_retained: 0.8
+          fraction_retained: 0.5
           enabled: true
       feature_engineering:
         feature_selection:
           - name: importance
-            fraction_selected: 0.03
+            fraction_selected: 0.02
             enabled: true
           - name: predictivity
-            fraction_selected: 0.03
+            fraction_selected: 0.02
             enabled: true
         transformations:
           - name: PCA
@@ -29,10 +29,10 @@ data:
             enabled: true
           - name: ICA
             n_components: 10
-            enabled: true
+            enabled: false
           - name: RP
             n_components: 10
-            enabled: true
+            enabled: false
           - name: TSNE
             n_components: 2
             enabled: true
@@ -51,15 +51,15 @@ data:
           threshold: 0.95
           enabled: true
         - name: feature_variance
-          fraction_retained: 0.1
+          fraction_retained: 0.003
           enabled: true
       feature_engineering:
         feature_selection:
           - name: importance
-            fraction_selected: 0.001
+            fraction_selected: 0.002
             enabled: true
           - name: predictivity
-            fraction_selected: 0.001
+            fraction_selected: 0.002
             enabled: false
         transformations:
           - name: PCA
@@ -89,15 +89,15 @@ data:
           threshold: 0.95
           enabled: true
         - name: feature_variance
-          fraction_retained: 0.1
+          fraction_retained: 0.005
           enabled: true
       feature_engineering:
         feature_selection:
           - name: importance
-            fraction_selected: 0.001
+            fraction_selected: 0.002
             enabled: true
           - name: predictivity
-            fraction_selected: 0.001
+            fraction_selected: 0.002
             enabled: false
         transformations:
           - name: PCA
@@ -169,8 +169,8 @@ data:
           enabled: true
       target_engineering:
         - name: quantization
-          upper_bound_resistant: 0.48
-          lower_bound_sensitive: 0.52
+          upper_bound_resistant: 0.33
+          lower_bound_sensitive: 0.33
           enabled: true
         - name: thresholding # TODO: implement this
           upper_bound_resistant: 0.25
@@ -178,12 +178,18 @@ data:
           enabled: false
 modeling:
   general:
-    - name: use_tumor_type
+    outer_folds:
+      value: 5
+      random_seed: 42
+    inner_folds:
+      value: 5
+      random_seed: 42
+    use_tumor_type:
       enabled: true
-    - name: search_depth
+    search_depth:
       enabled: true
-      value: 20
-    - name: sampling
+      value: 30
+    sampling:
       enabled: false # TODO: implement this
       value: upsample_minority_class_SMOTE
     

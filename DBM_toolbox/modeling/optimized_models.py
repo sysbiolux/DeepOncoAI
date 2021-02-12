@@ -7,6 +7,7 @@ Created on Sat Nov 21 11:32:01 2020
 import logging
 
 import numpy as np
+import logging
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score, StratifiedKFold
@@ -21,11 +22,13 @@ from bayes_opt import BayesianOptimization
 
 
 class ParameterBound:
+
 	def __init__(self, minimum, maximum, discrete=False, logarithmic=False):
 		self.minimum = minimum
 		self.maximum = maximum
 		self.discrete = discrete
 		self.logarithmic = logarithmic
+		self.discrete = discrete
 
 	def transform_bound(self):
 		return self.transform(self.minimum), self.transform(self.maximum)
@@ -82,50 +85,50 @@ def create_MLP2(**kwargs):
 
 
 models = [
-	{'estimator_method': create_SVC, 'parameter_bounds': {
+	{'name': 'SVC', 'estimator_method': create_SVC, 'parameter_bounds': {
 		'C': ParameterBound(10e-3, 10e2, logarithmic=True), 
 		'gamma': ParameterBound(10e-4, 10e-1, logarithmic=True)}},
-	{'estimator_method': create_RFC, 'parameter_bounds': {
+	{'name': 'RFC', 'estimator_method': create_RFC, 'parameter_bounds': {
 		'n_estimators': ParameterBound(10, 250, discrete=True), 
 		'min_samples_split': ParameterBound(2, 25, discrete=True),
 		'max_features': ParameterBound(0.1, 0.999), 
 		'max_depth': ParameterBound(2, 50, discrete=True)}},
-	{'estimator_method': create_SVM, 'parameter_bounds': {
+	{'name': 'SVM', 'estimator_method': create_SVM, 'parameter_bounds': {
 		'C': ParameterBound(10e-3, 10e2, logarithmic=True), 
 		'gamma': ParameterBound(10e-4, 10e-1, logarithmic=True)}},
-	{'estimator_method': create_SVP, 'parameter_bounds': {
+	{'name': 'SVP', 'estimator_method': create_SVP, 'parameter_bounds': {
 		'C': ParameterBound(10e-3, 10e2, logarithmic=True), 
 		'gamma': ParameterBound(10e-4, 10e-1, logarithmic=True)}},
-	 {'estimator_method': create_Logistic, 'parameter_bounds': {
-	 	'C': ParameterBound(10e-3, 10e2, logarithmic=True), 
+	 {'name': 'Logistic', 'estimator_method': create_Logistic, 'parameter_bounds': {
+	 	'C': ParameterBound(10e-1, 1, logarithmic=True), 
 	 	'tol': ParameterBound(10e-5, 10e-1, logarithmic=True)}},
-	 {'estimator_method': create_Ridge, 'parameter_bounds': {
+	 {'name': 'Ridge', 'estimator_method': create_Ridge, 'parameter_bounds': {
 	 	'alpha': ParameterBound(0, 1000), 
 	 	'tol': ParameterBound(10e-5, 10e-1, logarithmic=True)}},
-	 {'estimator_method': create_ET, 'parameter_bounds': {
+	 {'name': 'ET', 'estimator_method': create_ET, 'parameter_bounds': {
 	 	'n_estimators': ParameterBound(10, 1000, discrete=True), 
 	 	'max_depth': ParameterBound(2, 50)}},
-	 {'estimator_method': create_KNN, 'parameter_bounds': {
+	 {'name': 'KNN', 'estimator_method': create_KNN, 'parameter_bounds': {
 	 	'n_neighbors': ParameterBound(1,100, discrete=True)}},
-	 {'estimator_method': create_XGB, 'parameter_bounds': {
+	 {'name': 'XGB', 'estimator_method': create_XGB, 'parameter_bounds': {
 	 	'max_depth' : ParameterBound(10, 50, discrete=True), 
 	 	'n_estimators' : ParameterBound(10, 1000, discrete=True), 
 	 	'learning_rate' : ParameterBound(0.001, 0.05), 
 	 	'colsamples_bytree' : ParameterBound(0.2, 0.99)}},
-	 {'estimator_method': create_Ada, 'parameter_bounds': {
+	 {'name': 'Ada', 'estimator_method': create_Ada, 'parameter_bounds': {
 	 	'n_estimators' : ParameterBound(10, 1000, discrete=True), 
 	 	'learning_rate' : ParameterBound(0.001, 0.05)}},
-	 {'estimator_method': create_GBM, 'parameter_bounds': {
+	 {'name': 'GBM', 'estimator_method': create_GBM, 'parameter_bounds': {
 	 	'learning_rate': ParameterBound(0.001, 0.1), 
 	 	'n_estimators': ParameterBound(20, 1000, discrete=True), 
 	 	'subsample': ParameterBound(0.5, 0.999), 
 	 	'max_depth': ParameterBound(3, 20, discrete=True), 
 	 	'max_features': ParameterBound(0.2, 0.999), 
 	 	'tol': ParameterBound(10e-4, 10e2, logarithmic=True)}},
-	 {'estimator_method': create_MLP1, 'parameter_bounds': {
+	 {'name': 'MLP1', 'estimator_method': create_MLP1, 'parameter_bounds': {
 	 	'hidden_layer_sizes': ParameterBound(5, 200, discrete=True), 
 	 	'alpha': ParameterBound(10e-6, 10e-2, logarithmic=True)}},
-	 {'estimator_method': create_MLP2, 'parameter_bounds': { # TODO: this needs to return a tuple, not a single value?
+	 {'name': 'MLP2', 'estimator_method': create_MLP2, 'parameter_bounds': { # TODO: this needs to return a tuple, not a single value?
 	 	'hidden_layer_sizes': ParameterBound(5, 200, discrete=True), 
 	 	'alpha': ParameterBound(10e-6, 10e-2, logarithmic=True)}}
 	]
@@ -186,9 +189,18 @@ targets, n_trials):
 	return optimizer.max, opt_model
 
 
-def bayes_optimize_models(data, targets, n_trials):
+def bayes_optimize_models(data, targets, n_trials=None, algos=None):
+	if n_trials is None:
+		n_trials = 20
+	if algos is None:
+		models_to_optimize = models
+	else:
+		models_to_optimize = []
+		for model in models:
+			if model['name'] in algos:
+				models_to_optimize.append(model)
 	optimal_models = list()
-	for model in models:
+	for model in models_to_optimize:
 		logging.info(f"Bayes optimizing model {model['estimator_method']}")
 		maximum_value, optimal_model = bayes_optimize_estimator(model['estimator_method'],
 														  model['parameter_bounds'],

@@ -2,7 +2,6 @@ import logging
 
 import pandas as pd
 import numpy as np
-# from DBM_toolbox.feature_engineering.predictors import combinations, components
 from DBM_toolbox.data_manipulation import preprocessing
 
 
@@ -69,47 +68,6 @@ class Dataset:
 		
 		return merged_dataset
 	
-	### this is now done in the config file
-# 	def get_features(self, feature_type, target_omic=None, target_database=None, options=None):
-# 		n_components = None
-# 		label = None
-# 		if options is not None:
-# 			n_components = options[0]
-# 			label = options[1]
-# 		dataframe = self.dataframe
-# 		subset_omic = self.omic
-# 		subset_database = self.database
-# 		result_omic = 'overall'
-# 		result_database = 'overall'
-# 		subset = self
-# 		if target_omic is not None:
-# 			result_omic = 'engineered_' + target_omic
-# 			subset = Dataset(dataframe=dataframe[subset_omic[subset_omic == target_omic].index], 
-# 					omic = target_omic, database = subset_database[subset_omic == target_omic].index)
-# 		if target_database is not None:
-# 			result_database = 'source_' + target_database
-# 			subset = Dataset(dataframe=dataframe[subset_database[subset_database == target_database].index], 
-# 					omic = subset_omic[subset_database == target_database].index, database = target_database)
-# 		dataframe = subset.dataframe
-# 		result_omic = result_omic + '_' + feature_type
-# 		
-# 		if feature_type == 'PC':
-# 			feature_df = components.get_PCs(dataframe, n_components=n_components, label=label)
-# 		if feature_type == 'IC':
-# 			feature_df = components.get_ICs(dataframe, n_components=n_components, label=label)
-# 		if feature_type == 'RPC':
-# 			feature_df = components.get_RPCs(dataframe, n_components=n_components, label=label)
-# 		if feature_type == 'TSNE':
-# 			feature_df = components.get_TSNEs(dataframe, n_components=n_components, label=label)
-# 		if feature_type == 'POLY':
-# 			feature_df = combinations.get_polynomials(dataframe, degree=n_components)
-# 		if feature_type == 'OR':
-# 			feature_df = combinations.get_boolean_or(dataframe)
-# 		if feature_type == 'TYPE':
-# 			feature_df = preprocessing.get_tumor_type(dataframe)
-# 		
-# 		return Dataset(dataframe=feature_df, omic=result_omic, database=result_database)
-
 	def impute(self, method = 'average'):
 		return Dataset(dataframe = preprocessing.impute_missing_data(self.dataframe, method=method), omic=self.omic, database=self.database)
 	
@@ -119,20 +77,31 @@ class Dataset:
 	def quantize(self, target_omic, quantiles=None):
 		omic = self.omic
 		database = self.database
-		df = self.to_pandas()
+		dataframe = self.to_pandas()
 		if quantiles is None:
 			quantiles = [0.333, 0.667]
 		
-		q_df = df.copy() #making a copy of the original df
+		quantized_dataframe = dataframe.copy() #making a copy of the original dataframe
 		for target in omic[omic == target_omic].index: #for each target (there is only one atm)
-			q = np.quantile(df[target], quantiles) #determine which target values correspond to the quantiles
-			q_df[target] = 0.5 #start assigning 'intermediate' to all samples
-			q_df[target].mask(df[target] < q[0], 0, inplace=True) #samples below the first quantile get 0
-			q_df[target].mask(df[target] >= q[1], 1, inplace=True) #samples above get 1
+			q = np.quantile(dataframe[target], quantiles) #determine which target values correspond to the quantiles
+			quantized_dataframe[target] = 0.5 #start assigning 'intermediate' to all samples
+			quantized_dataframe[target].mask(dataframe[target] < q[0], 0, inplace=True) #samples below the first quantile get 0
+			quantized_dataframe[target].mask(dataframe[target] >= q[1], 1, inplace=True) #samples above get 1
 			
-			q_df = q_df[q_df[target] != 0.5]
+			quantized_dataframe = quantized_dataframe[quantized_dataframe[target] != 0.5]
 
 # 			# uncomment to get random values
-# 			q_df[target] = np.random.randint(low=0, high=2, size=len(q_df))
+# 			quantized_dataframe[target] = np.random.randint(low=0, high=2, size=len(quantized_dataframe))
 				
-		return Dataset(dataframe=q_df, omic=omic, database=database)
+		return Dataset(dataframe=quantized_dataframe, omic=omic, database=database)
+		
+	def split(self, train_index, test_index):
+		omic = self.omic
+		database = self.database
+		dataframe = self.to_pandas()
+		train_dataset = Dataset(dataframe=dataframe[train_index], omic=omic, database=database)
+		test_dataset = Dataset(dataframe=dataframe[test_index], omic=omic, database=database)
+		
+		return train_dataset, test_dataset
+		
+		
