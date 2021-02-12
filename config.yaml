@@ -89,15 +89,15 @@ data:
           threshold: 0.95
           enabled: true
         - name: feature_variance
-          fraction_retained: 0.005
+          fraction_retained: 0.05
           enabled: true
       feature_engineering:
         feature_selection:
           - name: importance
-            fraction_selected: 0.002
+            fraction_selected: 0.02
             enabled: true
           - name: predictivity
-            fraction_selected: 0.002
+            fraction_selected: 0.02
             enabled: false
         transformations:
           - name: PCA
