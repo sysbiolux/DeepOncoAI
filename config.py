@@ -173,6 +173,7 @@ class Config:
 	def get_optimized_models(self, dataset, algos=None):
 		
 		omic_list = self.raw_dict['data']['omics']
+		omic_list = list(set(dataset.omic))
 		modeling_options = self.raw_dict['modeling']['general']['search_depth']
 		if modeling_options['enabled']:
 			depth = modeling_options['value']
