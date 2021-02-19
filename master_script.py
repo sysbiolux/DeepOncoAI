@@ -37,7 +37,7 @@ logging.info("Splitting dataset for cross-validation")
 outer_index = config.split(dataset=engineered_data, split_type='outer')
 
 logging.info("Getting optimized models")
-optimal_algos = config.get_optimized_models(dataset=engineered_data)
+optimal_algos = config.get_optimized_models(dataset=engineered_data, algos=['SVC', 'SVM', 'SVP', 'Ridge', 'Ada', 'ET', 'XGB', 'GBM', 'RFC', 'KNN'])
 
 for train_index_outer, test_index_outer in outer_index:
 	training_data, test_data = filtered_data.split(train_index_outer, test_index_outer)

@@ -173,6 +173,7 @@ class Config:
 	def get_optimized_models(self, dataset, algos=None):
 		
 		omic_list = self.raw_dict['data']['omics']
+		omic_list = list(set(dataset.omic))
 		modeling_options = self.raw_dict['modeling']['general']['search_depth']
 		if modeling_options['enabled']:
 			depth = modeling_options['value']
@@ -182,7 +183,7 @@ class Config:
 		targets = dataset.to_pandas(omic='DRUGS')
 		results = dict()
 		
-		for target_name in targets.columns:
+		for this_target in targets.columns:
 			# TODO: there should be a better way to do this, this depends on the exact order of the targets, should be ok but maybe names are better
 			for this_omic in omic_list:
 				this_data = dataset.to_pandas(omic=this_omic['name'], database=this_omic['database'])
@@ -190,6 +191,8 @@ class Config:
 				this_result = optimized_models.bayes_optimize_models(data=this_data, targets=dataset.dataframe[this_target], n_trials=depth, algos=algos)
 				
 				omic_db = this_omic['name'] + '_' + this_omic['database']
+				if omic_db not in results:
+					results[omic_db] = dict()
 				results[omic_db][this_target] = this_result
 				
 				
