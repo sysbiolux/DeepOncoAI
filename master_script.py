@@ -33,13 +33,17 @@ engineered_data = filtered_data.merge_with(engineered_features)
 logging.info("Quantizing targets")
 engineered_data = engineered_data.quantize(target_omic="DRUGS")
 
-logging.info("Splitting dataset for cross-validation")
-outer_index = config.split(dataset=engineered_data, split_type='outer')
+algos = ['Logistic', 'SVC', 'SVM', 'Ridge', 'Ada', 'ET', 'XGB', 'GBM', 'RFC', 'KNN', 'MLP1', 'SVP', 'MLP2']
 
 logging.info("Getting optimized models")
-optimal_algos = config.get_optimized_models(dataset=engineered_data, algos=['SVC', 'SVM', 'SVP', 'Ridge', 'Ada', 'ET', 'XGB', 'GBM', 'RFC', 'KNN'])
+optimal_algos = config.get_optimized_models(dataset=engineered_data, algos=algos)
 
-for train_index_outer, test_index_outer in outer_index:
+r = config.visualize_optimized_models(optimal_algos)
+
+logging.info("Splitting dataset for cross-validation")
+kfold_outer = config.split(dataset=engineered_data, split_type='outer')
+
+for train_index_outer, test_index_outer in kfold_outer:
 	training_data, test_data = filtered_data.split(train_index_outer, test_index_outer)
 	
 	logging.info("Selecting subsets for feature engineering")
