@@ -12,13 +12,11 @@ def reformat_drugs(dataset):
 	df = dataset.dataframe
 	database = dataset.database
 	omic = dataset.omic
-	if all(x == database[0] for x in database) and all(x == 'DRUGS' for x in omic):
+	if all(x == database[0] for x in database) and all(x.split('_')[0] == 'DRUGS' for x in omic):
 		if database[0] == 'CCLE':
-			
 			'''reshapes a CCLE pandas dataframe from 'one line per datapoint' to a more convenient
 			'one line per sample' format, meaning the response of a given cell line to different drugs
 			will be placed on the same line in different columns.'''
-			
 			drugNames = df['Compound'].unique()
 			df['Compound'].value_counts()
 			# concatenate the drug info with one line per cell line
@@ -35,12 +33,13 @@ def reformat_drugs(dataset):
 					merged = pd.merge(merged, df_spec_clean, how='left', on='CCLE Cell Line Name', sort=False, suffixes=('_x', '_y'), copy=True)
 			merged_df = merged.set_index('CCLE Cell Line Name')
 			n_rows, n_cols = merged_df.shape
-			omic = pd.Series(data=['DRUGS' for x in range(n_cols)], index=merged_df.columns)
+			omic = pd.Series(data=[omic[0] for x in range(n_cols)], index=merged_df.columns)
 			database = pd.Series(data=['CCLE' for x in range(n_cols)], index=merged_df.columns)
 		
 		elif database[0] == 'GDSC':
 			pass
-	
+	else:
+		raise ValueError("Either the dataset has multiple database origins or there is no omic starting with 'DRUGS'")
 	return dataset_class.Dataset(merged_df, omic=omic, database=database)
 	
 	
@@ -66,6 +65,11 @@ def preprocess_data(dataset, flag=None):
 				dataset = preprocess_gdsc_mirna(dataset, flag=flag)
 			if omic[0] == 'DNA':
 				dataset = preprocess_gdsc_dna(dataset, flag=flag)
+		elif database[0] == 'OWN':
+			if omic[0] == 'PATHWAY':
+				dataset = preprocess_features_pathway(dataset, flag=flag)
+			if omic[0] == 'TOPOLOGY':
+				dataset = preprocess_features_topology(dataset, flag=flag)
 	return dataset
 
 
@@ -75,6 +79,7 @@ def preprocess_ccle_rppa(dataset, flag=None):
 		df = df.set_index('Unnamed: 0')
 		df = rescale_data(df)
 		df = np.log2(df + 1)
+		df = rescale_data(df)
 		
 	return dataset_class.Dataset(df, omic='RPPA', database='CCLE')
 
@@ -85,7 +90,9 @@ def preprocess_ccle_rna(dataset, flag=None):
 		df = df.set_index(['GeneTrans'])
 		df = df.drop(['Description', 'Name'], axis=1)
 		df = df.transpose()
+		df = rescale_data(df)
 		df = np.log2(df + 1)
+		df = rescale_data(df)
 		
 	return dataset_class.Dataset(df, omic='RNA', database='CCLE')
 
@@ -96,7 +103,10 @@ def preprocess_ccle_mirna(dataset, flag=None):
 		df = df.set_index(['GeneTrans'])
 		df = df.drop(['Description', 'Name'], axis=1)
 		df = df.transpose()
+		df = rescale_data(df)
 		df = np.log2(df + 1)
+		df = rescale_data(df)
+		
 		
 	return dataset_class.Dataset(df, omic='MIRNA', database='CCLE')
 
@@ -123,6 +133,20 @@ def preprocess_gdsc_dna(dataset, flag=None):
 	## TODO: preprocessing steps here
 	pass
 
+def preprocess_features_pathway(dataset, flag=None):
+	## TODO: preprocessing steps here
+	pass
+
+def preprocess_features_topology(dataset, flag=None):
+	## TODO: preprocessing steps here
+	# @Apurva could stay empty if your output is directly workable,
+	# but maybe we want to add things here later
+	df = dataset.dataframe
+	
+	# additional steps if necessary
+	
+	return dataset_class.Dataset(df, omic='TOPOLOGY', database='OWN')
+
 def rescale_data(df):
 	'''Normalization by mapping to the [0 1] interval (each feature independently)
 	this is the same as maxScaler? should we leave it?'''
@@ -141,25 +165,7 @@ def impute_missing_data(df, method = 'average'):
 		df = df
 	return df
 
-def get_tumor_type(df):
-	tumors_list = ['PROSTATE', 'STOMACH', 'URINARY', 'NERVOUS', 'OVARY', 'HAEMATOPOIETIC',
-	'KIDNEY', 'THYROID', 'SKIN', 'SOFT_TISSUE', 'SALIVARY', 'LUNG', 'BONE',
-	'PLEURA', 'ENDOMETRIUM', 'BREAST', 'PANCREAS', 'AERODIGESTIVE', 'LARGE_INTESTINE',
-	'GANGLIA', 'OESOPHAGUS', 'FIBROBLAST', 'CERVIX', 'LIVER', 'BILIARY', 
-	'SMALL_INTESTINE']
-	
-	df_tumors = pd.DataFrame(index=df.index, columns=tumors_list)
-	for this_tumor_type in tumors_list:
-		for this_sample in df.index:
-			if this_tumor_type in this_sample:
-				df_tumors.loc[this_sample, this_tumor_type] = 1.0
-			else:
-				df_tumors.loc[this_sample, this_tumor_type] = 0.0
-	
-	for col in df_tumors.columns:
-		df_tumors[col] = pd.to_numeric(df_tumors[col])
-	
-	return df_tumors
+
 
 def select_drug_metric(dataset, metric):
 	omic = dataset.omic

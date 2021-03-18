@@ -100,10 +100,10 @@ models = [
 		'C': ParameterBound(10e-3, 10e2, logarithmic=True), 
 		'gamma': ParameterBound(10e-4, 10e-1, logarithmic=True)}},
 	 {'name': 'Logistic', 'estimator_method': create_Logistic, 'parameter_bounds': {
-	 	'C': ParameterBound(10e-1, 1, logarithmic=True), 
+	 	'C': ParameterBound(10e-1, 2, logarithmic=True), 
 	 	'tol': ParameterBound(10e-5, 10e-1, logarithmic=True)}},
 	 {'name': 'Ridge', 'estimator_method': create_Ridge, 'parameter_bounds': {
-	 	'alpha': ParameterBound(0, 1000), 
+	 	'alpha': ParameterBound(0.1, 1000), 
 	 	'tol': ParameterBound(10e-5, 10e-1, logarithmic=True)}},
 	 {'name': 'ET', 'estimator_method': create_ET, 'parameter_bounds': {
 	 	'n_estimators': ParameterBound(10, 1000, discrete=True), 
@@ -140,12 +140,11 @@ def get_estimator_list():
 		estimator_list.append(estimator)
 	return estimator_list
 
-def cross_validate_evaluation(estimator, data, targets):
+def cross_validate_evaluation(estimator, data, targets, metric):
 	cv = StratifiedKFold(n_splits=5)
 	cval = cross_val_score(estimator, data, targets,
-scoring='roc_auc', cv=cv, n_jobs=-1)
+scoring=metric, cv=cv, n_jobs=-1)
 	return cval.mean()
-
 
 def create_pbounds_argument(parameter_bounds):
 	pbounds = dict()
@@ -153,16 +152,14 @@ def create_pbounds_argument(parameter_bounds):
 		pbounds[key] = parameter_bounds[key].transform_bound()
 	return pbounds
 
-
 def retrieve_original_parameters(optimizer_parameters, parameter_bounds):
 	original_parameters = dict()
 	for key in parameter_bounds.keys():
 		original_parameters[key] = parameter_bounds[key].inverse_transform(optimizer_parameters[key])
 	return original_parameters
 
-
 def bayes_optimize_estimator(estimator_method, parameter_bounds, data,
-targets, n_trials):
+targets, n_trials, metric):
 	def instantiate_cross_validate_evaluation(**kwargs):
 		for parameter_bound_name in parameter_bounds:
 			parameter_bound = parameter_bounds[parameter_bound_name]
@@ -171,10 +168,10 @@ targets, n_trials):
 			if parameter_bound.logarithmic:
 				kwargs[parameter_bound_name] = parameter_bound.inverse_transform(kwargs[parameter_bound_name])
 		estimator = estimator_method(**kwargs)
-		return cross_validate_evaluation(estimator, data, targets)
-
+		return cross_validate_evaluation(estimator, data, targets, metric)
+	
 	pbounds = create_pbounds_argument(parameter_bounds)
-
+	
 	optimizer = BayesianOptimization(
 		f=instantiate_cross_validate_evaluation,
 		pbounds=pbounds,
@@ -189,9 +186,11 @@ targets, n_trials):
 	return optimizer.max, opt_model
 
 
-def bayes_optimize_models(data, targets, n_trials=None, algos=None):
+def bayes_optimize_models(data, targets, n_trials=None, algos=None, metric=None):
 	if n_trials is None:
 		n_trials = 20
+	if metric is None:
+		metric = 'roc_auc'
 	if algos is None:
 		models_to_optimize = models
 	else:
@@ -199,13 +198,19 @@ def bayes_optimize_models(data, targets, n_trials=None, algos=None):
 		for model in models:
 			if model['name'] in algos:
 				models_to_optimize.append(model)
-	optimal_models = list()
+	optimal_models = dict()
 	for model in models_to_optimize:
-		logging.info(f"Bayes optimizing model {model['estimator_method']}")
-		maximum_value, optimal_model = bayes_optimize_estimator(model['estimator_method'],
-														  model['parameter_bounds'],
-														  data,
-														  targets,
-														  n_trials)
-		optimal_models.append({'estimator': optimal_model, 'result': maximum_value})
+		logging.info(f"Bayes optimizing model {model['name']} for {targets.name}")
+		try:
+			maximum_value, optimal_model = bayes_optimize_estimator(model['estimator_method'],
+																model['parameter_bounds'],
+																data,
+																targets,
+																n_trials, metric)
+		except:
+			logging.info(f"Could not optimize {model['name']}")
+			maximum_value = np.nan
+			optimal_model = np.nan
+			
+		optimal_models[model['name']] = {'estimator': optimal_model, 'result': maximum_value}
 	return optimal_models

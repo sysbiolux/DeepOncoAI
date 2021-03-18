@@ -29,11 +29,11 @@ class Dataset:
 		resulting_dataset = self
 		if filters:
 			for individual_filter in filters:
-				logging.info(f"{individual_filter}")
+# 				logging.info(f"{individual_filter}")
 				resulting_dataset = individual_filter.apply(resulting_dataset)
 		return resulting_dataset
 
-	def to_pandas(self, omic=None, database=None):
+	def to_pandas(self, omic=None, database=None): #TODO: possibility to use lists of omics and databases?
 		resulting_dataframe = self.dataframe
 		resulting_database = self.database
 		if omic is not None:
@@ -81,19 +81,31 @@ class Dataset:
 		if quantiles is None:
 			quantiles = [0.333, 0.667]
 		
-		quantized_dataframe = dataframe.copy() #making a copy of the original dataframe
-		for target in omic[omic == target_omic].index: #for each target (there is only one atm)
-			q = np.quantile(dataframe[target], quantiles) #determine which target values correspond to the quantiles
+		quantized_dataframe = dataframe.copy()
+		for target in omic[omic.str.startswith(target_omic)].index:
+			q = np.quantile(dataframe[target], quantiles)
 			quantized_dataframe[target] = 0.5 #start assigning 'intermediate' to all samples
 			quantized_dataframe[target].mask(dataframe[target] < q[0], 0, inplace=True) #samples below the first quantile get 0
 			quantized_dataframe[target].mask(dataframe[target] >= q[1], 1, inplace=True) #samples above get 1
 			
-			quantized_dataframe = quantized_dataframe[quantized_dataframe[target] != 0.5]
+# 			quantized_dataframe = quantized_dataframe[quantized_dataframe[target] != 0.5]
 
 # 			# uncomment to get random values
 # 			quantized_dataframe[target] = np.random.randint(low=0, high=2, size=len(quantized_dataframe))
 				
 		return Dataset(dataframe=quantized_dataframe, omic=omic, database=database)
+	
+	def to_binary(self, target:str):
+		omic=self.omic
+		database = self.database
+		dataframe = self.to_pandas()
+		
+		m = min(dataframe[target])
+		n = max(dataframe[target])
+		
+		dataframe = dataframe[dataframe[target].isin([m, n])]
+		
+		return Dataset(dataframe=dataframe, omic=omic, database=database)
 		
 	def split(self, train_index, test_index):
 		omic = self.omic

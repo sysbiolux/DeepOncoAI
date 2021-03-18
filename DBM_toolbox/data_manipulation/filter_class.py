@@ -6,6 +6,9 @@ class KeepFeaturesFilter:
 		self.features = features
 		self.omic = omic
 		self.database = database
+		
+	def __str__(self):
+		return f'Filter omic {self.omic}, from database {self.database} with {self.features.size} features: {self.features}'
 
 	def apply(self, dataset):
 		# TODO: this takes too much time!
@@ -19,7 +22,8 @@ class KeepFeaturesFilter:
 		selected['omic'] = (omic != self.omic).values
 		selected['database'] = database != self.database
 		selected['retained'] = selected.any(axis=1)
-		print(self.features)
+# 		print('features retained:')
+# 		print(self.features)
 		for this_feature in self.features:
 			try:
 				selected.loc[this_feature, 'retained'] = True
