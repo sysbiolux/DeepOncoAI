@@ -22,19 +22,16 @@ def get_PCs(df, n_components=None, label=None):
 		label = (datetime.now()).strftime("%Y%m%d%H%M%S")
 	if n_components == None:
 		n_components = 2
-	else:
-		n_components = min(n_components, df.columns.size)
 	pca = PCA(n_components = n_components)
-	print(df)
 	principal_components = pca.fit_transform(df)
 	column_names = []
 	for n in range(1, n_components+1):
-		column_names.append('PC' + str(n) + '_' + label)
+		column_names.append('PC' + str(n) + label)
 	df_PCs = pd.DataFrame(data=principal_components, index=df.index, columns=column_names)
 	var = pca.explained_variance_ratio_
 # 	comp = pca.components_
 	print('fraction of variance explained: %.5f (PC1), %.5f (PC2)' % (var[0], var[1]))
-	return make_dataset(df_PCs, omic='PC', database='ENGINEEERED').normalize()
+	return make_dataset(df_PCs, omic='PC', database='ENGINEEERED')
 
 def get_ICs(df, n_components=None, label=None, random_state=42):
 	"""returns the PCs columns corresponding to the ICA components of the dataframe"""
@@ -48,7 +45,7 @@ def get_ICs(df, n_components=None, label=None, random_state=42):
 	for n in range(1, n_components+1):
 		column_names.append('IC' + str(n) + label)
 	df_ICs = pd.DataFrame(data=X_transformed, index=df.index, columns=column_names)
-	return make_dataset(df_ICs, omic='IC', database='ENGINEEERED').normalize()
+	return make_dataset(df_ICs, omic='IC', database='ENGINEEERED')
 
 def get_RPCs(df, n_components=2, label=None, random_state=42):
 	"""returns the PCs columns corresponding to the ICA components of the dataframe"""
@@ -60,7 +57,7 @@ def get_RPCs(df, n_components=2, label=None, random_state=42):
 	for n in range(1, n_components+1):
 		column_names.append('RPC' + str(n) + label)
 	df_RPCs = pd.DataFrame(data=X_transformed, index=df.index, columns=column_names)
-	return make_dataset(df_RPCs, omic='RPC', database='ENGINEEERED').normalize()
+	return make_dataset(df_RPCs, omic='RPC', database='ENGINEEERED')
 
 def get_TSNEs(df, n_components=None, label=None, random_state=42):
 	"""returns the t-SNE components of the dataframe"""
@@ -74,26 +71,7 @@ def get_TSNEs(df, n_components=None, label=None, random_state=42):
 	for n in range(1, n_components+1):
 		column_names.append('TSNE' + str(n) + label)
 	df_TSNEs = pd.DataFrame(data=tsne_components, index=df.index, columns=column_names)
-	return make_dataset(df_TSNEs, omic='TSNE', database='ENGINEEERED').normalize()
-
-def get_tumor_type(dataframe):
-	tumors_list = ['PROSTATE', 'STOMACH', 'URINARY', 'NERVOUS', 'OVARY', 'HAEMATOPOIETIC',
-	'KIDNEY', 'THYROID', 'SKIN', 'SOFT_TISSUE', 'SALIVARY', 'LUNG', 'BONE',
-	'PLEURA', 'ENDOMETRIUM', 'BREAST', 'PANCREAS', 'AERODIGESTIVE', 'LARGE_INTESTINE',
-	'GANGLIA', 'OESOPHAGUS', 'FIBROBLAST', 'CERVIX', 'LIVER', 'BILIARY', 
-	'SMALL_INTESTINE']
-	
-	df_tumors = pd.DataFrame(index=dataframe.index, columns=tumors_list)
-	for this_tumor_type in tumors_list:
-		for this_sample in dataframe.index:
-			if this_tumor_type in this_sample:
-				df_tumors.loc[this_sample, this_tumor_type] = 1.0
-			else:
-				df_tumors.loc[this_sample, this_tumor_type] = 0.0
-	
-	for col in df_tumors.columns:
-		df_tumors[col] = pd.to_numeric(df_tumors[col])
-		
-	df_tumors = df_tumors.loc[:, (df_tumors != df_tumors.iloc[0]).any()] 
-	
-	return make_dataset(df_tumors, omic='TUMOR', database='ENGINEERED')
+	return make_dataset(df_TSNEs, omic='TSNE', database='ENGINEEERED')
+   
+  
+  

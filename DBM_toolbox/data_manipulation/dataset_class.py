@@ -2,6 +2,7 @@ import logging
 
 import pandas as pd
 import numpy as np
+# from DBM_toolbox.feature_engineering.predictors import combinations, components
 from DBM_toolbox.data_manipulation import preprocessing
 
 
@@ -34,6 +35,11 @@ class Dataset:
 		return resulting_dataset
 
 	def to_pandas(self, omic=None, database=None): #TODO: possibility to use lists of omics and databases?
+		"""
+		returns the Pandas Dataframe of the dataset for columns matching BOTH the omic and database
+		
+		"""
+	
 		resulting_dataframe = self.dataframe
 		resulting_database = self.database
 		if omic is not None:
@@ -46,6 +52,21 @@ class Dataset:
 				raise ValueError(f'Database {database} not present')
 			resulting_dataframe = resulting_dataframe.loc[:, resulting_database == database]
 		return resulting_dataframe
+	
+	def extract(self, omics_list=[], databases_list=[]):
+		"""
+		retuns the parts of the dataset matching EITHER ONE of the the elements of the omics_list and databases_list
+		 
+		"""
+		resulting_dataframe = self.dataframe
+		resulting_database = self.database
+		resulting_omic = self.omic
+		if (omics_list is not None) or (databases_list is not None):
+			to_extract = resulting_omic.isin(omics_list) | resulting_database.isin(databases_list)
+			resulting_dataframe = resulting_dataframe.loc[:,to_extract==True]
+			resulting_database = resulting_database.loc[to_extract==True]
+			resulting_omic = resulting_omic.loc[to_extract==True]
+		return Dataset(dataframe=resulting_dataframe, omic=resulting_omic, database=resulting_database)
 
 	def merge_with(self, other_datasets):
 		if isinstance(other_datasets, list):
@@ -57,6 +78,7 @@ class Dataset:
 		return self
 	
 	def merge_two_datasets(self, other_dataset):
+		print(self, other_dataset)
 		dataframe = self.dataframe
 		other_dataframe = other_dataset.dataframe
 		
@@ -75,6 +97,10 @@ class Dataset:
 		return Dataset(dataframe = preprocessing.rescale_data(self.dataframe), omic=self.omic, database=self.database)
 
 	def quantize(self, target_omic, quantiles=None):
+		"""
+		will ternarize the columns with the corresponding prefix (ex: 'DRUGS')
+		quantiles should be a list of two values in [0, 1]
+		"""
 		omic = self.omic
 		database = self.database
 		dataframe = self.to_pandas()
@@ -83,18 +109,15 @@ class Dataset:
 		
 		quantized_dataframe = dataframe.copy()
 		for target in omic[omic.str.startswith(target_omic)].index:
-			q = np.quantile(dataframe[target], quantiles)
+			q = np.quantile(dataframe[target].dropna(), quantiles)
 			quantized_dataframe[target] = 0.5 #start assigning 'intermediate' to all samples
 			quantized_dataframe[target].mask(dataframe[target] < q[0], 0, inplace=True) #samples below the first quantile get 0
 			quantized_dataframe[target].mask(dataframe[target] >= q[1], 1, inplace=True) #samples above get 1
-			
-# 			quantized_dataframe = quantized_dataframe[quantized_dataframe[target] != 0.5]
-
 # 			# uncomment to get random values
-# 			quantized_dataframe[target] = np.random.randint(low=0, high=2, size=len(quantized_dataframe))
+# 			q_df[target] = np.random.randint(low=0, high=2, size=len(q_df))
 				
 		return Dataset(dataframe=quantized_dataframe, omic=omic, database=database)
-	
+
 	def to_binary(self, target:str):
 		omic=self.omic
 		database = self.database
@@ -115,5 +138,3 @@ class Dataset:
 		test_dataset = Dataset(dataframe=dataframe[test_index], omic=omic, database=database)
 		
 		return train_dataset, test_dataset
-		
-		

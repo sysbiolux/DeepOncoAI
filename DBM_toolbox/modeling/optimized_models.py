@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-'''
-Created on Sat Nov 21 11:32:01 2020
-
-@author: sebde
-'''
 import logging
 
 import numpy as np

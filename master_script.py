@@ -1,16 +1,11 @@
 
-# -*- coding: utf-8 -*-
-'''
-master script for analysis
-'''
-### IMPORTS
-
 import logging
-
-from config import Config
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%H:%M:%S')
+from config import Config
+
 
 config = Config()
+#%%
 
 logging.info("Reading data")
 data = config.read_data()
@@ -34,12 +29,18 @@ logging.info("Quantizing targets")
 engineered_data = engineered_data.quantize(target_omic="DRUGS")
 
 algos = ['Logistic', 'SVC', 'SVM', 'Ridge', 'Ada', 'ET', 'XGB', 'GBM', 'RFC', 'KNN', 'MLP1', 'SVP', 'MLP2']
+algos = ['Logistic', 'SVC', 'KNN', 'XGB', 'ET', 'Ridge', 'GBM', 'RFC', 'MLP1']
 
 logging.info("Getting optimized models")
 optimal_algos = config.get_optimized_models(dataset=engineered_data, algos=algos)
 
-r = config.visualize_optimized_models(optimal_algos)
+config.save(to_save=optimal_algos, name='optimal_algos')
 
+
+
+
+
+logging.info("First-level models optimized")
 logging.info("Splitting dataset for cross-validation")
 kfold_outer = config.split(dataset=engineered_data, split_type='outer')
 
@@ -73,3 +74,4 @@ for train_index_outer, test_index_outer in kfold_outer:
 	
 	logging.info("Generating results")
 	config.generate_results(best_stack, optimal_algos, engineered_test_data)
+>>>>>>> Stashed changes

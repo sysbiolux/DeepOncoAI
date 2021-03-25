@@ -6,15 +6,10 @@ class KeepFeaturesFilter:
 		self.features = features
 		self.omic = omic
 		self.database = database
-		
-	def __str__(self):
-		return f'Filter omic {self.omic}, from database {self.database} with {self.features.size} features: {self.features}'
 
 	def apply(self, dataset):
 		# TODO: this takes too much time!
 		dataframe = dataset.dataframe
-
-
 		omic = dataset.omic
 		database = dataset.database
 		
