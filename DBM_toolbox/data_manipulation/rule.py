@@ -29,15 +29,15 @@ class ColumnDensityRule(Rule):
 	def __init__(self, completeness_threshold, omic, database):
 		if completeness_threshold < 0 or completeness_threshold > 1:
 			raise ValueError('ColumnDensityRule completeness_threshold should be in [0, 1]')
-		self.threshold = completeness_threshold
+		self.density_fraction = completeness_threshold
 		self.omic = omic
 		self.database = database
 
 	def create_filter(self, dataset):
 		dataframe = dataset.to_pandas(omic=self.omic)
-		completeness = 1- dataframe.isna().mean(axis = 0)
-# 		print(completeness)
-		features_to_keep = completeness[completeness>=self.threshold].index
+		completeness = dataframe.isna().mean(axis = 0).sort_values(ascending=False)
+		number_of_features_to_keep = int(round(len(completeness) * self.density_fraction))
+		features_to_keep = completeness.iloc[:number_of_features_to_keep].index
 		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic, database=self.database)
 
 class CrossCorrelationRule(Rule):
@@ -70,8 +70,7 @@ class CrossCorrelationRule(Rule):
 		
 		features_to_keep = dataframe.columns
 		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic, database=self.database)
-		
-
+	
 class FeatureImportanceRule(Rule):
 	def __init__(self, fraction, omic, database):
 		# TODO: Add check on fraction allowed values
@@ -91,7 +90,7 @@ class FeatureImportanceRule(Rule):
 		importances = pd.DataFrame()
 		for this_target in target_df.columns:
 			model = xgb.XGBClassifier(max_depth=4, n_estimators=100, colsample_bytree = 0.5) ### deeper?
-			model.fit(dataframe, target_df) #TODO: there is a warning here about the shape of target vector
+			model.fit(dataframe, target_df)
 			scores = pd.Series(data=model.feature_importances_, name=this_target, index=dataframe.columns)
 			importances = pd.concat([importances, scores], axis=1)
 		importances = importances.mean(axis=1).sort_values(ascending=False)
