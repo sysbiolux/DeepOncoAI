@@ -172,23 +172,20 @@ class Config:
 		else:
 			depth = None
 		
-		print(targets_list)
 		targets_colnames = []
 		for root in targets_list:
 			items = dataset.dataframe.loc[:, dataset.omic.str.startswith(root)].columns
 			for item in items:
 				targets_colnames.append(item)
 		results = dict()
-		print(targets_colnames)
 		
 		for this_target in targets_colnames:
-			print(this_target)
 			# TODO: there should be a better way to do this, this depends on the exact order of the targets, should be ok but maybe names are better
 			results[this_target] = dict()
 			this_dataset = dataset.to_binary(target=this_target)
 			
-			complete_dataset = this_dataset.extract(omics_list=omics_list, databases_list=[])
-			logging.info(f"Optimizing models for {this_target} with the complete set of predictors")
+			complete_dataset = this_dataset.extract(omics_list=omics_list, databases_list=[]).to_pandas()
+			logging.info(f"*** Optimizing models for {this_target} with the complete set of predictors")
 			this_result = optimized_models.bayes_optimize_models(data=complete_dataset, 
 																targets=this_dataset.dataframe[this_target], 
 																n_trials=depth, 
@@ -197,9 +194,8 @@ class Config:
 			results[this_target]['complete'] = this_result
 			
 			for this_omic in omics_list:
-				print(this_omic)
 				this_data = this_dataset.to_pandas(omic=this_omic)
-				logging.info(f"Optimizing models for {this_target} with {this_omic}")
+				logging.info(f"*** Optimizing models for {this_target} with {this_omic}")
 				this_result = optimized_models.bayes_optimize_models(data=this_data, 
 																	targets=this_dataset.dataframe[this_target], 
 																	n_trials=depth, 
