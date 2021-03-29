@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import random
 from DBM_toolbox.data_manipulation.filter_class import KeepFeaturesFilter
 import xgboost as xgb
 # from sklearn.metrics import balanced_accuracy_score
@@ -47,28 +48,72 @@ class CrossCorrelationRule(Rule):
 		self.correlation_threshold = correlation_threshold
 		self.omic = omic
 		self.database = database
+	
 
 	def create_filter(self, dataset):
-		dataframe = dataset.to_pandas(omic=self.omic)
-		names = dataframe.columns
-		corr_matrix = dataframe.corr().abs()
-		corr_array = corr_matrix.to_numpy()
-		np.fill_diagonal(corr_array, 0)
-		clean = (corr_array.max() < self.correlation_threshold)
 		
-		while not clean:
-			sum_correlations = corr_matrix.sum()
-			ind = np.unravel_index(np.argmax(corr_array), corr_array.shape)
-			value_to_remove = np.max([sum_correlations[names[ind[0]]], sum_correlations[names[ind[1]]]])
-			feature_to_remove = sum_correlations[sum_correlations==value_to_remove].index
-			dataframe = dataframe.drop(feature_to_remove, axis=1)
+		def get_features(dataframe, corr_threshold):
 			names = dataframe.columns
+			print('computing correlation matrix')
 			corr_matrix = dataframe.corr().abs()
 			corr_array = corr_matrix.to_numpy()
 			np.fill_diagonal(corr_array, 0)
 			clean = (corr_array.max() < self.correlation_threshold)
+			n_features_start = dataframe.shape[1]
+			
+			while not clean: #TODO: this takes time, look at efficiency
+				print('removing correlated features')
+				sum_correlations = corr_matrix.sum()
+				ind = np.unravel_index(np.argmax(corr_array), corr_array.shape)
+				value_to_remove = np.max([sum_correlations[names[ind[0]]], sum_correlations[names[ind[1]]]])
+				feature_to_remove = sum_correlations[sum_correlations==value_to_remove].index
+				dataframe = dataframe.drop(feature_to_remove, axis=1)
+				names = dataframe.columns
+				corr_matrix = dataframe.corr().abs()
+				corr_array = corr_matrix.to_numpy()
+				np.fill_diagonal(corr_array, 0)
+				clean = (corr_array.max() < self.correlation_threshold)
+			
+			features_to_keep = dataframe.columns
+			n_features_removed = n_features_start - dataframe.shape[1]
+			
+			print('Removed ' + str(n_features_removed) + ' highly correlated features from a total of ' + str(n_features_start))
+			return features_to_keep
 		
-		features_to_keep = dataframe.columns
+		def shuffle_columns(dataframe, seed=42):
+			col_names = list(dataframe.columns)
+			random.seed(seed)
+			random.shuffle(col_names)
+			dataframe = dataframe[col_names]
+			
+			return dataframe
+		
+		dataframe = dataset.to_pandas(omic=self.omic)
+		if len(dataframe.columns) < 1000:
+			features_to_keep = get_features(dataframe, self.correlation_threshold)
+		else: # cannot compute pandas.corr() for large matrices
+			print('large dataset')
+			keep_on_trying = True
+			while keep_on_trying:
+				print('shuffling')
+				dataframe = shuffle_columns(dataframe=dataframe)
+				keep_on_trying = False
+				features_to_keep = []
+				n_chunks = round(len(dataframe.columns)/1000 + 0.5)
+				starts = [x * 1000 for x in (range(n_chunks))]
+				stops = [x + 999 for x in starts]
+				stops[-1] = len(dataframe.columns)
+				for count, col_start in enumerate(starts):
+					print('chunk ' + str(count))
+					col_stop = stops[count]
+					mini_dataframe = dataframe.iloc[:, col_start:col_stop + 1]
+					features_to_keep.append(get_features(mini_dataframe, self.correlation_threshold))
+				
+				new_dataframe = dataframe[features_to_keep[0]]
+				for chunk in range(1, n_chunks):
+					print('merging chunks')
+					new_dataframe.merge(dataframe[features_to_keep[chunk]], left_index=True, right_index=True)
+				keep_on_trying = (new_dataframe.size != dataframe.size)
 		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic, database=self.database)
 	
 class FeatureImportanceRule(Rule):

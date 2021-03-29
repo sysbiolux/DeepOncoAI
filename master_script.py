@@ -31,11 +31,12 @@ engineered_data = engineered_data.quantize(target_omic="DRUGS")
 algos = ['Logistic', 'SVC', 'SVM', 'Ridge', 'Ada', 'ET', 'XGB', 'GBM', 'RFC', 'KNN', 'MLP1', 'SVP', 'MLP2']
 algos = ['Logistic', 'SVC', 'KNN', 'XGB', 'ET', 'Ridge', 'GBM', 'RFC', 'MLP1']
 algos = ['Logistic', 'SVC', 'SVM', 'KNN', 'XGB']
+algos = ['Ridge', 'Ada', 'ET','GBM', 'RFC', 'SVP']
 
 logging.info("Getting optimized models")
 optimal_algos = config.get_optimized_models(dataset=engineered_data, algos=algos)
 
-config.save(to_save=optimal_algos, name='optimal_algos')
+config.save(to_save=optimal_algos, name='optimal_algos2')
 
 
 
