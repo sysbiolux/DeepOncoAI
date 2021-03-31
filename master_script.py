@@ -36,8 +36,10 @@ algos = ['Ridge', 'Ada', 'ET','GBM', 'RFC', 'SVP']
 logging.info("Getting optimized models")
 optimal_algos = config.get_optimized_models(dataset=engineered_data, algos=algos)
 
-config.save(to_save=optimal_algos, name='optimal_algos2')
+config.save(to_save=optimal_algos, name='optimal_algos')
 
+logging.info("Creating best stacks")
+best_stack = config.get_best_stacks(dataset=engineered_training_data, algorithms=optimal_algos, kfold=kfold_inner)
 
 
 
@@ -71,9 +73,8 @@ for train_index_outer, test_index_outer in kfold_outer:
 	logging.info("Splitting dataset for ensembling optimization")
 	kfold_inner = config.split(dataset=filtered_data, split_type='inner')
 	
-	logging.info("Creating best stack")
+	logging.info("Creating best stacks")
 	best_stack = config.get_best_stack(dataset=engineered_training_data, algorithms=optimal_algos, kfold=kfold_inner)
 	
 	logging.info("Generating results")
 	config.generate_results(best_stack, optimal_algos, engineered_test_data)
->>>>>>> Stashed changes

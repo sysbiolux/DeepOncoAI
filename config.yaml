@@ -53,7 +53,7 @@ data:
           threshold: 0.95
           enabled: true
         - name: feature_variance
-          fraction_retained: 0.01
+          fraction_retained: 0.10
           enabled: true
         - name: cross-correlation
           correlation_threshold: 0.9

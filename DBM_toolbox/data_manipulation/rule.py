@@ -49,36 +49,37 @@ class CrossCorrelationRule(Rule):
 		self.omic = omic
 		self.database = database
 	
-
-	def create_filter(self, dataset):
+	def create_filter(self, dataset, chunk_size=5000):
 		
 		def get_features(dataframe, corr_threshold):
-			names = dataframe.columns
-			print('computing correlation matrix')
-			corr_matrix = dataframe.corr().abs()
-			corr_array = corr_matrix.to_numpy()
-			np.fill_diagonal(corr_array, 0)
-			clean = (corr_array.max() < self.correlation_threshold)
 			n_features_start = dataframe.shape[1]
+			print('computing correlation matrix')
+# 			corr_matrix = dataframe.corr().abs().copy()
+			corr_array = np.abs(np.corrcoef(dataframe.values, rowvar=False)) #   corr_matrix.to_numpy()
+			np.fill_diagonal(corr_array, 0)
 			
-			while not clean: #TODO: this takes time, look at efficiency
-				print('removing correlated features')
-				sum_correlations = corr_matrix.sum()
+			print('removing correlated features')
+			clean = (np.nanmax(corr_array) < self.correlation_threshold)
+			while not clean:
+				sum_correlations = np.sum(corr_array, axis=0)
+# 				print(sum_correlations)
 				ind = np.unravel_index(np.argmax(corr_array), corr_array.shape)
-				value_to_remove = np.max([sum_correlations[names[ind[0]]], sum_correlations[names[ind[1]]]])
-				feature_to_remove = sum_correlations[sum_correlations==value_to_remove].index
+# 				print(ind)
+				if sum_correlations[ind[0]] > sum_correlations[ind[1]]:
+					to_remove = ind[0]
+				else:
+					to_remove = ind[1]
+				feature_to_remove = dataframe.columns[to_remove]
 				dataframe = dataframe.drop(feature_to_remove, axis=1)
-				names = dataframe.columns
-				corr_matrix = dataframe.corr().abs()
-				corr_array = corr_matrix.to_numpy()
-				np.fill_diagonal(corr_array, 0)
-				clean = (corr_array.max() < self.correlation_threshold)
+				for axis in [0, 1]:
+					corr_array = np.delete(corr_array, to_remove, axis=axis)
+				clean = (np.nanmax(corr_array) < self.correlation_threshold)
 			
-			features_to_keep = dataframe.columns
-			n_features_removed = n_features_start - dataframe.shape[1]
+			features_to_keep_in = dataframe.columns
+			n_features_removed = n_features_start - len(features_to_keep_in)
 			
-			print('Removed ' + str(n_features_removed) + ' highly correlated features from a total of ' + str(n_features_start))
-			return features_to_keep
+			print('Removed ' + str(n_features_removed) + ' highly correlated features (>' + str(corr_threshold) + ') from a total of ' + str(n_features_start))
+			return features_to_keep_in
 		
 		def shuffle_columns(dataframe, seed=42):
 			col_names = list(dataframe.columns)
@@ -88,8 +89,8 @@ class CrossCorrelationRule(Rule):
 			
 			return dataframe
 		
-		dataframe = dataset.to_pandas(omic=self.omic)
-		if len(dataframe.columns) < 1000:
+		dataframe = dataset.extract(omics_list=[self.omic]).remove_constants().normalize().impute().to_pandas()
+		if len(dataframe.columns) < chunk_size:
 			features_to_keep = get_features(dataframe, self.correlation_threshold)
 		else: # cannot compute pandas.corr() for large matrices
 			print('large dataset')
@@ -97,24 +98,24 @@ class CrossCorrelationRule(Rule):
 			while keep_on_trying:
 				print('shuffling')
 				dataframe = shuffle_columns(dataframe=dataframe)
-				keep_on_trying = False
 				features_to_keep = []
-				n_chunks = round(len(dataframe.columns)/1000 + 0.5)
-				starts = [x * 1000 for x in (range(n_chunks))]
-				stops = [x + 999 for x in starts]
+				n_chunks = round(len(dataframe.columns)/chunk_size + 0.5)
+				starts = [x * chunk_size for x in (range(n_chunks))]
+				stops = [x + (chunk_size) for x in starts]
 				stops[-1] = len(dataframe.columns)
 				for count, col_start in enumerate(starts):
 					print('chunk ' + str(count))
 					col_stop = stops[count]
-					mini_dataframe = dataframe.iloc[:, col_start:col_stop + 1]
-					features_to_keep.append(get_features(mini_dataframe, self.correlation_threshold))
+					mini_dataframe = dataframe.iloc[:, col_start:col_stop]
+					features_to_keep.extend(get_features(mini_dataframe, self.correlation_threshold))
+					print('Keeping ' + str(len(features_to_keep)) + ' features')
 				
-				new_dataframe = dataframe[features_to_keep[0]]
-				for chunk in range(1, n_chunks):
-					print('merging chunks')
-					new_dataframe.merge(dataframe[features_to_keep[chunk]], left_index=True, right_index=True)
+				new_dataframe = dataframe[features_to_keep]
+				
+				print(str(new_dataframe.shape[1]) + ' features left')
 				keep_on_trying = (new_dataframe.size != dataframe.size)
-		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic, database=self.database)
+				dataframe = new_dataframe
+		return KeepFeaturesFilter(features=dataframe.columns, omic=self.omic, database=self.database)
 	
 class FeatureImportanceRule(Rule):
 	def __init__(self, fraction, omic, database):

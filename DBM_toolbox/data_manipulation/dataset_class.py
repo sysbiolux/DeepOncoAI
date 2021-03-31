@@ -93,6 +93,14 @@ class Dataset:
 	def impute(self, method = 'average'):
 		return Dataset(dataframe = preprocessing.impute_missing_data(self.dataframe, method=method), omic=self.omic, database=self.database)
 	
+	def remove_constants(self):
+		n_before = self.dataframe.shape[1]
+		dataframe = preprocessing.remove_constant_data(self.dataframe)
+		print('Removed ' + str(n_before - dataframe.shape[1]) + ' constant features')
+		return Dataset(dataframe=dataframe, 
+				 omic=self.omic[dataframe.columns], 
+				 database=self.database[dataframe.columns])
+	
 	def normalize(self):
 		return Dataset(dataframe = preprocessing.rescale_data(self.dataframe), omic=self.omic, database=self.database)
 

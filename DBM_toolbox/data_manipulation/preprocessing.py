@@ -160,6 +160,11 @@ def impute_missing_data(df, method = 'average'):
 		df = df
 	return df
 
+def remove_constant_data(df):
+	'''removes the columns that are strictly constant'''
+	df = df.loc[:, (df != df.iloc[0]).any()]
+	return df
+
 def get_tumor_type(df):
 	tumors_list = ['PROSTATE', 'STOMACH', 'URINARY', 'NERVOUS', 'OVARY', 'HAEMATOPOIETIC',
 	'KIDNEY', 'THYROID', 'SKIN', 'SOFT_TISSUE', 'SALIVARY', 'LUNG', 'BONE',

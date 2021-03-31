@@ -207,7 +207,22 @@ class Config:
 				
 		return results
 
-	def get_best_stack(self, engineered_data, optimal_algos):
+	def get_best_stacks(self, datasets, optimal_algos):
+		
+		#for each target
+		
+			#ranked list of algos
+			#full stack + perf CV mean + sd
+			#remove one by one and select best perf
+			# test if best perf signif better than before, remove if necess
+			# if not: thats the best stack
+		
+		
+		
+		
+		pass
+	
+	def generate_results:
 		pass
 
 	def save(self, to_save=[], name='file'):
