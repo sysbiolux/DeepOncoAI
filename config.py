@@ -1,13 +1,18 @@
 import yaml
 import logging
 import pickle
+import pandas as pd
+import numpy as np
 from datetime import datetime
+from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_predict
+from sklearn.feature_selection import RFECV
+import xgboost as xgb
+import matplotlib.pyplot as plt
 
-from DBM_toolbox.data_manipulation import load_data, rule, preprocessing
+from DBM_toolbox.data_manipulation import load_data, rule,  preprocessing
 from DBM_toolbox.data_manipulation import dataset_class, filter_class
 from DBM_toolbox.feature_engineering.predictors import combinations, components
-from DBM_toolbox.modeling import optimized_models, stacking
-
+from DBM_toolbox.modeling import optimized_models
 
 parse_filter_dict = {'sample_completeness': lambda this_filter, omic, database: filter_class.KeepDenseRowsFilter(completeness_threshold=this_filter['threshold']),
 					 'feature_completeness': lambda this_filter, omic, database: rule.ColumnDensityRule(completeness_threshold=this_filter['threshold'], omic=omic, database=database),
@@ -28,6 +33,9 @@ parse_transformation_dict = {'PCA': lambda dataframe, transformation, omic: comp
 }
 
 def parse_filter(this_filter: dict, omic: str, database: str):
+	'''
+	Generates a filter Rule if the option is enabled in the config file
+	'''
 	try:
 		if 'enabled' in this_filter and not this_filter['enabled']:
 			return None
@@ -36,6 +44,9 @@ def parse_filter(this_filter: dict, omic: str, database: str):
 		raise ValueError(f"Did not recognize filter with {this_filter['name']}")
 
 def parse_selection(selection: dict, omic: str, database: str):
+	'''
+	Generates a selection Rule if the option is enabled in the config file
+	'''
 	try:
 		if 'enabled' in selection and not selection['enabled']:
 			return None
@@ -44,6 +55,9 @@ def parse_selection(selection: dict, omic: str, database: str):
 		raise ValueError(f"Did not recognize engineering selection with {selection['name']}")
 
 def parse_transformations(dataframe, transformation: dict, omic: str, database: str):
+	'''
+	Generates and computes a transformation if the option is enabled in the config file
+	'''
 	try:
 		if 'enabled' in transformation and not transformation['enabled']:
 			return None
@@ -58,26 +72,66 @@ class Config:
 			self.raw_dict = yaml.load(f, Loader=yaml.FullLoader)
 
 	def read_data(self):
+		'''
+		Reads the data (omics and targets) according to the config file and assembles a Dataset
+		'''
+		print('Reading data...')
 		nrows = self.raw_dict['data'].get("maximum_rows", None)
 		omic = self.raw_dict['data']['omics'][0]
+		print('Loading ' + omic['name'] + ' from ' + omic['database'])
 		full_dataset = load_data.read_data('data', omic=omic['name'], database=omic['database'])
 		for omic in self.raw_dict['data']['omics'][1:]:
-			additional_dataset = load_data.read_data('data', omic=omic['name'], database=omic['database'], nrows=nrows)
+			print('Loading ' + omic['name'] + ' from ' + omic['database'])
+			additional_dataset = load_data.read_data('data', 
+													omic=omic['name'],
+													database=omic['database'],
+													nrows=nrows)
 			full_dataset = full_dataset.merge_with(additional_dataset)
 		
 		targets = self.raw_dict['data']['targets']
 		for target in targets:
 			target_metric = target['responses']
 			target_name = target['target_drug_name']
-			additional_dataset = load_data.read_data('data', omic=target['name'], database=target['database'], keywords=[target_name, target_metric])
+			print('Loading ' + target['name'] + ' from ' + target['database'])
+			additional_dataset = load_data.read_data('data',
+													omic=target['name'],
+													database=target['database'],
+													keywords=[target_name,
+													target_metric])
 			full_dataset = full_dataset.merge_with(additional_dataset)
 		return full_dataset
+	
+	def split(self, dataset: dataset_class.Dataset, target_name: str, split_type: str ='outer'):
+		'''
+		Splits the Dataset according to the split type indicated in the config file
+		and returns the list of training and testing indices
+		'''
+		if split_type == 'outer':
+			split_txt = 'outer_folds'
+		elif split_type == 'inner':
+			split_txt = 'inner'
+		else:
+			raise ValueError('split type should be either "outer" or "inner"')
+		n_splits = self.raw_dict['modeling']['general'][split_txt]['value']
+		dataframe = dataset.to_pandas()
+		target = dataframe[target_name]
+		dataframe.drop(target_name)
+		
+		xval = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+		folds_list = xval.split(dataframe, target)
+		return folds_list
 
-	def create_filters(self, dataset):
+	def create_filters(self, dataset: dataset_class.Dataset):
+		'''
+		Computes a filter for each omic based on the config file specifications
+		Returns the list of filters
+		'''
+		print('Creating filters...')
 		omics = self.raw_dict['data']['omics']
 		filters = []
 		for omic in omics:
 			for this_filter in omic['filtering']:
+				print('Creating filter ' + this_filter['name'] + ' for ' + omic['database'] + '/' + omic['name'])
 				new_rule = parse_filter(this_filter, omic['name'], omic['database'])
 				if new_rule is not None:
 					if this_filter['name'] == 'sample_completeness': #TODO: this does not look pretty, the fact that sample completeness is a non-transferable filter makes it not have the same "create_filter" as the others so excetptions have to be created.
@@ -88,7 +142,12 @@ class Config:
 							filters.append(new_filter)
 		return filters
 
-	def select_subsets(self, datasets):
+	def select_subsets(self, datasets: list):
+		'''
+		Selects a subset of the features based on either predictivity or importance or both
+		Returns a Dataset
+		'''
+		print('Selecting subsets...')
 		if isinstance(datasets, list): #TODO: this is not clean anymore. find another way to accept both single datasets and transfer from one to another
 			training_dataset = datasets[0]
 			test_dataset = datasets[1]
@@ -107,16 +166,20 @@ class Config:
 		for omic in omics:
 			database = omic['database']
 			for selection in omic['feature_engineering']['feature_selection']:
-# 				print('**************')
 				logging.info(f"Creating selection for {omic['name']}_{database}")
+				print('Selecting within ' + omic['name'] + '/' + database)
 				new_selection = parse_selection(selection=selection, omic=omic['name'], database=database)
 				if new_selection is not None:
-					this_dataset = dataset_class.Dataset(dataframe=training_dataset.to_pandas(omic=omic['name'], database=database), omic=omic['name'], database=database)
-					new_filter = new_selection.create_filter(dataset=this_dataset, target_df=target)
+					this_dataset = dataset_class.Dataset(dataframe=training_dataset.to_pandas(omic=omic['name'], database=database), 
+														omic=omic['name'],
+														database=database)
+					new_filter = new_selection.create_filter(dataset=this_dataset, target_dataframe=target)
 					logging.info(f"Applying selection for {omic['name']}_{database}")
 					new_training_subset = this_dataset.apply_filters([new_filter])
 					if isinstance(datasets, list):
-						this_test_dataset = dataset_class.Dataset(dataframe=test_dataset.to_pandas(omic=omic['name'], database=database), omic=omic['name'], database=database)
+						this_test_dataset = dataset_class.Dataset(dataframe=test_dataset.to_pandas(omic=omic['name'], database=database),
+																omic=omic['name'],
+																database=database)
 						new_test_subset = this_test_dataset.apply_filters([new_filter])
 					if selected_training_subset is not None:
 						columns_to_add = new_training_subset.dataframe.columns.difference(selected_training_subset.dataframe.columns)
@@ -138,7 +201,12 @@ class Config:
 		else:
 			return selected_training_subset
 
-	def engineer_features(self, dataset):
+	def engineer_features(self, dataset: dataset_class.Dataset):
+		'''
+		Applies transformations (PCA, TSNE, combinations) to a dataset and 
+		returns the dataset
+		'''
+		print('Engineering features...')
 		omics = self.raw_dict['data']['omics']
 		dataframe = dataset.to_pandas()
 		engineered_features = None
@@ -146,18 +214,33 @@ class Config:
 		for omic in omics:
 			transformations_dict = omic['feature_engineering']['transformations']
 			for transformation in transformations_dict:
-				logging.info(transformation)
+				print(transformation)
+				print('Engineering ' + transformation['name'] + ' for ' + omic['name'] + '/' + omic['database'])
 				new_features = parse_transformations(dataframe=dataframe, transformation=transformation, omic=omic, database=database)
 				if new_features is not None:
+					new_features = new_features.remove_constants()
 					if engineered_features is not None:
 						engineered_features = engineered_features.merge_with(new_features)
 					else:
 						engineered_features = new_features
+		
+		use_type = self.raw_dict['modeling']['general']['use_tumor_type']
+		if use_type['enabled'] == True:
+			print('Retrieving tumor types')
+			dataframe_tumors = preprocessing.get_tumor_type(dataframe)
+			tumor_dataset = dataset_class.Dataset(dataframe=dataframe_tumors, omic='TYPE', database='OWN').remove_constants()
+			engineered_features = engineered_features.merge_with(tumor_dataset)
+		
 		return engineered_features
 
 
-	def get_optimized_models(self, dataset, algos=None):
-		
+	def get_optimized_models(self, dataset: dataset_class.Dataset, algos=None):
+		'''
+		Optimizes a set of models by retrieving omics and targets from the comfig files
+		Bayesian hyperparameter optimization is performed for each model, predicting each target with each omic.
+		Returns the a dictionary of optimized models and their performances 
+		'''
+		print('Optimizing models')
 		targets_list = []
 		metric = self.raw_dict['modeling']['general']['metric']
 		for item in self.raw_dict['data']['targets']:
@@ -186,6 +269,7 @@ class Config:
 			
 			complete_dataset = this_dataset.extract(omics_list=omics_list, databases_list=[]).to_pandas()
 			logging.info(f"*** Optimizing models for {this_target} with the complete set of predictors")
+			print('Optimizing models for '+ this_target + ' with the complete set of predictors')
 			this_result = optimized_models.bayes_optimize_models(data=complete_dataset, 
 																targets=this_dataset.dataframe[this_target], 
 																n_trials=depth, 
@@ -196,6 +280,7 @@ class Config:
 			for this_omic in omics_list:
 				this_data = this_dataset.to_pandas(omic=this_omic)
 				logging.info(f"*** Optimizing models for {this_target} with {this_omic}")
+				print('Optimizing models for ' + this_target + ' with ' + this_omic)
 				this_result = optimized_models.bayes_optimize_models(data=this_data, 
 																	targets=this_dataset.dataframe[this_target], 
 																	n_trials=depth, 
@@ -207,7 +292,131 @@ class Config:
 				
 		return results
 
-	def get_best_stack(self, engineered_data, optimal_algos):
+	def get_best_algos(self, optimal_algos:dict):
+		'''
+		Compares the results of different algorithms for the same target with the same omic type, 
+		looks for the jighest performance and returns a dictionary of models
+		'''
+		
+		#for each target
+		models = dict()
+		targets = optimal_algos.keys()
+		results_df = pd.DataFrame(columns=['target', 'omic', 'algo', 'perf', 'estim'])
+		for target in targets:
+			models[target] = dict()
+			print(target)
+			#ranked list of algos
+			omics = optimal_algos[target].keys()
+			for omic in omics:
+				print(omic)
+				algos = optimal_algos[target][omic]
+				models[target][omic] = []
+				for algo in algos:
+					print(algo)
+					i = optimal_algos[target][omic][algo]
+					estimator = i['estimator']
+					result = i['result']['target']
+					results_df = results_df.append(pd.Series([target, omic, algo, result, estimator],
+													index=results_df.columns),
+													ignore_index=True)
+				# select the best one
+				omic_results = results_df[(results_df['target']==target) & (results_df['omic']==omic)]
+				best = omic_results.sort_values(by='perf', ascending=False).iloc[0, :]
+				models[target][omic].append(best['estim'])
+		
+		return models
+	
+	def get_best_stacks(self, models: dict, dataset: dataset_class.Dataset):
+		
+		best_stacks = dict()
+		
+		options = self.raw_dict['modeling']['ensembling']
+		
+		metric = self.raw_dict['modeling']['general']['metric']
+		folds = self.raw_dict['modeling']['general']['inner_folds']['value']
+		seed = self.raw_dict['modeling']['general']['inner_folds']['random_seed']
+		min_models = options['min_models']
+		targets_list = list()
+		for item in self.raw_dict['data']['targets']:
+			this_name = item['target_drug_name'] + '_' + item['responses']
+			targets_list.append(this_name)
+		if options['metalearner'] == 'xgboost':
+			final_model = xgb.XGBClassifier(n_estimators=100,
+											max_depth=6,
+											random_state=seed,
+											learning_rate=0.1,
+											colsample_bytree= 0.9,
+											subsample=0.9,
+											n_jobs=-1,
+											)
+		else:
+			raise ValueError('Metalearner ' + options['metalearner'] + ' not recognized')
+				
+		for target in targets_list:
+			print(target)
+			this_dataset = dataset.to_binary(target=target)
+			y = this_dataset.to_pandas()[target]
+			print(y)
+			omics = models[target]
+			predictions = pd.DataFrame(index = y.index, columns=omics.keys())
+			
+			for omic in omics.keys():
+				if omic == 'complete':
+					X = this_dataset.to_pandas().drop(targets_list, axis=1)
+				else:
+					X = this_dataset.to_pandas(omic=omic)
+				model = omics[omic][0]
+				
+				xval = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
+				omic_predict = cross_val_predict(model, X, y, cv=xval, n_jobs=-1)
+				predictions[omic] = omic_predict
+# 			predictions['truth'] = y.values
+			
+			stack = final_model.fit(X,y,eval_metric='auc')
+			stack_predict = cross_val_predict(final_model, X, y, cv=xval, n_jobs=-1)
+			
+			results = cross_val_score(final_model, predictions, y, scoring=metric, cv=xval, n_jobs=-1)
+			predictions['stack'] = stack_predict
+			predictions['truth'] = y.values
+			
+# 			rfecv = RFECV(estimator=final_model, step=1, cv=xval, scoring=metric, min_features_to_select=min_models)
+# 			rfecv.fit(predictions, y)
+# 			print("Optimal number of features : %d" % rfecv.n_features_)
+# 			selected_features = rfecv.get_support()
+# 			score = rfecv.score(X, y)
+			
+			importances = pd.DataFrame(stack.feature_importances_, index=omics.keys())
+			best_stacks[target] = {'support': importances, 
+									'score': {'mean': np.mean(results), 'std': np.std(results)},
+									'predictions': predictions}
+				
+# # Plot number of features VS. cross-validation scores
+# plt.figure()
+# plt.xlabel("Number of features selected")
+# plt.ylabel("Cross validation score (nb of correct classifications)")
+# plt.plot(range(min_features_to_select,
+#                len(rfecv.grid_scores_) + min_features_to_select),
+#          rfecv.grid_scores_)
+# plt.show()
+				
+			
+			
+		return best_stacks
+		
+		
+		#full stack + perf CV mean + sd
+		
+		#remove one by one and select best perf
+		
+		#test if best perf signif better than before, remove if necess
+		# if not: thats the best stack
+		
+		
+		
+		
+# 		return best_stacks
+	
+	def evaluate_stacks(best_stacks):
 		pass
 
 	def save(self, to_save=[], name='file'):
