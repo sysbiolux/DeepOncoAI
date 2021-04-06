@@ -30,7 +30,7 @@ engineered_data = engineered_data.quantize(target_omic="DRUGS")
 
 algos = ['Logistic', 'SVC', 'SVM', 'Ridge', 'Ada', 'ET', 'XGB', 'GBM', 'RFC', 'KNN', 'MLP1', 'SVP', 'MLP2']
 algos = ['Logistic', 'SVC', 'KNN', 'XGB', 'ET', 'Ridge', 'GBM', 'RFC', 'MLP1']
-algos = ['Logistic', 'SVC', 'SVM', 'KNN']
+algos = ['Logistic', 'SVC', 'SVM', 'KNN', 'Ridge', 'RFC', 'Ada']
 # algos = ['Ridge', 'Ada', 'XGB', 'ET','GBM', 'RFC', 'SVP']
 
 logging.info("Getting optimized models")
@@ -41,6 +41,10 @@ config.save(to_save=optimal_algos, name='optimal_algos')
 logging.info("Creating best stacks")
 algos_dict = config.get_best_algos(optimal_algos)
 best_stacks = config.get_best_stacks(models=algos_dict, dataset=engineered_data)
+
+config.save(to_save=best_stacks, name='stack_results')
+
+
 
 
 logging.info("Generating results")
