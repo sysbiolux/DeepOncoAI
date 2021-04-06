@@ -13,7 +13,17 @@ def stack_models(models, final_model, X_train, y_train, X_test, y_test, folds, m
 	using only the models' predictions as input
 	"""
 	print('stacking models...')
-	S_train, S_test = stacking(models, X_train, y_train, X_test, regression=False, mode='oof_pred_bag', needs_proba=False, save_dir=None, metric=metric, n_folds=folds, stratified=True, shuffle=True, random_state=seed, verbose=0)
+	S_train, S_test = stacking(models, X_train, y_train, X_test, 
+							regression=False, 
+							mode='oof_pred_bag',
+							needs_proba=False,
+							save_dir=None,
+							metric=metric,
+							n_folds=folds,
+							stratified=True,
+							shuffle=True,
+							random_state=seed,
+							verbose=0)
 	model = final_model
 	print('fitting stack...')
 	model = model.fit(S_train, y_train)
@@ -29,7 +39,17 @@ def stack_extended_models(models, final_model, X_train, y_train, X_test, y_test,
 	"""Constructs, fits, predicts using XGBoost on a bag of models,
 	using all the training data plus the other models' predictions as input
 	"""
-	S_train, S_test = stacking(models, X_train, y_train, X_test, regression=False, mode='oof_pred_bag', needs_proba=False, save_dir=None, metric=metric, n_folds=folds, stratified=True, shuffle=True, random_state=seed, verbose=2)
+	S_train, S_test = stacking(models, X_train, y_train, X_test,
+							regression=False,
+							mode='oof_pred_bag',
+							needs_proba=False,
+							save_dir=None,
+							metric=metric,
+							n_folds=folds,
+							stratified=True,
+							shuffle=True,
+							random_state=seed,
+							verbose=0)
 	model = final_model
 	E_train = np.concatenate([S_train, X_train],axis=1)
 	E_test = np.concatenate([S_test, X_test], axis=1)

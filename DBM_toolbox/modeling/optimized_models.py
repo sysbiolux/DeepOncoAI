@@ -28,15 +28,21 @@ class ParameterBound:
 		return self.transform(self.minimum), self.transform(self.maximum)
 
 	def transform(self, value):
-		if not self.logarithmic:
+		if self.logarithmic:
+			return np.log(value)
+		elif self.discrete:
+			return int(round(value))
+		else:
 			return value
-		return np.log(value)
+		
 
 	def inverse_transform(self, value):
-		if not self.logarithmic:
+		if self.logarithmic:
+			return np.exp(value)
+		elif self.discrete:
+			return int(round(value))
+		else:
 			return value
-		return np.exp(value)
-
 
 def create_SVC(**kwargs):
 	return SVC(probability=True, random_state=42, **kwargs)
@@ -180,7 +186,11 @@ targets, n_trials, metric):
 	return optimizer.max, opt_model
 
 
-def bayes_optimize_models(data, targets, n_trials=None, algos=None, metric=None):
+def bayes_optimize_models(data, targets, n_trials:str=None, algos:list=None, metric:str=None):
+	'''
+	Optimizes the hyperparameters of each model in a list of models, with data and targets, and 
+	returns a dictionary of the optimal parameters and the performace
+	'''
 	if n_trials is None:
 		n_trials = 20
 	if metric is None:

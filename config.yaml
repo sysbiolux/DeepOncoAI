@@ -56,7 +56,7 @@ data:
           fraction_retained: 0.10
           enabled: true
         - name: cross-correlation
-          correlation_threshold: 0.9
+          correlation_threshold: 0.8
           enabled: true
       feature_engineering:
         feature_selection:
@@ -97,8 +97,8 @@ data:
           fraction_retained: 0.2
           enabled: true
         - name: cross-correlation
-          correlation_threshold: 0.9
-          enabled: false
+          correlation_threshold: 0.8
+          enabled: true
       feature_engineering:
         feature_selection:
           - name: importance
@@ -751,4 +751,7 @@ modeling:
     sampling:
       enabled: false # TODO: implement this
       value: upsample_minority_class_SMOTE
-    
+  ensembling:
+    metalearner: xgboost
+    include_data: False
+    min_models: 1

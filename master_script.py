@@ -1,6 +1,6 @@
 
 import logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%H:%M:%S')
+logging.basicConfig(filename='run.log', level=logging.INFO, filemode='w', format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%H:%M:%S')
 from config import Config
 
 
@@ -30,8 +30,8 @@ engineered_data = engineered_data.quantize(target_omic="DRUGS")
 
 algos = ['Logistic', 'SVC', 'SVM', 'Ridge', 'Ada', 'ET', 'XGB', 'GBM', 'RFC', 'KNN', 'MLP1', 'SVP', 'MLP2']
 algos = ['Logistic', 'SVC', 'KNN', 'XGB', 'ET', 'Ridge', 'GBM', 'RFC', 'MLP1']
-algos = ['Logistic', 'SVC', 'SVM', 'KNN', 'XGB']
-algos = ['Ridge', 'Ada', 'ET','GBM', 'RFC', 'SVP']
+algos = ['Logistic', 'SVC', 'SVM', 'KNN']
+# algos = ['Ridge', 'Ada', 'XGB', 'ET','GBM', 'RFC', 'SVP']
 
 logging.info("Getting optimized models")
 optimal_algos = config.get_optimized_models(dataset=engineered_data, algos=algos)
@@ -39,16 +39,19 @@ optimal_algos = config.get_optimized_models(dataset=engineered_data, algos=algos
 config.save(to_save=optimal_algos, name='optimal_algos')
 
 logging.info("Creating best stacks")
-best_stack = config.get_best_stacks(dataset=engineered_training_data, algorithms=optimal_algos, kfold=kfold_inner)
+algos_dict = config.get_best_algos(optimal_algos)
+best_stacks = config.get_best_stacks(models=algos_dict, dataset=engineered_data)
 
 
+logging.info("Generating results")
+config.evaluate_stacks(best_stacks)
 
 
 logging.info("First-level models optimized")
 logging.info("Splitting dataset for cross-validation")
-kfold_outer = config.split(dataset=engineered_data, split_type='outer')
+folds_list = config.split(dataset=engineered_data, split_type='outer')
 
-for train_index_outer, test_index_outer in kfold_outer:
+for train_index_outer, test_index_outer in folds_list:
 	training_data, test_data = filtered_data.split(train_index_outer, test_index_outer)
 	
 	logging.info("Selecting subsets for feature engineering")
