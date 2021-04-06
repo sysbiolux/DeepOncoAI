@@ -9,9 +9,9 @@ from sklearn.feature_selection import RFECV
 import xgboost as xgb
 import matplotlib.pyplot as plt
 
-from DBM_toolbox.data_manipulation import load_data, rule
+from DBM_toolbox.data_manipulation import load_data, rule,  preprocessing
 from DBM_toolbox.data_manipulation import dataset_class, filter_class
-from DBM_toolbox.feature_engineering.predictors import combinations, components, preprocessing
+from DBM_toolbox.feature_engineering.predictors import combinations, components
 from DBM_toolbox.modeling import optimized_models
 
 parse_filter_dict = {'sample_completeness': lambda this_filter, omic, database: filter_class.KeepDenseRowsFilter(completeness_threshold=this_filter['threshold']),
@@ -78,6 +78,7 @@ class Config:
 		print('Reading data...')
 		nrows = self.raw_dict['data'].get("maximum_rows", None)
 		omic = self.raw_dict['data']['omics'][0]
+		print('Loading ' + omic['name'] + ' from ' + omic['database'])
 		full_dataset = load_data.read_data('data', omic=omic['name'], database=omic['database'])
 		for omic in self.raw_dict['data']['omics'][1:]:
 			print('Loading ' + omic['name'] + ' from ' + omic['database'])
@@ -213,10 +214,11 @@ class Config:
 		for omic in omics:
 			transformations_dict = omic['feature_engineering']['transformations']
 			for transformation in transformations_dict:
-				logging.info(transformation)
-				print('Engineering ' + transformation['name'] + ' for ' + omic + '/' + database)
+				print(transformation)
+				print('Engineering ' + transformation['name'] + ' for ' + omic['name'] + '/' + omic['database'])
 				new_features = parse_transformations(dataframe=dataframe, transformation=transformation, omic=omic, database=database)
 				if new_features is not None:
+					new_features = new_features.remove_constants()
 					if engineered_features is not None:
 						engineered_features = engineered_features.merge_with(new_features)
 					else:
@@ -226,7 +228,7 @@ class Config:
 		if use_type['enabled'] == True:
 			print('Retrieving tumor types')
 			dataframe_tumors = preprocessing.get_tumor_type(dataframe)
-			tumor_dataset = dataset_class.Dataset(dataframe=dataframe_tumors, omic='TYPE', database='OWN')
+			tumor_dataset = dataset_class.Dataset(dataframe=dataframe_tumors, omic='TYPE', database='OWN').remove_constants()
 			engineered_features = engineered_features.merge_with(tumor_dataset)
 		
 		return engineered_features

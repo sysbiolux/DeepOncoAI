@@ -204,6 +204,7 @@ def bayes_optimize_models(data, targets, n_trials:str=None, algos:list=None, met
 				models_to_optimize.append(model)
 	optimal_models = dict()
 	for model in models_to_optimize:
+		print(model['name'] + '...')
 		logging.info(f"Bayes optimizing model {model['name']} for {targets.name}")
 		try:
 			maximum_value, optimal_model = bayes_optimize_estimator(model['estimator_method'],
