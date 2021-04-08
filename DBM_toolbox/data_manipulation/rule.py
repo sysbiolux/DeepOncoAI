@@ -54,10 +54,8 @@ class CrossCorrelationRule(Rule):
 		
 		def get_features(dataframe, corr_threshold):
 			n_features_start = dataframe.shape[1]
-			logging.info('computing correlation matrix')
 			corr_array = np.abs(np.corrcoef(dataframe.values, rowvar=False)) #   corr_matrix.to_numpy()
 			np.fill_diagonal(corr_array, 0)
-			logging.info('removing correlated features')
 			clean = (np.nanmax(corr_array) < self.correlation_threshold)
 			while not clean:
 				sum_correlations = np.sum(corr_array, axis=0)
@@ -74,7 +72,6 @@ class CrossCorrelationRule(Rule):
 			
 			features_to_keep_in = dataframe.columns
 			n_features_removed = n_features_start - len(features_to_keep_in)
-			logging.info('Removed ' + str(n_features_removed) + ' highly correlated features (>' + str(corr_threshold) + ') from a total of ' + str(n_features_start))
 			return features_to_keep_in
 		
 		def shuffle_columns(dataframe, seed:int=42):
