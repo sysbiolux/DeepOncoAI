@@ -126,6 +126,7 @@ class Dataset:
 		return Dataset(dataframe=quantized_dataframe, omic=omic, database=database)
 
 	def optimize_formats(self):
+		logging.info("Optimizing formats")
 		dataframe = self.dataframe
 		
 		optimal_dataframe = preprocessing.reduce_mem_usage(dataframe)

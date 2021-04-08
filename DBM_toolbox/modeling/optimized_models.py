@@ -91,8 +91,8 @@ models = [
 	{'name': 'RFC', 'estimator_method': create_RFC, 'parameter_bounds': {
 		'n_estimators': ParameterBound(10, 250, discrete=True), 
 		'min_samples_split': ParameterBound(2, 25, discrete=True),
-		'max_features': ParameterBound(0.1, 0.999), 
-		'max_depth': ParameterBound(2, 50, discrete=True)}},
+		'max_features': ParameterBound(0.5, 0.999), 
+		'max_depth': ParameterBound(2, 40, discrete=True)}},
 	{'name': 'SVM', 'estimator_method': create_SVM, 'parameter_bounds': {
 		'C': ParameterBound(10e-3, 10e2, logarithmic=True), 
 		'gamma': ParameterBound(10e-4, 10e-1, logarithmic=True)}},
@@ -111,25 +111,25 @@ models = [
 	 {'name': 'KNN', 'estimator_method': create_KNN, 'parameter_bounds': {
 	 	'n_neighbors': ParameterBound(1,100, discrete=True)}},
 	 {'name': 'XGB', 'estimator_method': create_XGB, 'parameter_bounds': {
-	 	'max_depth' : ParameterBound(10, 50, discrete=True), 
+	 	'max_depth' : ParameterBound(10, 20, discrete=True), 
 	 	'n_estimators' : ParameterBound(10, 1000, discrete=True), 
-	 	'learning_rate' : ParameterBound(0.001, 0.05), 
-	 	'colsamples_bytree' : ParameterBound(0.2, 0.99)}},
+	 	'learning_rate' : ParameterBound(0.01, 0.1), 
+	 	'colsamples_bytree' : ParameterBound(0.5, 0.99)}},
 	 {'name': 'Ada', 'estimator_method': create_Ada, 'parameter_bounds': {
 	 	'n_estimators' : ParameterBound(10, 1000, discrete=True), 
-	 	'learning_rate' : ParameterBound(0.001, 0.05)}},
+	 	'learning_rate' : ParameterBound(0.01, 0.1)}},
 	 {'name': 'GBM', 'estimator_method': create_GBM, 'parameter_bounds': {
-	 	'learning_rate': ParameterBound(0.001, 0.1), 
-	 	'n_estimators': ParameterBound(20, 1000, discrete=True), 
-	 	'subsample': ParameterBound(0.5, 0.999), 
-	 	'max_depth': ParameterBound(3, 20, discrete=True), 
-	 	'max_features': ParameterBound(0.2, 0.999), 
+	 	'learning_rate': ParameterBound(0.01, 0.1), 
+	 	'n_estimators': ParameterBound(20, 200, discrete=True), 
+	 	'subsample': ParameterBound(0.8, 0.999), 
+	 	'max_depth': ParameterBound(5, 20, discrete=True), 
+	 	'max_features': ParameterBound(0.5, 0.999), 
 	 	'tol': ParameterBound(10e-4, 10e2, logarithmic=True)}},
 	 {'name': 'MLP1', 'estimator_method': create_MLP1, 'parameter_bounds': {
-	 	'hidden_layer_sizes': ParameterBound(5, 200, discrete=True), 
+	 	'hidden_layer_sizes': ParameterBound(5, 100, discrete=True), 
 	 	'alpha': ParameterBound(10e-6, 10e-2, logarithmic=True)}},
 	 {'name': 'MLP2', 'estimator_method': create_MLP2, 'parameter_bounds': { # TODO: this needs to return a tuple, not a single value?
-	 	'hidden_layer_sizes': ParameterBound(5, 200, discrete=True), 
+	 	'hidden_layer_sizes': ParameterBound(5, 100, discrete=True), 
 	 	'alpha': ParameterBound(10e-6, 10e-2, logarithmic=True)}}
 	]
 
