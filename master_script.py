@@ -26,11 +26,9 @@ logging.info("Merging engineered features")
 engineered_data = filtered_data.merge_with(engineered_features).normalize()
 
 logging.info("Quantizing targets")
-engineered_data = engineered_data.quantize(target_omic="DRUGS")
+engineered_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()
 
-algos = ['Logistic', 'SVC', 'SVM', 'Ridge', 'Ada', 'ET', 'XGB', 'GBM', 'RFC', 'KNN', 'MLP1', 'SVP', 'MLP2']
-algos = ['Logistic', 'SVC', 'KNN', 'XGB', 'ET', 'Ridge', 'GBM', 'RFC', 'MLP1']
-algos = ['Logistic', 'SVC', 'SVM', 'KNN', 'Ridge', 'RFC']
+algos = ['Logistic', 'SVC', 'SVM', 'Ridge', 'Ada', 'ET', 'XGB', 'GBM', 'RFC', 'KNN', 'MLP1', 'SVP'] #, 'MLP2']
 # algos = ['Ridge', 'Ada', 'XGB', 'ET','GBM', 'RFC', 'SVP']
 
 logging.info("Getting optimized models")

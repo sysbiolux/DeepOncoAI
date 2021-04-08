@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from DBM_toolbox.data_manipulation import load_data, rule,  preprocessing
 from DBM_toolbox.data_manipulation import dataset_class, filter_class
 from DBM_toolbox.feature_engineering.predictors import combinations, components
-from DBM_toolbox.modeling import optimized_models
+from DBM_toolbox.modeling import optimized_models, stacking
 
 parse_filter_dict = {'sample_completeness': lambda this_filter, omic, database: filter_class.KeepDenseRowsFilter(completeness_threshold=this_filter['threshold']),
 					 'feature_completeness': lambda this_filter, omic, database: rule.ColumnDensityRule(completeness_threshold=this_filter['threshold'], omic=omic, database=database),
@@ -315,7 +315,10 @@ class Config:
 					print(algo)
 					i = optimal_algos[target][omic][algo]
 					estimator = i['estimator']
-					result = i['result']['target']
+					try:
+						result = i['result']['target']
+					except:
+						result = np.nan
 					results_df = results_df.append(pd.Series([target, omic, algo, result, estimator],
 													index=results_df.columns),
 													ignore_index=True)
@@ -327,11 +330,7 @@ class Config:
 		return models
 	
 	def get_best_stacks(self, models: dict, dataset: dataset_class.Dataset):
-		
-		best_stacks = dict()
-		
 		options = self.raw_dict['modeling']['ensembling']
-		
 		metric = self.raw_dict['modeling']['general']['metric']
 		folds = self.raw_dict['modeling']['general']['inner_folds']['value']
 		seed = self.raw_dict['modeling']['general']['inner_folds']['random_seed']
@@ -351,70 +350,12 @@ class Config:
 											)
 		else:
 			raise ValueError('Metalearner ' + options['metalearner'] + ' not recognized')
-				
-		for target in targets_list:
-			print(target)
-			this_dataset = dataset.to_binary(target=target)
-			y = this_dataset.to_pandas()[target]
-			print(y)
-			omics = models[target]
-			predictions = pd.DataFrame(index = y.index, columns=omics.keys())
-			
-			for omic in omics.keys():
-				if omic == 'complete':
-					X = this_dataset.to_pandas().drop(targets_list, axis=1)
-				else:
-					X = this_dataset.to_pandas(omic=omic)
-				model = omics[omic][0]
-				
-				xval = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
-				omic_predict = cross_val_predict(model, X, y, cv=xval, n_jobs=-1)
-				predictions[omic] = omic_predict
-# 			predictions['truth'] = y.values
-			
-			stack = final_model.fit(X,y,eval_metric='auc')
-			stack_predict = cross_val_predict(final_model, X, y, cv=xval, n_jobs=-1)
-			
-			results = cross_val_score(final_model, predictions, y, scoring=metric, cv=xval, n_jobs=-1)
-			predictions['stack'] = stack_predict
-			predictions['truth'] = y.values
-			
-# 			rfecv = RFECV(estimator=final_model, step=1, cv=xval, scoring=metric, min_features_to_select=min_models)
-# 			rfecv.fit(predictions, y)
-# 			print("Optimal number of features : %d" % rfecv.n_features_)
-# 			selected_features = rfecv.get_support()
-# 			score = rfecv.score(X, y)
-			
-			importances = pd.DataFrame(stack.feature_importances_, index=omics.keys())
-			best_stacks[target] = {'support': importances, 
-									'score': {'mean': np.mean(results), 'std': np.std(results)},
-									'predictions': predictions}
-				
-# # Plot number of features VS. cross-validation scores
-# plt.figure()
-# plt.xlabel("Number of features selected")
-# plt.ylabel("Cross validation score (nb of correct classifications)")
-# plt.plot(range(min_features_to_select,
-#                len(rfecv.grid_scores_) + min_features_to_select),
-#          rfecv.grid_scores_)
-# plt.show()
-				
-			
-			
+		
+		best_stacks = stacking.compute_stacks(dataset, models, final_model, targets_list, metric, folds, seed)
+		
 		return best_stacks
 		
 		
-		#full stack + perf CV mean + sd
-		
-		#remove one by one and select best perf
-		
-		#test if best perf signif better than before, remove if necess
-		# if not: thats the best stack
-		
-		
-		
-		
-# 		return best_stacks
 	
 	def evaluate_stacks(best_stacks):
 		pass
