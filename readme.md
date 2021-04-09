@@ -133,6 +133,25 @@ configuration of the ensembling step.
 
 Contact the authors for any help in using the tools.
 
+## Contributing
+
+Contributions are welcome from mebers of the group. Look for the TODO keyword. Here is 
+a brief list of things yet to implement:
+
+* upsampling with SMOTE and VAEs
+* thresholding of responses in combination with the quantization
+* loading of the 'BinarizedIC50' values (alternative targets)
+* more models to hyper-optimize (elastic net, NN architectures)
+* stacking with more algorithms
+* stack of stacks
+* load mutational, metabolomic data
+* compile gene-level versus transcript level expression
+* more filters (outliers, )
+* grid-search to compare with bayesian search
+* 
+
+
+
 ## Authors
 
 Sébastien De Landtsheer

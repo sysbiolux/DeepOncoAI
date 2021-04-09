@@ -106,17 +106,17 @@ models = [
 	 	'alpha': ParameterBound(0.1, 1000), 
 	 	'tol': ParameterBound(10e-5, 10e-1, logarithmic=True)}},
 	 {'name': 'ET', 'estimator_method': create_ET, 'parameter_bounds': {
-	 	'n_estimators': ParameterBound(10, 1000, discrete=True), 
+	 	'n_estimators': ParameterBound(10, 200, discrete=True), 
 	 	'max_depth': ParameterBound(2, 50)}},
 	 {'name': 'KNN', 'estimator_method': create_KNN, 'parameter_bounds': {
 	 	'n_neighbors': ParameterBound(1,100, discrete=True)}},
 	 {'name': 'XGB', 'estimator_method': create_XGB, 'parameter_bounds': {
 	 	'max_depth' : ParameterBound(10, 20, discrete=True), 
-	 	'n_estimators' : ParameterBound(10, 1000, discrete=True), 
+	 	'n_estimators' : ParameterBound(10, 200, discrete=True), 
 	 	'learning_rate' : ParameterBound(0.01, 0.1), 
-	 	'colsamples_bytree' : ParameterBound(0.5, 0.99)}},
+	 	'colsample_bytree' : ParameterBound(0.5, 0.99)}},
 	 {'name': 'Ada', 'estimator_method': create_Ada, 'parameter_bounds': {
-	 	'n_estimators' : ParameterBound(10, 1000, discrete=True), 
+	 	'n_estimators' : ParameterBound(10, 200, discrete=True), 
 	 	'learning_rate' : ParameterBound(0.01, 0.1)}},
 	 {'name': 'GBM', 'estimator_method': create_GBM, 'parameter_bounds': {
 	 	'learning_rate': ParameterBound(0.01, 0.1), 

@@ -50,7 +50,7 @@ class CrossCorrelationRule(Rule):
 		self.omic = omic
 		self.database = database
 	
-	def create_filter(self, dataset, chunk_size: int=2000):
+	def create_filter(self, dataset, chunk_size: int=10000):
 		
 		def get_features(dataframe, corr_threshold):
 			n_features_start = dataframe.shape[1]

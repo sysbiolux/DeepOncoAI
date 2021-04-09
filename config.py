@@ -214,7 +214,7 @@ class Config:
 		for omic in omics:
 			transformations_dict = omic['feature_engineering']['transformations']
 			for transformation in transformations_dict:
-				print(transformation)
+				logging.info(f"Engineering {transformation['name']} for {omic['name']} in {omic['database']}")
 				print('Engineering ' + transformation['name'] + ' for ' + omic['name'] + '/' + omic['database'])
 				new_features = parse_transformations(dataframe=dataframe, transformation=transformation, omic=omic, database=database)
 				if new_features is not None:
@@ -226,7 +226,7 @@ class Config:
 		
 		use_type = self.raw_dict['modeling']['general']['use_tumor_type']
 		if use_type['enabled'] == True:
-			print('Retrieving tumor types')
+			logging.info("Retrieving tumor types")
 			dataframe_tumors = preprocessing.get_tumor_type(dataframe)
 			tumor_dataset = dataset_class.Dataset(dataframe=dataframe_tumors, omic='TYPE', database='OWN').remove_constants()
 			engineered_features = engineered_features.merge_with(tumor_dataset)
