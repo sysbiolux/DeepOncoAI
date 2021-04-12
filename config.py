@@ -5,14 +5,17 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_predict
+from sklearn.svm import SVC
 from sklearn.feature_selection import RFECV
 import xgboost as xgb
+from sklearn.linear_model import LogisticRegressionCV
 import matplotlib.pyplot as plt
 
 from DBM_toolbox.data_manipulation import load_data, rule,  preprocessing
 from DBM_toolbox.data_manipulation import dataset_class, filter_class
 from DBM_toolbox.feature_engineering.predictors import combinations, components
-from DBM_toolbox.modeling import optimized_models
+from DBM_toolbox.modeling import optimized_models, stacking
+from DBM_toolbox.plotting import plot_eda
 
 parse_filter_dict = {'sample_completeness': lambda this_filter, omic, database: filter_class.KeepDenseRowsFilter(completeness_threshold=this_filter['threshold']),
 					 'feature_completeness': lambda this_filter, omic, database: rule.ColumnDensityRule(completeness_threshold=this_filter['threshold'], omic=omic, database=database),
@@ -214,7 +217,7 @@ class Config:
 		for omic in omics:
 			transformations_dict = omic['feature_engineering']['transformations']
 			for transformation in transformations_dict:
-				print(transformation)
+				logging.info(f"Engineering {transformation['name']} for {omic['name']} in {omic['database']}")
 				print('Engineering ' + transformation['name'] + ' for ' + omic['name'] + '/' + omic['database'])
 				new_features = parse_transformations(dataframe=dataframe, transformation=transformation, omic=omic, database=database)
 				if new_features is not None:
@@ -226,7 +229,7 @@ class Config:
 		
 		use_type = self.raw_dict['modeling']['general']['use_tumor_type']
 		if use_type['enabled'] == True:
-			print('Retrieving tumor types')
+			logging.info("Retrieving tumor types")
 			dataframe_tumors = preprocessing.get_tumor_type(dataframe)
 			tumor_dataset = dataset_class.Dataset(dataframe=dataframe_tumors, omic='TYPE', database='OWN').remove_constants()
 			engineered_features = engineered_features.merge_with(tumor_dataset)
@@ -234,14 +237,16 @@ class Config:
 		return engineered_features
 
 
-	def get_optimized_models(self, dataset: dataset_class.Dataset, algos=None):
+	def get_models(self, dataset: dataset_class.Dataset, method: str=None, algos: list=None):
 		'''
 		Optimizes a set of models by retrieving omics and targets from the comfig files
 		Bayesian hyperparameter optimization is performed for each model, predicting each target with each omic.
 		Returns the a dictionary of optimized models and their performances 
 		'''
-		print('Optimizing models')
+		# TODO: track algos from the config file
+		print('Computing models')
 		targets_list = []
+		method = self.raw_dict['modeling']['general']['first_level_models']
 		metric = self.raw_dict['modeling']['general']['metric']
 		for item in self.raw_dict['data']['targets']:
 			targets_list.append(item['name'].split('_')[0])
@@ -268,79 +273,110 @@ class Config:
 			this_dataset = dataset.to_binary(target=this_target)
 			
 			complete_dataset = this_dataset.extract(omics_list=omics_list, databases_list=[]).to_pandas()
-			logging.info(f"*** Optimizing models for {this_target} with the complete set of predictors")
-			print('Optimizing models for '+ this_target + ' with the complete set of predictors')
-			this_result = optimized_models.bayes_optimize_models(data=complete_dataset, 
-																targets=this_dataset.dataframe[this_target], 
-																n_trials=depth, 
-																algos=algos, 
-																metric=metric)
-			results[this_target]['complete'] = this_result
-			
-			for this_omic in omics_list:
-				this_data = this_dataset.to_pandas(omic=this_omic)
-				logging.info(f"*** Optimizing models for {this_target} with {this_omic}")
-				print('Optimizing models for ' + this_target + ' with ' + this_omic)
-				this_result = optimized_models.bayes_optimize_models(data=this_data, 
+			if method == 'optimize':
+				logging.info(f"*** Optimizing models for {this_target} with the complete set of predictors")
+				print('Optimizing models for '+ this_target + ' with the complete set of predictors')
+				this_result = optimized_models.bayes_optimize_models(data=complete_dataset, 
 																	targets=this_dataset.dataframe[this_target], 
 																	n_trials=depth, 
 																	algos=algos, 
 																	metric=metric)
+				results[this_target]['complete'] = this_result
 				
-				if this_omic not in results[this_target]:
-					results[this_target][this_omic] = this_result
+				for this_omic in omics_list:
+					this_data = this_dataset.to_pandas(omic=this_omic)
+					logging.info(f"*** Optimizing models for {this_target} with {this_omic}")
+					print('Optimizing models for ' + this_target + ' with ' + this_omic)
+					this_result = optimized_models.bayes_optimize_models(data=this_data, 
+																		targets=this_dataset.dataframe[this_target], 
+																		n_trials=depth, 
+																		algos=algos, 
+																		metric=metric)
+					
+					if this_omic not in results[this_target]:
+						results[this_target][this_omic] = this_result
+			elif method == 'standard':
+				logging.info(f"*** Computing standard models for {this_target} with the complete set of predictors")
+				print('Computing standard models for '+ this_target + ' with the complete set of predictors')
+				this_result = optimized_models.get_standard_models(data=complete_dataset, 
+																	targets=this_dataset.dataframe[this_target], 
+																	algos=algos, 
+																	metric=metric)
+				results[this_target]['complete'] = this_result
+				
+				for this_omic in omics_list:
+					this_data = this_dataset.to_pandas(omic=this_omic)
+					logging.info(f"*** Computing standard models for {this_target} with {this_omic}")
+					print('Computing standard models for ' + this_target + ' with ' + this_omic)
+					this_result = optimized_models.get_standard_models(data=this_data, 
+																		targets=this_dataset.dataframe[this_target], 
+																		algos=algos, 
+																		metric=metric)
+					if this_omic not in results[this_target]:
+						results[this_target][this_omic] = this_result
+				
 				
 		return results
 
-	def get_best_algos(self, optimal_algos:dict):
+	def get_best_algos(self, optimal_algos:dict, mode='standard'):
 		'''
 		Compares the results of different algorithms for the same target with the same omic type, 
-		looks for the jighest performance and returns a dictionary of models
+		looks for the highest performance and returns a dictionary of models
 		'''
-		
+		logging.info('Selecting best algorithms')
+		options = self.raw_dict['modeling']['ensembling']
+		n_models = options['n_models']
 		#for each target
 		models = dict()
 		targets = optimal_algos.keys()
 		results_df = pd.DataFrame(columns=['target', 'omic', 'algo', 'perf', 'estim'])
 		for target in targets:
-			models[target] = dict()
 			print(target)
+			models[target] = dict()
 			#ranked list of algos
-			omics = optimal_algos[target].keys()
+			if mode == 'standard':
+				omics = optimal_algos[target].keys()
+			elif mode == 'over':
+				omics = ['complete']
+				n_models = len(optimal_algos[target]['complete'].keys())
 			for omic in omics:
-				print(omic)
 				algos = optimal_algos[target][omic]
 				models[target][omic] = []
 				for algo in algos:
-					print(algo)
 					i = optimal_algos[target][omic][algo]
 					estimator = i['estimator']
-					result = i['result']['target']
+					try:
+						result = i['result']
+					except:
+						result = np.nan
 					results_df = results_df.append(pd.Series([target, omic, algo, result, estimator],
 													index=results_df.columns),
 													ignore_index=True)
 				# select the best one
 				omic_results = results_df[(results_df['target']==target) & (results_df['omic']==omic)]
-				best = omic_results.sort_values(by='perf', ascending=False).iloc[0, :]
+				best = omic_results.sort_values(by='perf', ascending=False).iloc[0:min(n_models, omic_results.shape[0]), :]
 				models[target][omic].append(best['estim'])
 		
-		return models
+		return models, results_df
 	
-	def get_best_stacks(self, models: dict, dataset: dataset_class.Dataset):
-		
-		best_stacks = dict()
-		
+	def get_best_stacks(self, models: dict, dataset: dataset_class.Dataset, tag=None):
+		'''
+		Computes stacks for each target with two stacking types:
+			- lean: only with predictions of the first-level models
+			- full: with predictions of the first-level models and the original data
+		'''
 		options = self.raw_dict['modeling']['ensembling']
-		
 		metric = self.raw_dict['modeling']['general']['metric']
 		folds = self.raw_dict['modeling']['general']['inner_folds']['value']
 		seed = self.raw_dict['modeling']['general']['inner_folds']['random_seed']
-		min_models = options['min_models']
+		n_models = options['n_models']
 		targets_list = list()
+		if tag == None:
+			tag = ''
 		for item in self.raw_dict['data']['targets']:
 			this_name = item['target_drug_name'] + '_' + item['responses']
 			targets_list.append(this_name)
-		if options['metalearner'] == 'xgboost':
+		if options['metalearner'] == 'XGBoost':
 			final_model = xgb.XGBClassifier(n_estimators=100,
 											max_depth=6,
 											random_state=seed,
@@ -349,73 +385,52 @@ class Config:
 											subsample=0.9,
 											n_jobs=-1,
 											)
+		elif options['metalearner'] == 'Logistic':
+			final_model = LogisticRegressionCV(random_state=42, max_iter=1000, n_jobs=-1)
+		elif options['metalearner'] == 'SVM':
+			final_model = SVC(kernel='linear', probability=True, random_state=42)
 		else:
 			raise ValueError('Metalearner ' + options['metalearner'] + ' not recognized')
-				
-		for target in targets_list:
-			print(target)
-			this_dataset = dataset.to_binary(target=target)
-			y = this_dataset.to_pandas()[target]
-			print(y)
-			omics = models[target]
-			predictions = pd.DataFrame(index = y.index, columns=omics.keys())
-			
-			for omic in omics.keys():
-				if omic == 'complete':
-					X = this_dataset.to_pandas().drop(targets_list, axis=1)
-				else:
-					X = this_dataset.to_pandas(omic=omic)
-				model = omics[omic][0]
-				
-				xval = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
-				omic_predict = cross_val_predict(model, X, y, cv=xval, n_jobs=-1)
-				predictions[omic] = omic_predict
-# 			predictions['truth'] = y.values
-			
-			stack = final_model.fit(X,y,eval_metric='auc')
-			stack_predict = cross_val_predict(final_model, X, y, cv=xval, n_jobs=-1)
-			
-			results = cross_val_score(final_model, predictions, y, scoring=metric, cv=xval, n_jobs=-1)
-			predictions['stack'] = stack_predict
-			predictions['truth'] = y.values
-			
-# 			rfecv = RFECV(estimator=final_model, step=1, cv=xval, scoring=metric, min_features_to_select=min_models)
-# 			rfecv.fit(predictions, y)
-# 			print("Optimal number of features : %d" % rfecv.n_features_)
-# 			selected_features = rfecv.get_support()
-# 			score = rfecv.score(X, y)
-			
-			importances = pd.DataFrame(stack.feature_importances_, index=omics.keys())
-			best_stacks[target] = {'support': importances, 
-									'score': {'mean': np.mean(results), 'std': np.std(results)},
-									'predictions': predictions}
-				
-# # Plot number of features VS. cross-validation scores
-# plt.figure()
-# plt.xlabel("Number of features selected")
-# plt.ylabel("Cross validation score (nb of correct classifications)")
-# plt.plot(range(min_features_to_select,
-#                len(rfecv.grid_scores_) + min_features_to_select),
-#          rfecv.grid_scores_)
-# plt.show()
-				
-			
-			
-		return best_stacks
 		
+		folds = min(folds, len(dataset.dataframe.index))
+		best_stacks = stacking.compute_stacks(dataset, models, final_model, targets_list, metric, folds, seed)
+		results_df = pd.DataFrame(columns=['target', 'omic', 'algo', 'perf', 'estim'])
+		for target in best_stacks.keys():
+			scores = best_stacks[target]['scores']
+			for stack_type in scores.index:
+				results_df = results_df.append(pd.Series([target, ('stack' + tag), stack_type, scores[stack_type], final_model],
+													index=results_df.columns),
+													ignore_index=True)
+
+		return best_stacks, results_df
 		
-		#full stack + perf CV mean + sd
+	def get_over_stacks(self, models: dict, dataset: dataset_class.Dataset):
 		
-		#remove one by one and select best perf
-		
-		#test if best perf signif better than before, remove if necess
-		# if not: thats the best stack
-		
-		
-		
-		
-# 		return best_stacks
+		pass
 	
+	def show_results(self, datasets: list):
+		pass
+		results = pd.concat(datasets, ignore_index=True)
+		return results
+	
+	def visualize_dataset(self, dataset):
+		# TODO: get visualization options from the config file
+		omics = dataset.omic
+		databases = dataset.database
+		for database in databases:
+			for omic in omics:
+				logging.info(f"plotting info for {omic} in {database}")
+				dataframe = dataset.to_pandas(omic=omic, database=database)
+				if len(dataframe.columns) <= 20:
+					plot_eda.plot_eda(dataframe)
+				else:
+					keep_plotting = True
+					while keep_plotting:
+						plot_eda.plot_eda(dataframe.iloc[:, :20])
+						dataframe = dataframe.iloc[:, 20:]
+						
+						
+						
 	def evaluate_stacks(best_stacks):
 		pass
 

@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import random
 import logging
+from psutil import virtual_memory
 from DBM_toolbox.data_manipulation.filter_class import KeepFeaturesFilter
 import xgboost as xgb
 # from sklearn.metrics import balanced_accuracy_score
@@ -49,15 +50,18 @@ class CrossCorrelationRule(Rule):
 		self.correlation_threshold = correlation_threshold
 		self.omic = omic
 		self.database = database
-	
-	def create_filter(self, dataset, chunk_size: int=2000):
+		try: 
+			free_mem = virtual_memory().free
+			self.chunk_size = 500*round((np.sqrt(free_mem/64))/1000)
+		except:
+			self.chunk_size = 2000
+		
+	def create_filter(self, dataset):
 		
 		def get_features(dataframe, corr_threshold):
 			n_features_start = dataframe.shape[1]
-			logging.info('computing correlation matrix')
 			corr_array = np.abs(np.corrcoef(dataframe.values, rowvar=False)) #   corr_matrix.to_numpy()
 			np.fill_diagonal(corr_array, 0)
-			logging.info('removing correlated features')
 			clean = (np.nanmax(corr_array) < self.correlation_threshold)
 			while not clean:
 				sum_correlations = np.sum(corr_array, axis=0)
@@ -74,7 +78,6 @@ class CrossCorrelationRule(Rule):
 			
 			features_to_keep_in = dataframe.columns
 			n_features_removed = n_features_start - len(features_to_keep_in)
-			logging.info('Removed ' + str(n_features_removed) + ' highly correlated features (>' + str(corr_threshold) + ') from a total of ' + str(n_features_start))
 			return features_to_keep_in
 		
 		def shuffle_columns(dataframe, seed:int=42):
@@ -87,16 +90,16 @@ class CrossCorrelationRule(Rule):
 		
 		dataframe = dataset.extract(omics_list=[self.omic]).remove_constants().normalize().impute().to_pandas()
 		
-		if len(dataframe.columns) < chunk_size:
+		if len(dataframe.columns) < self.chunk_size:
 			features_to_keep = get_features(dataframe, self.correlation_threshold)
 		else: # cannot compute pandas.corr() for large matrices
 			keep_on_trying = True
 			while keep_on_trying:
 				dataframe = shuffle_columns(dataframe=dataframe)
 				features_to_keep = []
-				n_chunks = round(len(dataframe.columns)/chunk_size + 0.5)
-				starts = [x * chunk_size for x in (range(n_chunks))]
-				stops = [x + (chunk_size) for x in starts]
+				n_chunks = round(len(dataframe.columns)/self.chunk_size + 0.5)
+				starts = [x * self.chunk_size for x in (range(n_chunks))]
+				stops = [x + (self.chunk_size) for x in starts]
 				stops[-1] = len(dataframe.columns)
 				for count, col_start in enumerate(starts):
 					col_stop = stops[count]

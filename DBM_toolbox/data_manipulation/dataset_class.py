@@ -2,9 +2,9 @@ import logging
 
 import pandas as pd
 import numpy as np
-# from DBM_toolbox.feature_engineering.predictors import combinations, components
 from DBM_toolbox.data_manipulation import preprocessing
 from typing import Union
+
 
 class Dataset:
 	def __init__(self, dataframe, omic: Union[list, str], database: Union[list, str]):
@@ -125,6 +125,14 @@ class Dataset:
 				
 		return Dataset(dataframe=quantized_dataframe, omic=omic, database=database)
 
+	def optimize_formats(self):
+		logging.info("Optimizing formats")
+		dataframe = self.dataframe
+		
+		optimal_dataframe = preprocessing.reduce_mem_usage(dataframe)
+		return Dataset(dataframe=optimal_dataframe, omic=self.omic, database=self.database)
+		
+		
 	def to_binary(self, target: str):
 		omic=self.omic
 		database = self.database
