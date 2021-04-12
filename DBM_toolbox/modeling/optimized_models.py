@@ -5,7 +5,7 @@ import logging
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score, StratifiedKFold
-from sklearn.linear_model import LogisticRegression, RidgeClassifier
+from sklearn.linear_model import LogisticRegression, RidgeClassifier, ElasticNet
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import AdaBoostClassifier, ExtraTreesClassifier, GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
@@ -57,10 +57,13 @@ def create_SVP(**kwargs):
 	return SVC(kernel='poly', probability=True, random_state=42, **kwargs)
 	
 def create_Logistic(**kwargs):
-	return LogisticRegression(random_state=42, **kwargs)
+	return LogisticRegression(random_state=42, max_iter=1000, **kwargs)
 
 def create_Ridge(**kwargs):
 	return RidgeClassifier(random_state=42, **kwargs)
+
+def create_EN(**kwargs):
+	return LogisticRegression(penalty='elasticnet', solver = 'saga', l1_ratio = 0.5, random_state=42, **kwargs)
 
 def create_ET(**kwargs):
 	return ExtraTreesClassifier(random_state=42, n_jobs=-1, **kwargs)
@@ -105,13 +108,16 @@ models = [
 	 {'name': 'Ridge', 'estimator_method': create_Ridge, 'parameter_bounds': {
 	 	'alpha': ParameterBound(0.1, 1000), 
 	 	'tol': ParameterBound(10e-5, 10e-1, logarithmic=True)}},
+	 {'name': 'EN', 'estimator_method': create_EN, 'parameter_bounds': {
+	 	'C': ParameterBound(10e-1, 2, logarithmic=True), 
+	 	'tol': ParameterBound(10e-5, 10e-1, logarithmic=True)}},
 	 {'name': 'ET', 'estimator_method': create_ET, 'parameter_bounds': {
 	 	'n_estimators': ParameterBound(10, 200, discrete=True), 
 	 	'max_depth': ParameterBound(2, 50)}},
 	 {'name': 'KNN', 'estimator_method': create_KNN, 'parameter_bounds': {
 	 	'n_neighbors': ParameterBound(1,100, discrete=True)}},
 	 {'name': 'XGB', 'estimator_method': create_XGB, 'parameter_bounds': {
-	 	'max_depth' : ParameterBound(10, 20, discrete=True), 
+	 	'max_depth' : ParameterBound(6, 20, discrete=True), 
 	 	'n_estimators' : ParameterBound(10, 200, discrete=True), 
 	 	'learning_rate' : ParameterBound(0.01, 0.1), 
 	 	'colsample_bytree' : ParameterBound(0.5, 0.99)}},
@@ -141,6 +147,7 @@ def get_estimator_list():
 	return estimator_list
 
 def cross_validate_evaluation(estimator, data, targets, metric):
+# 	print(estimator)
 	cv = StratifiedKFold(n_splits=5)
 	cval = cross_val_score(estimator, data, targets,
 scoring=metric, cv=cv, n_jobs=-1)
@@ -186,10 +193,16 @@ targets, n_trials, metric):
 	return optimizer.max, opt_model
 
 
+
+def get_estimator(estimator_method, data, targets, metric: str):
+	estimator = estimator_method()
+	result = cross_validate_evaluation(estimator, data, targets, metric)
+	return result, estimator
+
 def bayes_optimize_models(data, targets, n_trials:str=None, algos:list=None, metric:str=None):
 	'''
 	Optimizes the hyperparameters of each model in a list of models, with data and targets, and 
-	returns a dictionary of the optimal parameters and the performace
+	returns a dictionary of the optimal parameters and the performance
 	'''
 	if n_trials is None:
 		n_trials = 20
@@ -204,7 +217,7 @@ def bayes_optimize_models(data, targets, n_trials:str=None, algos:list=None, met
 				models_to_optimize.append(model)
 	optimal_models = dict()
 	for model in models_to_optimize:
-		print(model['name'] + '...')
+		print(model['name'] + '...', end="")
 		logging.info(f"Bayes optimizing model {model['name']} for {targets.name}")
 		try:
 			maximum_value, optimal_model = bayes_optimize_estimator(model['estimator_method'],
@@ -219,3 +232,47 @@ def bayes_optimize_models(data, targets, n_trials:str=None, algos:list=None, met
 			
 		optimal_models[model['name']] = {'estimator': optimal_model, 'result': maximum_value}
 	return optimal_models
+
+def get_standard_models(data, targets, algos:list=None, metric:str=None):
+	'''
+	Trains each model in a list of models, with data and targets, and 
+	returns a dictionary of the models and the performance
+	'''
+	if metric is None:
+		metric = 'roc_auc'
+	if algos is None:
+		models_to_optimize = models
+	else:
+		models_to_optimize = []
+		for model in models:
+			if model['name'] in algos:
+				models_to_optimize.append(model)
+	optimal_models = dict()
+	for model in models_to_optimize:
+		print(model['name'] + '...', end="")
+		logging.info(f"Training model {model['name']} for {targets.name}")
+# 		try:
+		performance, this_model = get_estimator(model['estimator_method'], data, targets, metric)
+		print(performance)
+# 		except:
+# 			logging.info(f"Could not optimize {model['name']}")
+# 			maximum_value = np.nan
+# 			optimal_model = np.nan
+			
+		optimal_models[model['name']] = {'estimator': this_model, 'result': performance}
+	return optimal_models
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

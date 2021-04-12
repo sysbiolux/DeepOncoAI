@@ -28,19 +28,30 @@ engineered_data = filtered_data.merge_with(engineered_features).normalize()
 logging.info("Quantizing targets")
 engineered_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()
 
-algos = ['Logistic', 'SVC', 'SVM', 'Ridge', 'Ada', 'ET', 'XGB', 'GBM', 'RFC', 'KNN', 'MLP1', 'SVP'] #, 'MLP2']
+# logging.info("Visualizing distributions")
+# config.visualize_dataset(engineered_data)
+
+algos = ['Logistic', 'SVC', 'SVM', 'Ridge', 'Ada', 'EN', 'ET', 'XGB', 'GBM', 'RFC', 'KNN', 'MLP1', 'SVP'] #, 'MLP2']
 # algos = ['Ridge', 'Ada', 'XGB', 'ET','GBM', 'RFC', 'SVP']
 
 logging.info("Getting optimized models")
-optimal_algos = config.get_optimized_models(dataset=engineered_data, algos=algos)
-
+optimal_algos = config.get_models(dataset=engineered_data, algos=algos)
 config.save(to_save=optimal_algos, name='optimal_algos')
 
+
+
+
 logging.info("Creating best stacks")
-algos_dict = config.get_best_algos(optimal_algos)
-best_stacks = config.get_best_stacks(models=algos_dict, dataset=engineered_data)
+algos_dict, results_prim = config.get_best_algos(optimal_algos)
+best_stacks, results_sec = config.get_best_stacks(models=algos_dict, dataset=engineered_data)
+algos_dict2, _ = config.get_best_algos(optimal_algos, mode='over')
+over_stacks, results_over = config.get_best_stacks(models=algos_dict2, dataset=engineered_data, tag='_over')
+
+results = config.show_results([results_prim, results_sec, results_over])
 
 config.save(to_save=best_stacks, name='stack_results')
+config.save(to_save=over_stacks, name='stack_results2')
+config.save(to_save=results, name='overall_results')
 
 print('DONE')
 

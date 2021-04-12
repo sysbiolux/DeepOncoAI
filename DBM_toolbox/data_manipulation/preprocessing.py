@@ -129,8 +129,12 @@ def preprocess_gdsc_dna(dataset, flag: str=None):
 	pass
 
 def preprocess_features_pathway(dataset, flag: str=None):
-	## TODO: preprocessing steps here ###
-	pass
+	df = dataset.dataframe
+	if flag == None:
+		df = df.set_index(['Cell_line'])
+	
+	return dataset_class.Dataset(df, omic='PATHWAYS', database='OWN')
+	
 
 def preprocess_features_topology(dataset, flag: str=None):
 	## TODO: preprocessing steps here

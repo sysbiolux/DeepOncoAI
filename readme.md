@@ -146,10 +146,10 @@ a brief list of things yet to implement:
 * stack of stacks
 * load mutational, metabolomic data
 * compile gene-level versus transcript level expression
-* more filters (outliers, )
+* more filters (outliers, ...)
 * grid-search to compare with bayesian search
+* add dunder methods for classes
 * 
-
 
 
 ## Authors
