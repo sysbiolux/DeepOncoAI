@@ -121,18 +121,19 @@ class FeatureImportanceRule(Rule):
 	def create_filter(self, dataset, target_dataframe):
 		dataframe = dataset.to_pandas(omic=self.omic, database=self.database)
 		if len(target_dataframe.shape) == 1:
-			target_dataframe = target_dataframe.to_frame()
-# 		index = target_dataframe.index[target_df.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
-# 		to_drop = index.values.tolist()
-# 		dataframe = dataframe.drop(to_drop)
-# 		target_dataframe = target_dataframe.drop(to_drop)
+			index1 = target_dataframe.index[target_dataframe.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+			index2 = dataframe.index[dataframe.apply(np.isnan).any(axis=1)]  ## SOLVED?
+			indices_to_drop = index1.union(index2)
+			
+			dataframe = dataframe.drop(indices_to_drop)
+			target_dataframe = target_dataframe.drop(indices_to_drop)
 		
 		importances = pd.DataFrame()
-		for this_target in target_dataframe.columns:
-			model = xgb.XGBClassifier(max_depth=4, n_estimators=100, colsample_bytree = 0.5) ### deeper?
-			model.fit(dataframe, target_dataframe) #use ravel() here?
-			scores = pd.Series(data=model.feature_importances_, name=this_target, index=dataframe.columns)
-			importances = pd.concat([importances, scores], axis=1)
+		model = xgb.XGBClassifier(max_depth=4, n_estimators=100, colsample_bytree = 0.5) ### deeper?
+					
+		model.fit(dataframe, target_dataframe) #use ravel() here?
+		scores = pd.Series(data=model.feature_importances_, name=target_dataframe.name, index=dataframe.columns)
+		importances = pd.concat([importances, scores], axis=1)
 		importances = importances.mean(axis=1).sort_values(ascending=False)
 		
 		number_of_features_to_keep = int(round(len(importances) * self.fraction))
@@ -149,7 +150,7 @@ class FeaturePredictivityRule(Rule):
 	def create_filter(self, dataset, target_dataframe):
 		dataframe = dataset.to_pandas(omic=self.omic, database=self.database)
 		if len(target_dataframe.shape) == 1: ### utility to do this (takes a long time) on several targets?
-			target_dataframe = target_dataframe.to_frame()
+			target_dataframe = target_dataframe.to_frame().dropna()
 # 		index = target_dataframe.index[target_df.apply(np.isnan)]   ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost so we need to drop them
 # 		to_drop = index.values.tolist()
 # 		dataframe = dataframe.drop(to_drop)

@@ -267,53 +267,88 @@ class Config:
 				targets_colnames.append(item)
 		results = dict()
 		
-		for this_target in targets_colnames:
+		for this_target_name in targets_colnames:
 			# TODO: there should be a better way to do this, this depends on the exact order of the targets, should be ok but maybe names are better
-			results[this_target] = dict()
-			this_dataset = dataset.to_binary(target=this_target)
+			results[this_target_name] = dict()
+			this_dataset = dataset.to_binary(target=this_target_name)
 			
-			complete_dataset = this_dataset.extract(omics_list=omics_list, databases_list=[]).to_pandas()
+			complete_dataset = this_dataset.extract(omics_list=omics_list, databases_list=[])
+			complete_dataframe = complete_dataset.to_pandas()
 			if method == 'optimize':
-				logging.info(f"*** Optimizing models for {this_target} with the complete set of predictors")
-				print('Optimizing models for '+ this_target + ' with the complete set of predictors')
-				this_result = optimized_models.bayes_optimize_models(data=complete_dataset, 
-																	targets=this_dataset.dataframe[this_target], 
-																	n_trials=depth, 
-																	algos=algos, 
-																	metric=metric)
-				results[this_target]['complete'] = this_result
-				
-				for this_omic in omics_list:
-					this_data = this_dataset.to_pandas(omic=this_omic)
-					logging.info(f"*** Optimizing models for {this_target} with {this_omic}")
-					print('Optimizing models for ' + this_target + ' with ' + this_omic)
-					this_result = optimized_models.bayes_optimize_models(data=this_data, 
-																		targets=this_dataset.dataframe[this_target], 
-																		n_trials=depth, 
-																		algos=algos, 
-																		metric=metric)
-					
-					if this_omic not in results[this_target]:
-						results[this_target][this_omic] = this_result
+				logging.info(f"*** Optimizing models for {this_target_name} with the complete set of predictors")
+				print('Optimizing models for '+ this_target_name + ' with the complete set of predictors')
+# 				data = complete_dataframe
+# 				targets = this_dataset.dataframe[this_target_name]
+# 				
+# 				index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+# 				index2 = data.index[data.apply(np.isnan).any(axis=1)]  ## SOLVED?
+# 				indices_to_drop = index1.union(index2)
+# 				
+# 				data = dataset_class.Dataset(dataframe=data.drop(indices_to_drop), omic=complete_dataframe.omic, database=complete_dataframe.database)
+# 				targets = targets.drop(indices_to_drop)
+# 				print(data.dataframe)
+# 				print(targets)
+# 				this_result = optimized_models.bayes_optimize_models(data=data, 
+# 																	targets=targets, 
+# 																	n_trials=depth, 
+# 																	algos=algos, 
+# 																	metric=metric)
+# 				results[this_target_name]['complete'] = this_result
+# 				
+# 				for this_omic in omics_list:
+# 					this_dataframe = this_dataset.to_pandas(omic=this_omic)
+# 					logging.info(f"*** Optimizing models for {this_target_name} with {this_omic}")
+# 					print('Optimizing models for ' + this_target_name + ' with ' + this_omic)
+# 					this_result = optimized_models.bayes_optimize_models(data=this_dataframe, 
+# 																		targets=this_dataset.dataframe[this_target_name], 
+# 																		n_trials=depth, 
+# 																		algos=algos, 
+# 																		metric=metric)
+# 					
+# 					if this_omic not in results[this_target_name]:
+# 						results[this_target_name][this_omic] = this_result
 			elif method == 'standard':
-				logging.info(f"*** Computing standard models for {this_target} with the complete set of predictors")
-				print('Computing standard models for '+ this_target + ' with the complete set of predictors')
-				this_result = optimized_models.get_standard_models(data=complete_dataset, 
-																	targets=this_dataset.dataframe[this_target], 
+				logging.info(f"*** Computing standard models for {this_target_name} with the complete set of predictors")
+				print('Computing standard models for '+ this_target_name + ' with the complete set of predictors')
+				this_dataframe = complete_dataframe
+				targets = this_dataset.dataframe[this_target_name]
+				
+				index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+				index2 = this_dataframe.index[this_dataframe.apply(np.isnan).any(axis=1)]  ## SOLVED?
+				indices_to_drop = index1.union(index2)
+				
+				this_dataframe = this_dataframe.drop(indices_to_drop)
+				targets = targets.drop(indices_to_drop)
+				print(this_dataframe)
+				print(targets)
+				
+				this_result = optimized_models.get_standard_models(data=this_dataframe, 
+																	targets=targets, 
 																	algos=algos, 
 																	metric=metric)
-				results[this_target]['complete'] = this_result
+				results[this_target_name]['complete'] = this_result
 				
 				for this_omic in omics_list:
-					this_data = this_dataset.to_pandas(omic=this_omic)
-					logging.info(f"*** Computing standard models for {this_target} with {this_omic}")
-					print('Computing standard models for ' + this_target + ' with ' + this_omic)
-					this_result = optimized_models.get_standard_models(data=this_data, 
-																		targets=this_dataset.dataframe[this_target], 
+					this_dataframe = this_dataset.to_pandas(omic=this_omic)
+					targets = this_dataset.dataframe[this_target_name]
+					logging.info(f"*** Computing standard models for {this_target_name} with {this_omic}")
+					print('Computing standard models for ' + this_target_name + ' with ' + this_omic)
+					
+					index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+					index2 = this_dataframe.index[this_dataframe.apply(np.isnan).any(axis=1)]  ## SOLVED?
+					indices_to_drop = index1.union(index2)
+					
+					this_dataframe = this_dataframe.drop(indices_to_drop)
+					targets = targets.drop(indices_to_drop)
+					print(this_dataframe)
+					print(targets)
+					
+					this_result = optimized_models.get_standard_models(data=this_dataframe, 
+																		targets=targets, 
 																		algos=algos, 
 																		metric=metric)
-					if this_omic not in results[this_target]:
-						results[this_target][this_omic] = this_result
+					if this_omic not in results[this_target_name]:
+						results[this_target_name][this_omic] = this_result
 				
 				
 		return results

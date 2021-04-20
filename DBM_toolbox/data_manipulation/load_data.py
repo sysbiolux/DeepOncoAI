@@ -12,6 +12,7 @@ def read_data(folder:str, omic:str, database:str, nrows:int=None, keywords:str=N
 			'RNA' : 'CCLE_RNAseq_genes_rpkm_20180929.csv',
 			'MIRNA': 'CCLE_miRNA_20181103.csv',
 			'RPPA' : 'CCLE_RPPA_20181003.csv',
+			'META' : 'CCLE_metabolomics_20190502.csv',
 			'CNV' : 'placeholder', #TODO: import file
 			'DNA' : 'placeholder', #TODO: import file
 			'DRUGS': 'CCLE_NP24.2009_Drug_data_2015.02.24.csv',
@@ -28,7 +29,7 @@ def read_data(folder:str, omic:str, database:str, nrows:int=None, keywords:str=N
 	elif database == 'OWN':
 		filename = {
 			'PATHWAYS' : 'SPEED_Scores_namechange.csv',
-			'TOPOLOGY' : 'CCLE_SKIN_eigenvector.csv', #TODO: import file (need more samples first)
+			'TOPOLOGY' : 'CCLE_SKIN_eigenvector.csv', #TODO: import file (need more samples)
 			}[omic_root]
 	file_string, file_extension = os.path.splitext(filename)
 	
