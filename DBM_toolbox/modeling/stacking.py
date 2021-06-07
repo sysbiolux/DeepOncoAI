@@ -78,6 +78,13 @@ def compute_stacks(dataset, models, final_model, targets_list, metric='roc_auc',
 				X = this_dataset.to_pandas().drop(targets_list, axis=1)
 			else:
 				X = this_dataset.to_pandas(omic=omic)
+				index1 = y.index[y.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+				index2 = X.index[X.apply(np.isnan).any(axis=1)]  ## SOLVED?
+				indices_to_drop = index1.union(index2)
+				
+				X = X.drop(indices_to_drop)
+				y = y.drop(indices_to_drop)
+			
 			
 			models_list = omics[omic]
 			for id, model in enumerate(models_list):
