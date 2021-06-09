@@ -38,7 +38,7 @@ class ColumnDensityRule(Rule):
 
 	def create_filter(self, dataset):
 		dataframe = dataset.to_pandas(omic=self.omic)
-		completeness = dataframe.isna().mean(axis = 0).sort_values(ascending=False)
+		completeness = dataframe.isna().mean(axis = 0).sort_values(ascending=True)
 		number_of_features_to_keep = int(round(len(completeness) * self.density_fraction))
 		features_to_keep = completeness.iloc[:number_of_features_to_keep].index
 		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic, database=self.database)

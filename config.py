@@ -314,6 +314,7 @@ class Config:
 				logging.info(f"*** Computing standard models for {this_target_name} with the complete set of predictors")
 				print('Computing standard models for '+ this_target_name + ' with the complete set of predictors')
 				this_dataframe = complete_dataframe
+				print(this_dataframe)
 				targets = this_dataset.dataframe[this_target_name]
 				
 				index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost

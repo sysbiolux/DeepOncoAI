@@ -29,7 +29,7 @@ def read_data(folder:str, omic:str, database:str, nrows:int=None, keywords:str=N
 	elif database == 'OWN':
 		filename = {
 			'PATHWAYS' : 'SPEED_Scores_namechange.csv',
-			'TOPOLOGY' : 'Lung_Colon_CCLE_Eigenvector.csv', #TODO: import file (need more samples)
+			'TOPOLOGY' : 'Lung_Colon_CCLE_Eigenvector_corrected.csv', #TODO: import file (need more samples)
 			}[omic_root]
 	file_string, file_extension = os.path.splitext(filename)
 	
