@@ -71,7 +71,7 @@ def parse_transformations(dataframe, transformation: dict, omic: str, database: 
 
 class Config:
 	def __init__(self):
-		with open('config.yaml') as f:
+		with open('config_apurva.yaml') as f:
 			self.raw_dict = yaml.load(f, Loader=yaml.FullLoader)
 
 	def read_data(self):
@@ -90,18 +90,21 @@ class Config:
 													database=omic['database'],
 													nrows=nrows)
 			full_dataset = full_dataset.merge_with(additional_dataset)
-		
+
+		print(full_dataset.dataframe)
 		targets = self.raw_dict['data']['targets']
-		for target in targets:
-			target_metric = target['responses']
-			target_name = target['target_drug_name']
-			print('Loading ' + target['name'] + ' from ' + target['database'])
-			additional_dataset = load_data.read_data('data',
-													omic=target['name'],
-													database=target['database'],
-													keywords=[target_name,
-													target_metric])
-			full_dataset = full_dataset.merge_with(additional_dataset)
+		if targets is not None:
+			for target in targets:
+				target_metric = target['responses']
+				target_name = target['target_drug_name']
+				print('Loading ' + target['name'] + ' from ' + target['database'])
+				additional_dataset = load_data.read_data('data',
+														omic=target['name'],
+														database=target['database'],
+														keywords=[target_name,
+														target_metric])
+				print(additional_dataset.dataframe)
+				full_dataset = full_dataset.merge_with(additional_dataset)
 		return full_dataset
 	
 	def split(self, dataset: dataset_class.Dataset, target_name: str, split_type: str ='outer'):

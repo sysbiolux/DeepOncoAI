@@ -20,10 +20,12 @@ logging.info("Selecting subsets for feature engineering")
 selected_subset = config.select_subsets(filtered_data)
 
 logging.info("Engineering features")
-engineered_features = config.engineer_features(selected_subset)
-
-logging.info("Merging engineered features")
-engineered_data = filtered_data.merge_with(engineered_features).normalize()
+if selected_subset is not None:
+	engineered_features = config.engineer_features(selected_subset)
+	logging.info("Merging engineered features")
+	engineered_data = filtered_data.merge_with(engineered_features).normalize()
+else:
+	engineered_data = filtered_data
 
 logging.info("Quantizing targets")
 engineered_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()

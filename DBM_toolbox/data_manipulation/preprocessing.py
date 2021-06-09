@@ -152,7 +152,7 @@ def preprocess_features_topology(dataset, flag: str=None):
 	df = dataset.dataframe
 	
 	df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
-	df.index = [idx[6:] for idx in df.index]
+	df.index = [idx[6:-13] for idx in df.index]
 	df = df.add_suffix('_topo')
 	# additional steps if necessary
 	
