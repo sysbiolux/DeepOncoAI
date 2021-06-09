@@ -23,6 +23,7 @@ def get_PCs(df, n_components: int=None, label: str=None):
 	if n_components == None:
 		n_components = 2
 	pca = PCA(n_components = n_components)
+	df = df.dropna()
 	principal_components = pca.fit_transform(df)
 	column_names = []
 	for n in range(1, n_components+1):
@@ -65,6 +66,7 @@ def get_TSNEs(df, n_components: int=None, label:str=None, random_state=42):
 		label = (datetime.now()).strftime("%Y%m%d%H%M%S")
 	if n_components == None:
 		n_components = 2
+	df = df.dropna()
 	tsne = TSNE(n_components=n_components, verbose=1, random_state=random_state)
 	tsne_components = tsne.fit_transform(df)
 	column_names = []

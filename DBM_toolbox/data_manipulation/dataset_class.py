@@ -81,9 +81,14 @@ class Dataset:
 		dataframe = self.dataframe
 		other_dataframe = other_dataset.dataframe
 		
-		merged_dataframe = pd.merge(dataframe, other_dataframe, left_index = True, right_index = True)
+		cols = dataframe.columns
+		
+# 		merged_dataframe = pd.merge(dataframe, other_dataframe, left_index = True, right_index = True)
+		merged_dataframe = pd.concat([dataframe, other_dataframe], axis=1)
 		merged_omic = pd.concat([self.omic, other_dataset.omic])
 		merged_database = pd.concat([self.database, other_dataset.database])
+		
+		merged_dataframe = merged_dataframe.dropna(how = 'all', subset = cols)
 		
 		merged_dataset = Dataset(dataframe=merged_dataframe, omic=merged_omic, database=merged_database)
 		

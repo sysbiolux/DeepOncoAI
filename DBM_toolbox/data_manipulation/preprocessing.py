@@ -55,6 +55,8 @@ def preprocess_data(dataset, flag: str=None):
 				dataset = preprocess_ccle_rna(dataset, flag=flag)
 			elif omic[0] == 'MIRNA':
 				dataset = preprocess_ccle_mirna(dataset, flag=flag)
+			elif omic[0] == 'META':
+				dataset = preprocess_ccle_meta(dataset, flag=flag)
 			elif omic[0] == 'DNA':
 				dataset = preprocess_ccle_dna(dataset, flag=flag)
 			else:
@@ -105,6 +107,13 @@ def preprocess_ccle_mirna(dataset, flag: str=None):
 		
 	return dataset_class.Dataset(df, omic='MIRNA', database='CCLE')
 
+def preprocess_ccle_meta(dataset, flag: str=None):
+	df = dataset.dataframe
+	if flag == None:
+		df = df.drop('DepMap_ID', axis=1).set_index(['CCLE_ID'])
+	
+	return dataset_class.Dataset(df, omic='META', database='CCLE')
+
 def preprocess_ccle_dna(dataset, flag: str=None):
 	## TODO: preprocessing steps here
 	pass
@@ -142,6 +151,10 @@ def preprocess_features_topology(dataset, flag: str=None):
 	# but maybe we want to add things here later
 	df = dataset.dataframe
 	
+	df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
+	df.index = [idx[6:-11] for idx in df.index]
+	df = df.add_suffix('_topo')
+	df = impute_missing_data(df)
 	# additional steps if necessary
 	
 	return dataset_class.Dataset(df, omic='TOPOLOGY', database='OWN')
