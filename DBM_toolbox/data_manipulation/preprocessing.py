@@ -154,7 +154,9 @@ def preprocess_features_topology(dataset, flag: str=None):
 	df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
 	df.index = [idx[6:-11] for idx in df.index]
 	df = df.add_suffix('_topo')
-	df = impute_missing_data(df)
+	df = impute_missing_data(df, method='null')
+	df = remove_constant_data(df)
+	df = rescale_data(df)
 	# additional steps if necessary
 	
 	return dataset_class.Dataset(df, omic='TOPOLOGY', database='OWN')
@@ -169,6 +171,8 @@ def impute_missing_data(dataframe, method: str='average'):
 	##TODO: implement other methods of imputation
 	if method == 'average':
 		dataframe = dataframe.fillna(dataframe.mean())
+	elif method = 'null':
+		dataframe = dataframe.fillna(0)
 	elif method == 'median':
 		raise ValueError('Function not configured for this use')
 		dataframe = dataframe
