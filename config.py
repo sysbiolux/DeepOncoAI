@@ -15,9 +15,9 @@ from DBM_toolbox.data_manipulation import load_data, rule,  preprocessing
 from DBM_toolbox.data_manipulation import dataset_class, filter_class
 from DBM_toolbox.feature_engineering.predictors import combinations, components
 from DBM_toolbox.modeling import optimized_models, stacking
-from DBM_toolbox.plotting import plot_eda
+from DBM_toolbox.plotting import eda
 
-parse_filter_dict = {'sample_completeness': lambda this_filter, omic, database: filter_class.KeepDenseRowsFilter(completeness_threshold=this_filter['threshold']),
+parse_filter_dict = {'sample_completeness': lambda this_filter, omic, database: filter_class.KeepDenseRowsFilter(completeness_threshold=this_filter['threshold'], omic=omic, database=database),
 					 'feature_completeness': lambda this_filter, omic, database: rule.ColumnDensityRule(completeness_threshold=this_filter['threshold'], omic=omic, database=database),
 					 'feature_variance': lambda this_filter, omic, database: rule.HighestVarianceRule(fraction=this_filter['fraction_retained'], omic=omic, database=database),
 					 'cross-correlation': lambda this_filter, omic, database: rule.CrossCorrelationRule(correlation_threshold=this_filter['correlation_threshold'], omic=omic, database=database)
@@ -71,7 +71,7 @@ def parse_transformations(dataframe, transformation: dict, omic: str, database: 
 
 class Config:
 	def __init__(self):
-		with open('config_apurva.yaml') as f:
+		with open('config.yaml') as f:
 			self.raw_dict = yaml.load(f, Loader=yaml.FullLoader)
 
 	def read_data(self):
@@ -139,13 +139,16 @@ class Config:
 			for this_filter in omic['filtering']:
 				print('Creating filter ' + this_filter['name'] + ' for ' + omic['database'] + '/' + omic['name'])
 				new_rule = parse_filter(this_filter, omic['name'], omic['database'])
+				print(new_rule)
 				if new_rule is not None:
 					if this_filter['name'] == 'sample_completeness': #TODO: this does not look pretty, the fact that sample completeness is a non-transferable filter makes it not have the same "create_filter" as the others so excetptions have to be created.
 						new_filter = new_rule
+						filters.insert(0, new_filter) #appending sanple-level filters at the beginning
 					else:
 						new_filter = new_rule.create_filter(dataset)
-						if new_filter is not None:
-							filters.append(new_filter)
+						filters.append(new_filter) #other filters at the end
+				else:
+					print('...none')
 		return filters
 
 	def select_subsets(self, datasets: list):
@@ -460,15 +463,13 @@ class Config:
 			for omic in omics:
 				logging.info(f"plotting info for {omic} in {database}")
 				dataframe = dataset.to_pandas(omic=omic, database=database)
-				if len(dataframe.columns) <= 20:
-					plot_eda.plot_eda(dataframe)
-				else:
-					keep_plotting = True
-					while keep_plotting:
-						plot_eda.plot_eda(dataframe.iloc[:, :20])
-						dataframe = dataframe.iloc[:, 20:]
-						
-						
+# 				if len(dataframe.columns) <= 100:
+#  					eda.plot_eda_all(dataframe)
+# 				else:
+# 					pick = np.random.randint(dataframe.shape[1], size=100)
+# 					eda.plot_eda_all(dataframe.iloc[:, pick])
+				eda.plot_missing(dataframe, omic, database)
+
 						
 	def evaluate_stacks(best_stacks):
 		pass

@@ -3,18 +3,27 @@ import logging
 logging.basicConfig(filename='run.log', level=logging.INFO, filemode='w', format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%H:%M:%S')
 from config import Config
 
-
 config = Config()
-#%%
 
 logging.info("Reading data")
 data = config.read_data()
+
+# logging.info("Creating visualizations")
+# config.visualize_dataset(data)
 
 logging.info("Creating filters")
 filters = config.create_filters(data)
 
 logging.info("Applying filters")
 filtered_data = data.apply_filters(filters=filters)
+
+print(filtered_data.dataframe.shape)
+for omic in list(set(filtered_data.omic)):
+	print(f"{omic}: {filtered_data.omic[filtered_data.omic == omic].shape[0]}")
+
+
+
+#%%
 
 logging.info("Selecting subsets for feature engineering")
 selected_subset = config.select_subsets(filtered_data)

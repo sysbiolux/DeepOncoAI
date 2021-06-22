@@ -146,11 +146,8 @@ def preprocess_features_pathway(dataset, flag: str=None):
 	
 
 def preprocess_features_topology(dataset, flag: str=None):
-	## TODO: preprocessing steps here
-	# @Apurva could stay empty if your output is directly workable,
-	# but maybe we want to add things here later
+	# @Apurva
 	df = dataset.dataframe
-	
 	df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
 	df.index = [idx[6:-11] for idx in df.index]
 	df = df.add_suffix('_topo')
