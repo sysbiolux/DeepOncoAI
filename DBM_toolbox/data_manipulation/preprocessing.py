@@ -152,7 +152,7 @@ def preprocess_features_topology(dataset, flag: str=None):
 	df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
 	df.index = [idx[6:-11] for idx in df.index]
 	df = df.add_suffix('_topo')
-	df = impute_missing_data(df, method='zeros')
+# 	df = impute_missing_data(df, method='zeros')
 	# additional steps if necessary
 	
 	return dataset_class.Dataset(df, omic='TOPOLOGY', database='OWN')

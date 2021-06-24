@@ -11,11 +11,10 @@ data = config.read_data()
 # logging.info("Creating visualizations")
 # config.visualize_dataset(data)
 
-logging.info("Creating filters")
-filters = config.create_filters(data)
+logging.info("Filtering data")
+filtered_data = config.filter_data(data)
 
-logging.info("Applying filters")
-filtered_data = data.apply_filters(filters=filters)
+
 
 print(filtered_data.dataframe.shape)
 for omic in list(set(filtered_data.omic)):

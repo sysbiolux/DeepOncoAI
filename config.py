@@ -35,6 +35,9 @@ parse_transformation_dict = {'PCA': lambda dataframe, transformation, omic: comp
 							 'OR': lambda dataframe, transformation, omic: combinations.get_boolean_or(dataframe)
 }
 
+fast_filters_list = ['sample_completeness', 'feature_completeness', 'feature_variance']
+slow_filters_list = ['cross-correlation']
+
 def parse_filter(this_filter: dict, omic: str, database: str):
 	'''
 	Generates a filter Rule if the option is enabled in the config file
@@ -127,29 +130,75 @@ class Config:
 		folds_list = xval.split(dataframe, target)
 		return folds_list
 
-	def create_filters(self, dataset: dataset_class.Dataset):
-		'''
-		Computes a filter for each omic based on the config file specifications
-		Returns the list of filters
-		'''
-		print('Creating filters...')
-		omics = self.raw_dict['data']['omics']
-		filters = []
-		for omic in omics:
-			for this_filter in omic['filtering']:
-				print('Creating filter ' + this_filter['name'] + ' for ' + omic['database'] + '/' + omic['name'])
-				new_rule = parse_filter(this_filter, omic['name'], omic['database'])
-				print(new_rule)
-				if new_rule is not None:
-					if this_filter['name'] == 'sample_completeness': #TODO: this does not look pretty, the fact that sample completeness is a non-transferable filter makes it not have the same "create_filter" as the others so excetptions have to be created.
-						new_filter = new_rule
-						filters.insert(0, new_filter) #appending sanple-level filters at the beginning
-					else:
-						new_filter = new_rule.create_filter(dataset)
-						filters.append(new_filter) #other filters at the end
-				else:
-					print('...none')
-		return filters
+	def filter_data(self, dataset: dataset_class.Dataset):
+
+		def create_fast_filters(self, dataset: dataset_class.Dataset):
+			'''
+			Computes a filter for each omic based on the config file specifications
+			Returns the list of filters
+			'''
+			print('Creating filters...')
+			omics = self.raw_dict['data']['omics']
+			filters = []
+			for omic in omics:
+				for this_filter in omic['filtering']:
+					if this_filter['name'] in fast_filters_list:
+						print('Creating filter ' + this_filter['name'] + ' for ' + omic['database'] + '/' + omic['name'])
+						new_rule = parse_filter(this_filter, omic['name'], omic['database'])
+						print(new_rule)
+						if new_rule is not None:
+							if this_filter['name'] == 'sample_completeness': #TODO: this does not look pretty, the fact that sample completeness is a non-transferable filter makes it not have the same "create_filter" as the others so excetptions have to be created.
+								new_filter = new_rule
+								filters.insert(0, new_filter) #appending sanple-level filters at the beginning
+							else:
+								new_filter = new_rule.create_filter(dataset)
+								filters.append(new_filter) #other filters at the end
+						else:
+							print('...none')
+			return filters
+	
+	
+		def create_slow_filters(self, dataset: dataset_class.Dataset):
+			'''
+			Computes a filter for each omic based on the config file specifications
+			Returns the list of filters
+			'''
+			print('Creating filters...')
+			omics = self.raw_dict['data']['omics']
+			filters = []
+			for omic in omics:
+				for this_filter in omic['filtering']:
+					if this_filter['name'] in slow_filters_list:
+						print('Creating filter ' + this_filter['name'] + ' for ' + omic['database'] + '/' + omic['name'])
+						new_rule = parse_filter(this_filter, omic['name'], omic['database'])
+						print(new_rule)
+						if new_rule is not None:
+							if this_filter['name'] == 'sample_completeness': #TODO: this does not look pretty, the fact that sample completeness is a non-transferable filter makes it not have the same "create_filter" as the others so excetptions have to be created.
+								new_filter = new_rule
+								filters.insert(0, new_filter) #appending sanple-level filters at the beginning
+							else:
+								new_filter = new_rule.create_filter(dataset)
+								filters.append(new_filter) #other filters at the end
+						else:
+							print('...none')
+			return filters
+
+
+		logging.info("Creating fast filters")
+		filters = create_fast_filters(self, dataset)
+		
+		logging.info("Applying fast filters")
+		filtered_data = dataset.apply_filters(filters=filters)
+
+		logging.info("Creating slow filters")
+		filters = create_slow_filters(self, filtered_data)
+		
+		logging.info("Applying slow filters")
+		refiltered_data = filtered_data.apply_filters(filters=filters)
+
+		return refiltered_data
+
+
 
 	def select_subsets(self, datasets: list):
 		'''
@@ -250,7 +299,7 @@ class Config:
 		Bayesian hyperparameter optimization is performed for each model, predicting each target with each omic.
 		Returns the a dictionary of optimized models and their performances 
 		'''
-		# TODO: track algos from the config file
+		algos = self.raw_dict['modeling']['general']['algorithms']
 		print('Computing models')
 		targets_list = []
 		method = self.raw_dict['modeling']['general']['first_level_models']
