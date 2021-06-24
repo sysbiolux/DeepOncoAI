@@ -8,6 +8,7 @@ import numpy as np
 from DBM_toolbox.data_manipulation import dataset_class
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from pandas.api.types import is_categorical_dtype
+from sklearn.impute import KNNImputer
 
 def reformat_drugs(dataset):
 	'''reshapes a CCLE pandas dataframe from 'one line per datapoint' to a more convenient
@@ -151,7 +152,7 @@ def preprocess_features_topology(dataset, flag: str=None):
 	df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
 	df.index = [idx[6:-11] for idx in df.index]
 	df = df.add_suffix('_topo')
-	df = impute_missing_data(df)
+	df = impute_missing_data(df, method='zeros')
 	# additional steps if necessary
 	
 	return dataset_class.Dataset(df, omic='TOPOLOGY', database='OWN')
@@ -168,10 +169,14 @@ def impute_missing_data(dataframe, method: str='average'):
 		dataframe = dataframe.fillna(dataframe.mean())
 	elif method == 'median':
 		raise ValueError('Function not configured for this use')
-		dataframe = dataframe
+		dataframe = dataframe.fillna(dataframe.median())
 	elif method == 'neighbor':
 		raise ValueError('Function not configured for this use')
-		dataframe = dataframe
+		imputer = KNNImputer()
+		imputer.fit(dataframe)
+		dataframe = imputer.transform(dataframe)
+	elif method == 'zeros':
+		dataframe = dataframe.fillna(value=0)
 	return dataframe
 
 def remove_constant_data(dataframe):

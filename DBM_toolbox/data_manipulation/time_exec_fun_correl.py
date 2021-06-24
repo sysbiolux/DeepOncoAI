@@ -4,7 +4,8 @@ Created on Sat Jun 19 02:19:17 2021
 
 @author: sebde
 """
-
+import pandas as pd
+import numpy as np
 
 import timeit
 sizes =range(10, 200, 10)

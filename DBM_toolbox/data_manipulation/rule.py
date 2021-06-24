@@ -26,6 +26,7 @@ class HighestVarianceRule(Rule):
 		variances = dataframe.var().sort_values(ascending=False)
 		number_of_features_to_keep = int(round(len(variances) * self.fraction))
 		features_to_keep = variances.iloc[:number_of_features_to_keep].index
+		print(f"Keeping {len(features_to_keep)} features")
 		return KeepFeaturesFilter(features=features_to_keep, omic=self.omic, database=self.database)
 
 
@@ -38,8 +39,11 @@ class ColumnDensityRule(Rule):
 		self.database = database
 
 	def create_filter(self, dataset):
-		dataframe = dataset.to_pandas(omic=self.omic)
-		completeness = dataframe.isna().mean(axis = 0).sort_values(ascending=True)
+		dataframe = dataset.to_pandas(omic=self.omic, database=self.database)
+		completeness = (1 - dataframe.isna().mean(axis = 0))
+		completeness.hist()
+		print(self.completeness_threshold)
+		print(completeness)
 		features_to_keep = completeness[completeness >= self.completeness_threshold].index
 # 		number_of_features_to_keep = int(round(len(completeness) * self.density_fraction))
 # 		features_to_keep = completeness.iloc[:number_of_features_to_keep].index
@@ -54,35 +58,31 @@ class CrossCorrelationRule(Rule):
 		self.database = database
 
 	def create_filter(self, dataset):
-		print('1')
-		logging.info("yafgah")
 		dataframe = dataset.to_pandas(omic=self.omic, database=self.database)
-		print('2')
-		this_dataset = dataset_class.Dataset(dataframe=dataframe, omic=omic, database=database)
-		print('3')
+		this_dataset = dataset_class.Dataset(dataframe=dataframe, omic=self.omic, database=self.database)
 		dataframe - this_dataset.remove_constants().normalize().impute().to_pandas()
 		counter = 0
 		for this_feature in dataframe.columns:
 			counter += 1
-			print(counter)
+			print(f"{counter}: {this_feature}")
 			try:
 				dataframe_rest = dataframe.drop(this_feature, axis=1)
 				to_compare = dataframe[this_feature]
 				corr_single = abs(dataframe_rest.corrwith(to_compare))
 				if any(corr_single>self.correlation_threshold):
 					high_corr = corr_single[corr_single>self.correlation_threshold].index.union([this_feature])
+					print(f"Found high-correlation features: {high_corr}")
 					A = dataframe.drop(high_corr, axis=1)
 					B = dataframe[high_corr]
 					Az = (A - A.mean())
 					Bz = (B - B.mean())
 					x = Az.T.dot(Bz).div(len(A)).div(Bz.std(ddof=0)).div(Az.std(ddof=0), axis=0)
-					corr_mult = abs(x).apply()
+					corr_mult = abs(x)
 					scores = (corr_mult * corr_mult).mean()
-					most_correl = scores[scores!=min(scores)].index
+					most_correl = scores[scores!=max(scores)].index
 					dataframe = dataframe.drop(most_correl, axis=1)
 			except:
 				print('Feature not present')
-				logging.info('Feature not present')
 		return KeepFeaturesFilter(features=dataframe.columns, omic=self.omic, database=self.database)
 
 		# calculate correlation feature1 with rest

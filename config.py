@@ -210,28 +210,29 @@ class Config:
 		else:
 			return selected_training_subset
 
-	def engineer_features(self, dataset: dataset_class.Dataset):
+	def engineer_features(self, dataset: dataset_class.Dataset=None):
 		'''
 		Applies transformations (PCA, TSNE, combinations) to a dataset and 
 		returns the dataset
 		'''
 		print('Engineering features...')
-		omics = self.raw_dict['data']['omics']
-		dataframe = dataset.to_pandas()
-		engineered_features = None
-		database = dataset.database
-		for omic in omics:
-			transformations_dict = omic['feature_engineering']['transformations']
-			for transformation in transformations_dict:
-				logging.info(f"Engineering {transformation['name']} for {omic['name']} in {omic['database']}")
-				print('Engineering ' + transformation['name'] + ' for ' + omic['name'] + '/' + omic['database'])
-				new_features = parse_transformations(dataframe=dataframe, transformation=transformation, omic=omic, database=database)
-				if new_features is not None:
-					new_features = new_features.remove_constants()
-					if engineered_features is not None:
-						engineered_features = engineered_features.merge_with(new_features)
-					else:
-						engineered_features = new_features
+		if dataset is not None:
+			omics = self.raw_dict['data']['omics']
+			dataframe = dataset.to_pandas()
+			engineered_features = None
+			database = dataset.database
+			for omic in omics:
+				transformations_dict = omic['feature_engineering']['transformations']
+				for transformation in transformations_dict:
+					logging.info(f"Engineering {transformation['name']} for {omic['name']} in {omic['database']}")
+					print('Engineering ' + transformation['name'] + ' for ' + omic['name'] + '/' + omic['database'])
+					new_features = parse_transformations(dataframe=dataframe, transformation=transformation, omic=omic, database=database)
+					if new_features is not None:
+						new_features = new_features.remove_constants()
+						if engineered_features is not None:
+							engineered_features = engineered_features.merge_with(new_features)
+						else:
+							engineered_features = new_features
 		
 		use_type = self.raw_dict['modeling']['general']['use_tumor_type']
 		if use_type['enabled'] == True:

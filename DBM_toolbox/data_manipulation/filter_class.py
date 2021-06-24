@@ -45,6 +45,7 @@ class KeepDenseRowsFilter:
 		dataframe = dataset.to_pandas(omic=self.omic, database=self.database)
 		completeness = 1 - (dataframe.isna().mean(axis = 1))
 		samples_to_keep = completeness[completeness >= self.completeness_threshold].index
+		print(f"Keeping {len(samples_to_keep)} features")
 		filtered_dataframe = dataset.dataframe.loc[samples_to_keep, :]
 		return Dataset(dataframe=filtered_dataframe, omic=dataset.omic, database=dataset.database)
 
