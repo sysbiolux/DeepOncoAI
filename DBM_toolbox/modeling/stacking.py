@@ -92,6 +92,7 @@ def compute_stacks(dataset, models, final_model, targets_list, metric='roc_auc',
 				this_model = model.iloc[0]
 			
 				xval = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
+				print(X, y, xval)
 				omic_predict = cross_val_predict(this_model, X, y, cv=xval, n_jobs=-1)
 				feature_name = omic + str(id)
 				predictions[feature_name] = omic_predict

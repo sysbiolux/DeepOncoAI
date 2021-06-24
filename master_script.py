@@ -45,7 +45,7 @@ algos = ['Logistic', 'SVC', 'SVM', 'Ridge', 'Ada', 'EN', 'ET', 'XGB', 'RFC', 'KN
 # algos = ['Ridge', 'Ada', 'XGB', 'ET','GBM', 'RFC', 'SVP']
 
 logging.info("Getting optimized models")
-optimal_algos = config.get_models(dataset=engineered_data, algos=algos)
+optimal_algos = config.get_models(dataset=engineered_data)
 config.save(to_save=optimal_algos, name='optimal_algos_complete')
 
 

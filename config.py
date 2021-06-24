@@ -185,16 +185,16 @@ class Config:
 
 
 		logging.info("Creating fast filters")
-		filters = create_fast_filters(self, dataset)
+		fast_filters = create_fast_filters(self, dataset)
 		
 		logging.info("Applying fast filters")
-		filtered_data = dataset.apply_filters(filters=filters)
+		filtered_data = dataset.apply_filters(filters=fast_filters)
 
 		logging.info("Creating slow filters")
-		filters = create_slow_filters(self, filtered_data)
+		slow_filters = create_slow_filters(self, filtered_data)
 		
 		logging.info("Applying slow filters")
-		refiltered_data = filtered_data.apply_filters(filters=filters)
+		refiltered_data = filtered_data.apply_filters(filters=slow_filters)
 
 		return refiltered_data
 
@@ -293,7 +293,7 @@ class Config:
 		return engineered_features
 
 
-	def get_models(self, dataset: dataset_class.Dataset, method: str=None, algos: list=None):
+	def get_models(self, dataset: dataset_class.Dataset, method: str=None):
 		'''
 		Optimizes a set of models by retrieving omics and targets from the comfig files
 		Bayesian hyperparameter optimization is performed for each model, predicting each target with each omic.
