@@ -14,54 +14,54 @@ data = config.read_data()
 logging.info("Filtering data")
 filtered_data = config.filter_data(data)
 
-df = filtered_data.to_pandas(omic='RNA')
-df.to_csv('AWS_filtered_RNA.csv')
+# df = filtered_data.to_pandas(omic='RNA')
+# df.to_csv('own_filtered_RNA.csv')
 
 
-# print(filtered_data.dataframe.shape)
-# for omic in list(set(filtered_data.omic)):
-# 	print(f"{omic}: {filtered_data.omic[filtered_data.omic == omic].shape[0]}")
+print(filtered_data.dataframe.shape)
+for omic in list(set(filtered_data.omic)):
+ 	print(f"{omic}: {filtered_data.omic[filtered_data.omic == omic].shape[0]}")
 
-# logging.info("Selecting subsets for feature engineering")
-# selected_subset = config.select_subsets(filtered_data)
+logging.info("Selecting subsets for feature engineering")
+selected_subset = config.select_subsets(filtered_data)
 
-# logging.info("Engineering features")
-# if selected_subset is not None:
-# 	engineered_features = config.engineer_features(selected_subset)
-# 	logging.info("Merging engineered features")
-# 	engineered_data = filtered_data.merge_with(engineered_features).normalize()
-# else:
-# 	engineered_data = filtered_data
+logging.info("Engineering features")
+if selected_subset is not None:
+ 	engineered_features = config.engineer_features(selected_subset)
+ 	logging.info("Merging engineered features")
+ 	engineered_data = filtered_data.merge_with(engineered_features).normalize()
+else:
+ 	engineered_data = filtered_data
 
-# logging.info("Quantizing targets")
-# engineered_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()
+logging.info("Quantizing targets")
+engineered_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()
 
-# # logging.info("Visualizing distributions")
-# # config.visualize_dataset(engineered_data)
+# logging.info("Visualizing distributions")
+# config.visualize_dataset(engineered_data)
 
-# algos = ['Logistic', 'SVC', 'SVM', 'Ridge', 'Ada', 'EN', 'ET', 'XGB', 'RFC', 'KNN', 'MLP1', 'SVP'] #, 'GBM', 'MLP2']
-# # algos = ['Ridge', 'Ada', 'XGB', 'ET','GBM', 'RFC', 'SVP']
+algos = ['Logistic', 'SVC', 'SVM', 'Ridge', 'Ada', 'EN', 'ET', 'XGB', 'RFC', 'KNN', 'MLP1', 'SVP'] #, 'GBM', 'MLP2']
+# algos = ['Ridge', 'Ada', 'XGB', 'ET','GBM', 'RFC', 'SVP']
 
-# logging.info("Getting optimized models")
-# optimal_algos = config.get_models(dataset=engineered_data)
-# config.save(to_save=optimal_algos, name='optimal_algos_complete')
+logging.info("Getting optimized models")
+optimal_algos = config.get_models(dataset=engineered_data)
+config.save(to_save=optimal_algos, name='optimal_algos_complete')
 
-# algos_dict, results_prim = config.get_best_algos(optimal_algos)
+algos_dict, results_prim = config.get_best_algos(optimal_algos)
 
-# #%%
+#%%
 
-# logging.info("Creating best stacks")
-# best_stacks, results_sec = config.get_best_stacks(models=algos_dict, dataset=engineered_data)
-# algos_dict2, _ = config.get_best_algos(optimal_algos, mode='over')
-# over_stacks, results_over = config.get_best_stacks(models=algos_dict2, dataset=engineered_data, tag='_over')
+logging.info("Creating best stacks")
+best_stacks, results_sec = config.get_best_stacks(models=algos_dict, dataset=engineered_data)
+algos_dict2, _ = config.get_best_algos(optimal_algos, mode='over')
+over_stacks, results_over = config.get_best_stacks(models=algos_dict2, dataset=engineered_data, tag='_over')
 
-# results = config.show_results([results_prim, results_sec, results_over])
+results = config.show_results([results_prim, results_sec, results_over])
 
-# config.save(to_save=best_stacks, name='stack_results')
-# config.save(to_save=over_stacks, name='stack_results2')
-# config.save(to_save=results, name='overall_results')
+config.save(to_save=best_stacks, name='stack_results')
+config.save(to_save=over_stacks, name='stack_results2')
+config.save(to_save=results, name='overall_results')
 
-# print('DONE')
+print('DONE')
 
 
 # logging.info("Generating results")

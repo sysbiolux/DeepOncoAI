@@ -54,6 +54,8 @@ def preprocess_data(dataset, flag: str=None):
 				dataset = preprocess_ccle_rppa(dataset, flag=flag)
 			elif omic[0] == 'RNA':
 				dataset = preprocess_ccle_rna(dataset, flag=flag)
+			elif omic[0] == 'RNA_FILTERED':
+				dataset = preprocess_ccle_rna_filtered(dataset, flag=flag)
 			elif omic[0] == 'MIRNA':
 				dataset = preprocess_ccle_mirna(dataset, flag=flag)
 			elif omic[0] == 'META':
@@ -96,6 +98,12 @@ def preprocess_ccle_rna(dataset, flag: str=None):
 		df = np.log2(df + 1)
 		
 	return dataset_class.Dataset(df, omic='RNA', database='CCLE')
+
+def preprocess_ccle_rna_filtered(dataset, flag: str=None):
+	if flag == None:
+		df = dataset.dataframe
+		df = df.set_index('Unnamed: 0')
+		return dataset_class.Dataset(df, omic='RNA-FILTERED', database='CCLE')
 
 def preprocess_ccle_mirna(dataset, flag: str=None):
 	df = dataset.dataframe

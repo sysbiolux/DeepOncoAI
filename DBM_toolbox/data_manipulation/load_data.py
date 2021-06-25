@@ -10,6 +10,7 @@ def read_data(folder:str, omic:str, database:str, nrows:int=None, keywords:str=N
 	if database == 'CCLE':
 		filename = {
 			'RNA' : 'CCLE_RNAseq_genes_rpkm_20180929.csv',
+			'RNA-FILTERED' : 'AWS_filtered_RNA.csv',
 			'MIRNA': 'CCLE_miRNA_20181103.csv',
 			'RPPA' : 'CCLE_RPPA_20181003.csv',
 			'META' : 'CCLE_metabolomics_20190502.csv',
@@ -34,6 +35,7 @@ def read_data(folder:str, omic:str, database:str, nrows:int=None, keywords:str=N
 	file_string, file_extension = os.path.splitext(filename)
 	
 	if file_extension == '.csv':
+		print(f"file: {filename}")
 		dataframe = pd.read_csv(os.path.join(folder, filename), nrows=nrows)
 	elif file_extension == '.txt':
 		pass ## TODO: implement here
