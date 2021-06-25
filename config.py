@@ -15,9 +15,9 @@ from DBM_toolbox.data_manipulation import load_data, rule,  preprocessing
 from DBM_toolbox.data_manipulation import dataset_class, filter_class
 from DBM_toolbox.feature_engineering.predictors import combinations, components
 from DBM_toolbox.modeling import optimized_models, stacking
-from DBM_toolbox.plotting import plot_eda
+from DBM_toolbox.plotting import eda
 
-parse_filter_dict = {'sample_completeness': lambda this_filter, omic, database: filter_class.KeepDenseRowsFilter(completeness_threshold=this_filter['threshold']),
+parse_filter_dict = {'sample_completeness': lambda this_filter, omic, database: filter_class.KeepDenseRowsFilter(completeness_threshold=this_filter['threshold'], omic=omic, database=database),
 					 'feature_completeness': lambda this_filter, omic, database: rule.ColumnDensityRule(completeness_threshold=this_filter['threshold'], omic=omic, database=database),
 					 'feature_variance': lambda this_filter, omic, database: rule.HighestVarianceRule(fraction=this_filter['fraction_retained'], omic=omic, database=database),
 					 'cross-correlation': lambda this_filter, omic, database: rule.CrossCorrelationRule(correlation_threshold=this_filter['correlation_threshold'], omic=omic, database=database)
@@ -34,6 +34,9 @@ parse_transformation_dict = {'PCA': lambda dataframe, transformation, omic: comp
 							 'Poly': lambda dataframe, transformation, omic: combinations.get_polynomials(dataframe, degree=transformation['degree']),
 							 'OR': lambda dataframe, transformation, omic: combinations.get_boolean_or(dataframe)
 }
+
+fast_filters_list = ['sample_completeness', 'feature_completeness', 'feature_variance']
+slow_filters_list = ['cross-correlation']
 
 def parse_filter(this_filter: dict, omic: str, database: str):
 	'''
@@ -71,7 +74,7 @@ def parse_transformations(dataframe, transformation: dict, omic: str, database: 
 
 class Config:
 	def __init__(self):
-		with open('config_apurva.yaml') as f:
+		with open('config.yaml') as f:
 			self.raw_dict = yaml.load(f, Loader=yaml.FullLoader)
 
 	def read_data(self):
@@ -127,26 +130,75 @@ class Config:
 		folds_list = xval.split(dataframe, target)
 		return folds_list
 
-	def create_filters(self, dataset: dataset_class.Dataset):
-		'''
-		Computes a filter for each omic based on the config file specifications
-		Returns the list of filters
-		'''
-		print('Creating filters...')
-		omics = self.raw_dict['data']['omics']
-		filters = []
-		for omic in omics:
-			for this_filter in omic['filtering']:
-				print('Creating filter ' + this_filter['name'] + ' for ' + omic['database'] + '/' + omic['name'])
-				new_rule = parse_filter(this_filter, omic['name'], omic['database'])
-				if new_rule is not None:
-					if this_filter['name'] == 'sample_completeness': #TODO: this does not look pretty, the fact that sample completeness is a non-transferable filter makes it not have the same "create_filter" as the others so excetptions have to be created.
-						new_filter = new_rule
-					else:
-						new_filter = new_rule.create_filter(dataset)
-						if new_filter is not None:
-							filters.append(new_filter)
-		return filters
+	def filter_data(self, dataset: dataset_class.Dataset):
+
+		def create_fast_filters(self, dataset: dataset_class.Dataset):
+			'''
+			Computes a filter for each omic based on the config file specifications
+			Returns the list of filters
+			'''
+			print('Creating filters...')
+			omics = self.raw_dict['data']['omics']
+			filters = []
+			for omic in omics:
+				for this_filter in omic['filtering']:
+					if this_filter['name'] in fast_filters_list:
+						print('Creating filter ' + this_filter['name'] + ' for ' + omic['database'] + '/' + omic['name'])
+						new_rule = parse_filter(this_filter, omic['name'], omic['database'])
+						print(new_rule)
+						if new_rule is not None:
+							if this_filter['name'] == 'sample_completeness': #TODO: this does not look pretty, the fact that sample completeness is a non-transferable filter makes it not have the same "create_filter" as the others so excetptions have to be created.
+								new_filter = new_rule
+								filters.insert(0, new_filter) #appending sanple-level filters at the beginning
+							else:
+								new_filter = new_rule.create_filter(dataset)
+								filters.append(new_filter) #other filters at the end
+						else:
+							print('...none')
+			return filters
+	
+	
+		def create_slow_filters(self, dataset: dataset_class.Dataset):
+			'''
+			Computes a filter for each omic based on the config file specifications
+			Returns the list of filters
+			'''
+			print('Creating filters...')
+			omics = self.raw_dict['data']['omics']
+			filters = []
+			for omic in omics:
+				for this_filter in omic['filtering']:
+					if this_filter['name'] in slow_filters_list:
+						print('Creating filter ' + this_filter['name'] + ' for ' + omic['database'] + '/' + omic['name'])
+						new_rule = parse_filter(this_filter, omic['name'], omic['database'])
+						print(new_rule)
+						if new_rule is not None:
+							if this_filter['name'] == 'sample_completeness': #TODO: this does not look pretty, the fact that sample completeness is a non-transferable filter makes it not have the same "create_filter" as the others so excetptions have to be created.
+								new_filter = new_rule
+								filters.insert(0, new_filter) #appending sanple-level filters at the beginning
+							else:
+								new_filter = new_rule.create_filter(dataset)
+								filters.append(new_filter) #other filters at the end
+						else:
+							print('...none')
+			return filters
+
+
+		logging.info("Creating fast filters")
+		fast_filters = create_fast_filters(self, dataset)
+		
+		logging.info("Applying fast filters")
+		filtered_data = dataset.apply_filters(filters=fast_filters)
+
+		logging.info("Creating slow filters")
+		slow_filters = create_slow_filters(self, filtered_data)
+		
+		logging.info("Applying slow filters")
+		refiltered_data = filtered_data.apply_filters(filters=slow_filters)
+
+		return refiltered_data
+
+
 
 	def select_subsets(self, datasets: list):
 		'''
@@ -207,28 +259,29 @@ class Config:
 		else:
 			return selected_training_subset
 
-	def engineer_features(self, dataset: dataset_class.Dataset):
+	def engineer_features(self, dataset: dataset_class.Dataset=None):
 		'''
 		Applies transformations (PCA, TSNE, combinations) to a dataset and 
 		returns the dataset
 		'''
 		print('Engineering features...')
-		omics = self.raw_dict['data']['omics']
-		dataframe = dataset.to_pandas()
-		engineered_features = None
-		database = dataset.database
-		for omic in omics:
-			transformations_dict = omic['feature_engineering']['transformations']
-			for transformation in transformations_dict:
-				logging.info(f"Engineering {transformation['name']} for {omic['name']} in {omic['database']}")
-				print('Engineering ' + transformation['name'] + ' for ' + omic['name'] + '/' + omic['database'])
-				new_features = parse_transformations(dataframe=dataframe, transformation=transformation, omic=omic, database=database)
-				if new_features is not None:
-					new_features = new_features.remove_constants()
-					if engineered_features is not None:
-						engineered_features = engineered_features.merge_with(new_features)
-					else:
-						engineered_features = new_features
+		if dataset is not None:
+			omics = self.raw_dict['data']['omics']
+			dataframe = dataset.to_pandas()
+			engineered_features = None
+			database = dataset.database
+			for omic in omics:
+				transformations_dict = omic['feature_engineering']['transformations']
+				for transformation in transformations_dict:
+					logging.info(f"Engineering {transformation['name']} for {omic['name']} in {omic['database']}")
+					print('Engineering ' + transformation['name'] + ' for ' + omic['name'] + '/' + omic['database'])
+					new_features = parse_transformations(dataframe=dataframe, transformation=transformation, omic=omic, database=database)
+					if new_features is not None:
+						new_features = new_features.remove_constants()
+						if engineered_features is not None:
+							engineered_features = engineered_features.merge_with(new_features)
+						else:
+							engineered_features = new_features
 		
 		use_type = self.raw_dict['modeling']['general']['use_tumor_type']
 		if use_type['enabled'] == True:
@@ -240,13 +293,13 @@ class Config:
 		return engineered_features
 
 
-	def get_models(self, dataset: dataset_class.Dataset, method: str=None, algos: list=None):
+	def get_models(self, dataset: dataset_class.Dataset, method: str=None):
 		'''
 		Optimizes a set of models by retrieving omics and targets from the comfig files
 		Bayesian hyperparameter optimization is performed for each model, predicting each target with each omic.
 		Returns the a dictionary of optimized models and their performances 
 		'''
-		# TODO: track algos from the config file
+		algos = self.raw_dict['modeling']['general']['algorithms']
 		print('Computing models')
 		targets_list = []
 		method = self.raw_dict['modeling']['general']['first_level_models']
@@ -323,8 +376,8 @@ class Config:
 				
 				this_dataframe = this_dataframe.drop(indices_to_drop)
 				targets = targets.drop(indices_to_drop)
-				print(this_dataframe)
-				print(targets)
+				print(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
+				print(f"y: {targets.size} samples")
 				
 				this_result = optimized_models.get_standard_models(data=this_dataframe, 
 																	targets=targets, 
@@ -344,8 +397,8 @@ class Config:
 					
 					this_dataframe = this_dataframe.drop(indices_to_drop)
 					targets = targets.drop(indices_to_drop)
-					print(this_dataframe)
-					print(targets)
+					print(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
+					print(f"y: {targets.size} samples")
 					
 					this_result = optimized_models.get_standard_models(data=this_dataframe, 
 																		targets=targets, 
@@ -460,15 +513,13 @@ class Config:
 			for omic in omics:
 				logging.info(f"plotting info for {omic} in {database}")
 				dataframe = dataset.to_pandas(omic=omic, database=database)
-				if len(dataframe.columns) <= 20:
-					plot_eda.plot_eda(dataframe)
-				else:
-					keep_plotting = True
-					while keep_plotting:
-						plot_eda.plot_eda(dataframe.iloc[:, :20])
-						dataframe = dataframe.iloc[:, 20:]
-						
-						
+# 				if len(dataframe.columns) <= 100:
+#  					eda.plot_eda_all(dataframe)
+# 				else:
+# 					pick = np.random.randint(dataframe.shape[1], size=100)
+# 					eda.plot_eda_all(dataframe.iloc[:, pick])
+				eda.plot_missing(dataframe, omic, database)
+
 						
 	def evaluate_stacks(best_stacks):
 		pass

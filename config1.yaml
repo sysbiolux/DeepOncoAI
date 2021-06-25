@@ -6,10 +6,10 @@ data:
       database: CCLE
       filtering:
         - name: sample_completeness
-          threshold: 0.95
+          threshold: 0.90
           enabled: true
         - name: feature_completeness
-          threshold: 0.95
+          threshold: 0.90
           enabled: true
         - name: feature_variance
           fraction_retained: 0.8
@@ -21,10 +21,10 @@ data:
         feature_selection:
           - name: importance
             fraction_selected: 0.05
-            enabled: true
+            enabled: false
           - name: predictivity
             fraction_selected: 0.05
-            enabled: true
+            enabled: false
         transformations:
           - name: PCA
             n_components: 2
@@ -43,47 +43,47 @@ data:
             enabled: false
           - name: OR
             enabled: false
-    # - name: RNA
-    #   database: CCLE
-    #   filtering:
-    #     - name: sample_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_variance
-    #       fraction_retained: 0.05
-    #       enabled: true
-    #     - name: cross-correlation
-    #       correlation_threshold: 0.9
-    #       enabled: true
-    #   feature_engineering:
-    #     feature_selection:
-    #       - name: importance
-    #         fraction_selected: 0.001
-    #         enabled: true
-    #       - name: predictivity
-    #         fraction_selected: 0.001
-    #         enabled: false
-    #     transformations:
-    #       - name: PCA
-    #         n_components: 5
-    #         enabled: true
-    #       - name: ICA
-    #         n_components: 10
-    #         enabled: false
-    #       - name: RP
-    #         n_components: 10
-    #         enabled: false
-    #       - name: TSNE
-    #         n_components: 2
-    #         enabled: true
-    #       - name: Poly
-    #         degree: 2
-    #         enabled: false
-    #       - name: OR
-    #         enabled: false
+    - name: RNA
+      database: CCLE
+      filtering:
+        - name: sample_completeness
+          threshold: 0.90
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.90
+          enabled: true
+        - name: feature_variance
+          fraction_retained: 0.1 ###
+          enabled: true
+        - name: cross-correlation
+          correlation_threshold: 0.9
+          enabled: true
+      feature_engineering:
+        feature_selection:
+          - name: importance
+            fraction_selected: 0.001
+            enabled: false
+          - name: predictivity
+            fraction_selected: 0.001
+            enabled: false
+        transformations:
+          - name: PCA
+            n_components: 5
+            enabled: true
+          - name: ICA
+            n_components: 10
+            enabled: false
+          - name: RP
+            n_components: 10
+            enabled: false
+          - name: TSNE
+            n_components: 2
+            enabled: true
+          - name: Poly
+            degree: 2
+            enabled: false
+          - name: OR
+            enabled: false
     - name: MIRNA
       database: CCLE
       filtering:
@@ -94,7 +94,7 @@ data:
           threshold: 0.95
           enabled: true
         - name: feature_variance
-          fraction_retained: 0.2
+          fraction_retained: 0.5
           enabled: true
         - name: cross-correlation
           correlation_threshold: 0.9
@@ -103,7 +103,7 @@ data:
         feature_selection:
           - name: importance
             fraction_selected: 0.05
-            enabled: true
+            enabled: false
           - name: predictivity
             fraction_selected: 0.02
             enabled: false
@@ -125,47 +125,129 @@ data:
             enabled: false
           - name: OR
             enabled: false
-    # - name: PATHWAYS
-    #   database: OWN
-    #   filtering:
-    #     - name: sample_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_variance
-    #       fraction_retained: 0.2
-    #       enabled: false
-    #     - name: cross-correlation
-    #       correlation_threshold: 0.9
-    #       enabled: false
-    #   feature_engineering:
-    #     feature_selection:
-    #       - name: importance
-    #         fraction_selected: 0.5
-    #         enabled: true
-    #       - name: predictivity
-    #         fraction_selected: 0.5
-    #         enabled: true
-    #     transformations:
-    #       - name: PCA
-    #         n_components: 5
-    #         enabled: true
-    #       - name: ICA
-    #         n_components: 10
-    #         enabled: false
-    #       - name: RP
-    #         n_components: 10
-    #         enabled: false
-    #       - name: TSNE
-    #         n_components: 2
-    #         enabled: true
-    #       - name: Poly
-    #         degree: 2
-    #         enabled: false
-    #       - name: OR
-    #         enabled: false
+    - name: META
+      database: CCLE
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_variance
+          fraction_retained: 0.95
+          enabled: true
+        - name: cross-correlation
+          correlation_threshold: 0.9
+          enabled: true
+      feature_engineering:
+        feature_selection:
+          - name: importance
+            fraction_selected: 0.1
+            enabled: false
+          - name: predictivity
+            fraction_selected: 0.02
+            enabled: false
+        transformations:
+          - name: PCA
+            n_components: 5
+            enabled: true
+          - name: ICA
+            n_components: 10
+            enabled: false
+          - name: RP
+            n_components: 10
+            enabled: false
+          - name: TSNE
+            n_components: 2
+            enabled: true
+          - name: Poly
+            degree: 2
+            enabled: false
+          - name: OR
+            enabled: false
+    - name: PATHWAYS
+      database: OWN
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_variance
+          fraction_retained: 0.9
+          enabled: true
+        - name: cross-correlation
+          correlation_threshold: 0.9
+          enabled: true
+      feature_engineering:
+        feature_selection:
+          - name: importance
+            fraction_selected: 0.5
+            enabled: false
+          - name: predictivity
+            fraction_selected: 0.5
+            enabled: false
+        transformations:
+          - name: PCA
+            n_components: 5
+            enabled: false
+          - name: ICA
+            n_components: 10
+            enabled: false
+          - name: RP
+            n_components: 10
+            enabled: false
+          - name: TSNE
+            n_components: 2
+            enabled: false
+          - name: Poly
+            degree: 2
+            enabled: false
+          - name: OR
+            enabled: false
+    - name: TOPOLOGY
+      database: OWN
+      filtering:
+        - name: sample_completeness
+          threshold: 0.90
+          enabled: false
+        - name: feature_completeness
+          threshold: 0.90
+          enabled: true
+        - name: feature_variance
+          fraction_retained: 0.5
+          enabled: true
+        - name: cross-correlation
+          correlation_threshold: 0.9
+          enabled: true
+      feature_engineering:
+        feature_selection:
+          - name: importance
+            fraction_selected: 0.5
+            enabled: false
+          - name: predictivity
+            fraction_selected: 0.5
+            enabled: false
+        transformations:
+          - name: PCA
+            n_components: 5
+            enabled: false
+          - name: ICA
+            n_components: 10
+            enabled: false
+          - name: RP
+            n_components: 10
+            enabled: false
+          - name: TSNE
+            n_components: 2
+            enabled: false
+          - name: Poly
+            degree: 2
+            enabled: false
+          - name: OR
+            enabled: false
     # - name: RNA
     #   database: GDSC
     #   filtering:
@@ -228,98 +310,98 @@ data:
           upper_bound_resistant: 0.25
           lower_bound_sensitive: 0.75
           enabled: false
-    # - name: DRUGS_2
-    #   database: CCLE
-    #   responses: ActArea
-    #   target_drug_name: Nilotinib
-    #   filtering:
-    #     - name: sample_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #   normalization:
-    #     - name: unit
-    #       enabled: true
-    #   target_engineering:
-    #     - name: quantization
-    #       upper_bound_resistant: 0.33
-    #       lower_bound_sensitive: 0.33
-    #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
-    #       enabled: false
-    # - name: DRUGS_3
-    #   database: CCLE
-    #   responses: ActArea
-    #   target_drug_name: 17-AAG
-    #   filtering:
-    #     - name: sample_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #   normalization:
-    #     - name: unit
-    #       enabled: true
-    #   target_engineering:
-    #     - name: quantization
-    #       upper_bound_resistant: 0.33
-    #       lower_bound_sensitive: 0.33
-    #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
-    #       enabled: false
-    # - name: DRUGS_4
-    #   database: CCLE
-    #   responses: ActArea
-    #   target_drug_name: PHA-665752
-    #   filtering:
-    #     - name: sample_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #   normalization:
-    #     - name: unit
-    #       enabled: true
-    #   target_engineering:
-    #     - name: quantization
-    #       upper_bound_resistant: 0.33
-    #       lower_bound_sensitive: 0.33
-    #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
-    #       enabled: false
-    # - name: DRUGS_5
-    #   database: CCLE
-    #   responses: ActArea
-    #   target_drug_name: Lapatinib
-    #   filtering:
-    #     - name: sample_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #   normalization:
-    #     - name: unit
-    #       enabled: true
-    #   target_engineering:
-    #     - name: quantization
-    #       upper_bound_resistant: 0.33
-    #       lower_bound_sensitive: 0.33
-    #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
-    #       enabled: false
+    - name: DRUGS_2
+      database: CCLE
+      responses: ActArea
+      target_drug_name: Nilotinib
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+      normalization:
+        - name: unit
+          enabled: true
+      target_engineering:
+        - name: quantization
+          upper_bound_resistant: 0.33
+          lower_bound_sensitive: 0.33
+          enabled: true
+        - name: thresholding # TODO: implement this
+          upper_bound_resistant: 0.25
+          lower_bound_sensitive: 0.75
+          enabled: false
+    - name: DRUGS_3
+      database: CCLE
+      responses: ActArea
+      target_drug_name: 17-AAG
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+      normalization:
+        - name: unit
+          enabled: true
+      target_engineering:
+        - name: quantization
+          upper_bound_resistant: 0.33
+          lower_bound_sensitive: 0.33
+          enabled: true
+        - name: thresholding # TODO: implement this
+          upper_bound_resistant: 0.25
+          lower_bound_sensitive: 0.75
+          enabled: false
+    - name: DRUGS_4
+      database: CCLE
+      responses: ActArea
+      target_drug_name: PHA-665752
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+      normalization:
+        - name: unit
+          enabled: true
+      target_engineering:
+        - name: quantization
+          upper_bound_resistant: 0.33
+          lower_bound_sensitive: 0.33
+          enabled: true
+        - name: thresholding # TODO: implement this
+          upper_bound_resistant: 0.25
+          lower_bound_sensitive: 0.75
+          enabled: false
+    - name: DRUGS_5
+      database: CCLE
+      responses: ActArea
+      target_drug_name: Lapatinib
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+      normalization:
+        - name: unit
+          enabled: true
+      target_engineering:
+        - name: quantization
+          upper_bound_resistant: 0.33
+          lower_bound_sensitive: 0.33
+          enabled: true
+        - name: thresholding # TODO: implement this
+          upper_bound_resistant: 0.25
+          lower_bound_sensitive: 0.75
+          enabled: false
     # - name: DRUGS_6
     #   database: CCLE
     #   responses: ActArea
@@ -736,6 +818,22 @@ data:
     #       enabled: false
 modeling:
   general:
+    algorithms:
+      - Logistic
+      - SVC
+      - SVM
+      - Ridge
+      - Ada
+      - EN
+      - ET
+      - XGB
+      - RFC
+      - KNN
+      - MLP1
+      - SVP
+      # - GBM
+      # - MLP2
+    first_level_models: standard
     metric: roc_auc
     outer_folds:
       value: 5
@@ -752,6 +850,6 @@ modeling:
       enabled: false # TODO: implement this
       value: upsample_minority_class_SMOTE
   ensembling:
-    metalearner: xgboost
+    metalearner: XGBoost
     include_data: False
-    min_models: 1
+    n_models: 2

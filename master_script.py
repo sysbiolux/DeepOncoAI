@@ -2,30 +2,36 @@
 import logging
 logging.basicConfig(filename='run.log', level=logging.INFO, filemode='w', format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%H:%M:%S')
 from config import Config
-
-
+from DBM_toolbox.data_manipulation import dataset_class
 config = Config()
-#%%
 
 logging.info("Reading data")
 data = config.read_data()
 
-logging.info("Creating filters")
-filters = config.create_filters(data)
+# logging.info("Creating visualizations")
+# config.visualize_dataset(data)
 
-logging.info("Applying filters")
-filtered_data = data.apply_filters(filters=filters)
+logging.info("Filtering data")
+filtered_data = config.filter_data(data)
+
+# df = filtered_data.to_pandas(omic='RNA')
+# df.to_csv('own_filtered_RNA.csv')
+
+
+print(filtered_data.dataframe.shape)
+for omic in list(set(filtered_data.omic)):
+ 	print(f"{omic}: {filtered_data.omic[filtered_data.omic == omic].shape[0]}")
 
 logging.info("Selecting subsets for feature engineering")
 selected_subset = config.select_subsets(filtered_data)
 
 logging.info("Engineering features")
 if selected_subset is not None:
-	engineered_features = config.engineer_features(selected_subset)
-	logging.info("Merging engineered features")
-	engineered_data = filtered_data.merge_with(engineered_features).normalize()
+ 	engineered_features = config.engineer_features(selected_subset)
+ 	logging.info("Merging engineered features")
+ 	engineered_data = filtered_data.merge_with(engineered_features).normalize()
 else:
-	engineered_data = filtered_data
+ 	engineered_data = filtered_data
 
 logging.info("Quantizing targets")
 engineered_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()
@@ -37,14 +43,14 @@ algos = ['Logistic', 'SVC', 'SVM', 'Ridge', 'Ada', 'EN', 'ET', 'XGB', 'RFC', 'KN
 # algos = ['Ridge', 'Ada', 'XGB', 'ET','GBM', 'RFC', 'SVP']
 
 logging.info("Getting optimized models")
-optimal_algos = config.get_models(dataset=engineered_data, algos=algos)
+optimal_algos = config.get_models(dataset=engineered_data)
 config.save(to_save=optimal_algos, name='optimal_algos_complete')
 
+algos_dict, results_prim = config.get_best_algos(optimal_algos)
 
-
+#%%
 
 logging.info("Creating best stacks")
-algos_dict, results_prim = config.get_best_algos(optimal_algos)
 best_stacks, results_sec = config.get_best_stacks(models=algos_dict, dataset=engineered_data)
 algos_dict2, _ = config.get_best_algos(optimal_algos, mode='over')
 over_stacks, results_over = config.get_best_stacks(models=algos_dict2, dataset=engineered_data, tag='_over')

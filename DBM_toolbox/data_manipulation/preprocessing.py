@@ -8,6 +8,7 @@ import numpy as np
 from DBM_toolbox.data_manipulation import dataset_class
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from pandas.api.types import is_categorical_dtype
+from sklearn.impute import KNNImputer
 
 def reformat_drugs(dataset):
 	'''reshapes a CCLE pandas dataframe from 'one line per datapoint' to a more convenient
@@ -53,6 +54,8 @@ def preprocess_data(dataset, flag: str=None):
 				dataset = preprocess_ccle_rppa(dataset, flag=flag)
 			elif omic[0] == 'RNA':
 				dataset = preprocess_ccle_rna(dataset, flag=flag)
+			elif omic[0] == 'RNA_FILTERED':
+				dataset = preprocess_ccle_rna_filtered(dataset, flag=flag)
 			elif omic[0] == 'MIRNA':
 				dataset = preprocess_ccle_mirna(dataset, flag=flag)
 			elif omic[0] == 'META':
@@ -95,6 +98,12 @@ def preprocess_ccle_rna(dataset, flag: str=None):
 		df = np.log2(df + 1)
 		
 	return dataset_class.Dataset(df, omic='RNA', database='CCLE')
+
+def preprocess_ccle_rna_filtered(dataset, flag: str=None):
+	if flag == None:
+		df = dataset.dataframe
+		df = df.set_index('Unnamed: 0')
+		return dataset_class.Dataset(df, omic='RNA-FILTERED', database='CCLE')
 
 def preprocess_ccle_mirna(dataset, flag: str=None):
 	df = dataset.dataframe
@@ -146,17 +155,12 @@ def preprocess_features_pathway(dataset, flag: str=None):
 	
 
 def preprocess_features_topology(dataset, flag: str=None):
-	## TODO: preprocessing steps here
-	# @Apurva could stay empty if your output is directly workable,
-	# but maybe we want to add things here later
+	# @Apurva
 	df = dataset.dataframe
-	
 	df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
 	df.index = [idx[6:-11] for idx in df.index]
 	df = df.add_suffix('_topo')
-	df = impute_missing_data(df, method='null')
-	df = remove_constant_data(df)
-	df = rescale_data(df)
+# 	df = impute_missing_data(df, method='zeros')
 	# additional steps if necessary
 	
 	return dataset_class.Dataset(df, omic='TOPOLOGY', database='OWN')
@@ -175,10 +179,14 @@ def impute_missing_data(dataframe, method: str='average'):
 		dataframe = dataframe.fillna(0)
 	elif method == 'median':
 		raise ValueError('Function not configured for this use')
-		dataframe = dataframe
+		dataframe = dataframe.fillna(dataframe.median())
 	elif method == 'neighbor':
 		raise ValueError('Function not configured for this use')
-		dataframe = dataframe
+		imputer = KNNImputer()
+		imputer.fit(dataframe)
+		dataframe = imputer.transform(dataframe)
+	elif method == 'zeros':
+		dataframe = dataframe.fillna(value=0)
 	return dataframe
 
 def remove_constant_data(dataframe):

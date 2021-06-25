@@ -30,8 +30,15 @@ class Dataset:
 		resulting_dataset = self
 		if filters:
 			for individual_filter in filters:
-# 				logging.info(f"{individual_filter}")
+				print(individual_filter)
+				logging.info(f"{individual_filter}")
+				size_pre = resulting_dataset.dataframe.shape
 				resulting_dataset = individual_filter.apply(resulting_dataset)
+				size_post = resulting_dataset.dataframe.shape
+				print(f"pre-filter: {size_pre[0]} samples and {size_pre[1]} features")
+				print(f"post-filter: {size_post[0]} samples and {size_post[1]} features")
+				logging.info(f"pre-filter: {size_pre[0]} samples and {size_pre[1]} features")
+				logging.info(f"post-filter: {size_post[0]} samples and {size_post[1]} features")
 		return resulting_dataset
 
 	def to_pandas(self, omic: str=None, database: str=None): #TODO: possibility to use lists of omics and databases?
