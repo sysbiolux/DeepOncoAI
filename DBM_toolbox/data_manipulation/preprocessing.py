@@ -175,6 +175,8 @@ def impute_missing_data(dataframe, method: str='average'):
 	##TODO: implement other methods of imputation
 	if method == 'average':
 		dataframe = dataframe.fillna(dataframe.mean())
+	elif method = 'null':
+		dataframe = dataframe.fillna(0)
 	elif method == 'median':
 		raise ValueError('Function not configured for this use')
 		dataframe = dataframe.fillna(dataframe.median())
