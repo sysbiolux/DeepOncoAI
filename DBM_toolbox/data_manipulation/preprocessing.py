@@ -54,7 +54,7 @@ def preprocess_data(dataset, flag: str=None):
 				dataset = preprocess_ccle_rppa(dataset, flag=flag)
 			elif omic[0] == 'RNA':
 				dataset = preprocess_ccle_rna(dataset, flag=flag)
-			elif omic[0] == 'RNA_FILTERED':
+			elif omic[0] == 'RNA-FILTERED':
 				dataset = preprocess_ccle_rna_filtered(dataset, flag=flag)
 			elif omic[0] == 'MIRNA':
 				dataset = preprocess_ccle_mirna(dataset, flag=flag)

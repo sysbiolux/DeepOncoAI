@@ -33,9 +33,10 @@ def read_data(folder:str, omic:str, database:str, nrows:int=None, keywords:str=N
 			'TOPOLOGY' : 'Lung_Colon_CCLE_Eigenvector_corrected.csv',
 			}[omic_root]
 	file_string, file_extension = os.path.splitext(filename)
-	
+
+	print(f"file: {filename}")
+
 	if file_extension == '.csv':
-		print(f"file: {filename}")
 		dataframe = pd.read_csv(os.path.join(folder, filename), nrows=nrows)
 	elif file_extension == '.txt':
 		pass ## TODO: implement here
