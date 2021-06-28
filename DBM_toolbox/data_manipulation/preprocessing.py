@@ -74,8 +74,11 @@ def preprocess_data(dataset, flag: str=None):
 		elif database[0] == 'OWN':
 			if omic[0] == 'PATHWAYS':
 				dataset = preprocess_features_pathway(dataset, flag=flag)
-			if omic[0] == 'TOPOLOGY':
-				dataset = preprocess_features_topology(dataset, flag=flag)
+			if omic[0] == 'EIGENVECTOR':
+				dataset = preprocess_features_eigenvector(dataset, flag=flag)
+			if omic[0] == 'TOPO-FEATURENAME2':
+				dataset = preprocess_features_topo-featurename2(dataset, flag=flag)
+			if
 	return dataset
 
 
@@ -154,16 +157,26 @@ def preprocess_features_pathway(dataset, flag: str=None):
 	return dataset_class.Dataset(df, omic='PATHWAYS', database='OWN')
 	
 
-def preprocess_features_topology(dataset, flag: str=None):
-	# @Apurva
+def preprocess_features_eigenvector(dataset, flag: str=None):
 	df = dataset.dataframe
 	df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
 	df.index = [idx[6:-11] for idx in df.index]
 	df = df.add_suffix('_topo')
 # 	df = impute_missing_data(df, method='zeros')
 	# additional steps if necessary
-	
-	return dataset_class.Dataset(df, omic='TOPOLOGY', database='OWN')
+	return dataset_class.Dataset(df, omic='EIGENVECTOR', database='OWN')
+
+# def preprocess_features_topo-featurename2(dataset, flag: str=None):
+# 	# @Apurva
+# 	df = dataset.dataframe
+# 	df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
+# 	df.index = [idx[6:-11] for idx in df.index]
+# 	df = df.add_suffix('_topo')
+# # 	df = impute_missing_data(df, method='zeros')
+# 	# additional steps if necessary
+# 	return dataset_class.Dataset(df, omic='TOPO=FEATURENAME2', database='OWN')
+
+# add more functions here for each dataset
 
 def rescale_data(dataframe):
 	'''Normalization by mapping to the [0 1] interval (each feature independently)
