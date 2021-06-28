@@ -39,8 +39,6 @@ engineered_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats
 # logging.info("Visualizing distributions")
 # config.visualize_dataset(engineered_data)
 
-algos = ['Logistic', 'SVC', 'SVM', 'Ridge', 'Ada', 'EN', 'ET', 'XGB', 'RFC', 'KNN', 'MLP1', 'SVP'] #, 'GBM', 'MLP2']
-# algos = ['Ridge', 'Ada', 'XGB', 'ET','GBM', 'RFC', 'SVP']
 
 logging.info("Getting optimized models")
 optimal_algos = config.get_models(dataset=engineered_data)
