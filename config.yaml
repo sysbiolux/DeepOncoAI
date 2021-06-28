@@ -255,7 +255,7 @@ data:
           threshold: 0.90
           enabled: false
         - name: feature_completeness
-          threshold: 0.90
+          threshold: 0.99
           enabled: true
         - name: feature_variance
           fraction_retained: 0.5
