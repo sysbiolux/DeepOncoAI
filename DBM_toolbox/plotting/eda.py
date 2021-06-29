@@ -5,6 +5,11 @@ Created on Sat Nov 21 10:52:06 2020
 @author: sebde
 """
 
+import pandas as pd
+import numpy as np
+import seaborn as sns
+
+
 from matplotlib import pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -69,8 +74,10 @@ def plot_missing(dataframe, omic, database):
 	plt.title(database + '_' + omic)
 	plt.savefig(ts + '_missing-correl.pdf')
 
-
-
+def plot_results(dataframe):
+	targets = list(set(dataframe['target']))
+	for this_target in targets:
+		ax = sns.barplot(x='algo', y='perf', hue='omic', data=dataframe).set_title('this_target')
 
 
 

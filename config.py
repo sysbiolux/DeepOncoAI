@@ -513,11 +513,11 @@ class Config:
 			for omic in omics:
 				logging.info(f"plotting info for {omic} in {database}")
 				dataframe = dataset.to_pandas(omic=omic, database=database)
-# 				if len(dataframe.columns) <= 100:
-#  					eda.plot_eda_all(dataframe)
-# 				else:
-# 					pick = np.random.randint(dataframe.shape[1], size=100)
-# 					eda.plot_eda_all(dataframe.iloc[:, pick])
+				if len(dataframe.columns) <= 100:
+					eda.plot_eda_all(dataframe)
+				else:
+					pick = np.random.randint(dataframe.shape[1], size=100)
+					eda.plot_eda_all(dataframe.iloc[:, pick])
 				eda.plot_missing(dataframe, omic, database)
 
 						
