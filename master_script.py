@@ -12,7 +12,7 @@ data = config.read_data()
 # config.visualize_dataset(data)
 
 logging.info("Filtering data")
-filtered_data = config.filter_data(data)
+filtered_data, filters = config.filter_data(data)
 
 # df = filtered_data.to_pandas(omic='RNA')
 # df.to_csv('own_filtered_RNA.csv')

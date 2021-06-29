@@ -30,7 +30,7 @@ def read_data(folder:str, omic:str, database:str, nrows:int=None, keywords:str=N
 	elif database == 'OWN':
 		filename = {
 			'PATHWAYS' : 'SPEED_Scores_namechange.csv',
-			'EIGENVECTOR' : 'Lung_Colon_CCLE_Eigenvector_corrected.csv',
+			'EIGENVECTOR' : 'LungColonSkin_EigenvectorHPC.csv',
 # 			'topology_measure_nr2' : 'filename_here',
 # 			insert more here
 			}[omic_root]

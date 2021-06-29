@@ -196,7 +196,7 @@ class Config:
 		logging.info("Applying slow filters")
 		refiltered_data = filtered_data.apply_filters(filters=slow_filters)
 
-		return refiltered_data
+		return refiltered_data, [fast_filters, slow_filters]
 
 
 
@@ -499,7 +499,7 @@ class Config:
 	def get_over_stacks(self, models: dict, dataset: dataset_class.Dataset):
 		
 		pass
-	
+
 	def show_results(self, datasets: list):
 		pass
 		results = pd.concat(datasets, ignore_index=True)
