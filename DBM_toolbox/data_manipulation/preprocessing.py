@@ -80,6 +80,10 @@ def preprocess_data(dataset, flag: str=None):
                 dataset = preprocess_features_betweenness(dataset, flag=flag)
             if omic[0] == 'CLOSENESS':
                 dataset = preprocess_features_closeness(dataset, flag=flag)
+            if omic[0] == 'PAGERANK':
+                dataset = preprocess_features_pagerank(dataset, flag=flag)
+            if omic[0] == 'AVNEIGHBOUR':
+                dataset = preprocess_features_avneighbour(dataset, flag=flag)
             
             # more here?
     return dataset
@@ -192,6 +196,27 @@ def preprocess_features_closeness(dataset, flag: str=None):
      # additional steps if necessary
      return dataset_class.Dataset(df, omic='CLOSENESS', database='OWN')
 
+def preprocess_features_pagerank(dataset, flag: str=None):
+     # @Apurva
+     df = dataset.dataframe
+     df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
+#     df.index = [idx[10:-11] for idx in df.index]
+     df.index = [idx.rsplit('_',1)[0].split('_',1)[1] for idx in df.index]     
+     df = df.add_suffix('_topo_pgrk')
+#     df = impute_missing_data(df, method='zeros')
+     # additional steps if necessary
+     return dataset_class.Dataset(df, omic='PAGERANK', database='OWN')
+ 
+def preprocess_features_avneighbour(dataset, flag: str=None):
+     # @Apurva
+     df = dataset.dataframe
+     df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
+#     df.index = [idx[10:-11] for idx in df.index]
+     df.index = [idx.split('_',2)[2].rsplit('_',1)[0] for idx in df.index]     
+     df = df.add_suffix('_topo_avngb')
+#     df = impute_missing_data(df, method='zeros')
+     # additional steps if necessary
+     return dataset_class.Dataset(df, omic='AVNEIGHBOUR', database='OWN') 
 # add more functions here for each dataset
 
 def rescale_data(dataframe):

@@ -33,8 +33,8 @@ def read_data(folder:str, omic:str, database:str, nrows:int=None, keywords:str=N
 			'EIGENVECTOR' : 'LungColonSkin_EigenvectorHPC.csv',
  			'BETWEENNESS' : 'LungColonSkin_Bet_cent_HPC.csv',
  			'CLOSENESS' : 'LungColonSkin_ClosenessHPC.csv',
-# 			'PAGERANK' : 'LungColonSkin_PageRankHPC.csv',
-# 			'AV_NEIGHBOUR' : 'LungColonSkin_Av_neighbour.csv',
+ 			'PAGERANK' : 'LungColonSkin_PageRankHPC.csv',
+ 			'AVNEIGHBOUR' : 'LungColonSkin_Av_neighbour.csv',
 # 			insert more here
 			}[omic_root]
 	file_string, file_extension = os.path.splitext(filename)
