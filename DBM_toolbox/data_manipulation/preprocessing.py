@@ -79,7 +79,7 @@ def preprocess_data(dataset, flag: str=None):
             if omic[0] == 'BETWEENNESS':
                 dataset = preprocess_features_betweenness(dataset, flag=flag)
             if omic[0] == 'CLOSENESS':
-                dataset = preprocess_features_betweenness(dataset, flag=flag)
+                dataset = preprocess_features_closeness(dataset, flag=flag)
             
             # more here?
     return dataset
@@ -165,7 +165,7 @@ def preprocess_features_eigenvector(dataset, flag: str=None):
     df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
 #    df.index = [idx[6:-11] for idx in df.index]
     df.index = [idx.rsplit('_',1)[0].split('_',1)[1] for idx in df.index]
-    df = df.add_suffix('_topo')
+    df = df.add_suffix('_topo_eig')
     #df = impute_missing_data(df, method='zeros')
     # additional steps if necessary
     return dataset_class.Dataset(df, omic='EIGENVECTOR', database='OWN')
@@ -176,7 +176,7 @@ def preprocess_features_betweenness(dataset, flag: str=None):
      df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
 #     df.index = [idx[12:-11] for idx in df.index]
      df.index = [idx.rsplit('_',1)[0].split('_',1)[1] for idx in df.index]
-     df = df.add_suffix('_topo')
+     df = df.add_suffix('_topo_bet')
 #     df = impute_missing_data(df, method='zeros')
      # additional steps if necessary
      return dataset_class.Dataset(df, omic='BETWEENNESS', database='OWN')
@@ -187,7 +187,7 @@ def preprocess_features_closeness(dataset, flag: str=None):
      df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
 #     df.index = [idx[10:-11] for idx in df.index]
      df.index = [idx.rsplit('_',1)[0].split('_',1)[1] for idx in df.index]     
-     df = df.add_suffix('_topo')
+     df = df.add_suffix('_topo_clo')
 #     df = impute_missing_data(df, method='zeros')
      # additional steps if necessary
      return dataset_class.Dataset(df, omic='CLOSENESS', database='OWN')
