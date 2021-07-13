@@ -8,8 +8,8 @@ config = Config()
 logging.info("Reading data")
 data = config.read_data()
 
-# logging.info("Creating visualizations")
-# config.visualize_dataset(data)
+logging.info("Creating visualizations")
+config.visualize_dataset(data)
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
