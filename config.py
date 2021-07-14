@@ -3,6 +3,7 @@ import logging
 import pickle
 import pandas as pd
 import numpy as np
+import random
 from datetime import datetime
 from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_predict
 from sklearn.svm import SVC
@@ -517,11 +518,10 @@ class Config:
 				if len(dataframe.columns) <= 100:
 					eda.plot_eda_all(dataframe)
 				else:
-					pick = np.random.randint(dataframe.shape[1], size=100)
+					pick = random.sample(range(dataframe.shape[1]), 100)
 					eda.plot_eda_all(dataframe.iloc[:, pick])
 				eda.plot_missing(dataframe, omic, database)
 
-						
 	def evaluate_stacks(best_stacks):
 		pass
 
