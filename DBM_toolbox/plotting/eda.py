@@ -69,10 +69,10 @@ def plot_missing(dataframe, omic, database):
 	msno.matrix(dataframe)
 	plt.title(database + '_' + omic)
 	plt.savefig(ts + '_missing.pdf')
-	fig, ax = plt.subplots()
-	msno.heatmap(dataframe)
-	plt.title(database + '_' + omic)
-	plt.savefig(ts + '_missing-correl.pdf')
+# 	fig, ax = plt.subplots()
+# 	msno.heatmap(dataframe)
+# 	plt.title(database + '_' + omic)
+# 	plt.savefig(ts + '_missing-correl.pdf')
 
 def plot_results(dataframe):
 	targets = list(set(dataframe['target']))
