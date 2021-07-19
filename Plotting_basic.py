@@ -57,8 +57,9 @@ eig_vect = dataframe.loc[:, dataframe.columns.str.contains('eig')]
 Miss_nos = pd.DataFrame(eig_vect.isna().sum(axis = 1))
 eig_vect['Total_Nans'] = Miss_nos
 eig_vect['Total_Feat'] = eig_vect.shape[1]
+eig_vect['Tot_present_data'] = eig_vect['Total_Feat'] - eig_vect['Total_Nans']
 eig_vect['Samples'] = eig_vect.index
-eig_vect = eig_vect.sort_values(by = 'Total_Nans', ascending=False)
+eig_vect = eig_vect.sort_values(by = 'Tot_present_data', ascending=False)
 # creating subplots
 fig, ax = plt.subplots()
 #ax = plt.subplots()
@@ -68,7 +69,7 @@ sns.barplot(y='Total_Feat', x='Samples', data = eig_vect, color='b',ax = ax)
 sns.barplot(y='Total_Nans', x='Samples', data = eig_vect, color='r', ax=ax)
   
 # renaming the axes
-ax.set(xlabel="Samples", ylabel="Data missing/Total data")
+ax.set(xlabel="Samples", ylabel="Data present/Total data")
 ax.set(xticklabels = [])
 #ax.set_xticklabels(ax.get_xticklabels(), rotation=90, fontsize=4)
   
@@ -76,10 +77,10 @@ ax.set(xticklabels = [])
 plt.show()
 
 
-max_miss_feat = eig_vect.drop(columns = eig_vect.iloc[:,-3:-1])
+max_miss_feat = eig_vect.drop(columns = eig_vect.iloc[:,-4:-1])
 max_miss_feat = max_miss_feat.T
 max_miss_feat = pd.DataFrame(max_miss_feat.isna().sum(axis = 1), columns = ['Features'])
-max_miss_feat = max_miss_feat.sort_values(by = 'Features',ascending = False)
+max_miss_feat = max_miss_feat.sort_values(by = 'Features')
 
 fig, ax = plt.subplots()
 #ax = plt.subplots()
@@ -93,3 +94,33 @@ ax.set(xticklabels = [])
   
 # visulaizing illustration
 plt.show()
+
+
+index_to_plot = max_miss_feat.iloc[0:50,:]
+Data_to_plot = dataframe.loc[:,dataframe.columns.isin(index_to_plot.index)]
+
+Cols = Data_to_plot.columns
+fig, ax = plt.subplots()
+
+ax = sns.boxplot(data=Data_to_plot, palette="Set2")
+ax.set_xticklabels(ax.get_xticklabels(), rotation=90, fontsize=10)
+
+
+
+import numpy as np
+
+ncol = Data_to_plot.shape[1]
+l = np.intc(np.ceil(np.sqrt(ncol)))
+c = np.intc(np.ceil(ncol/l))
+
+f, axes = plt.subplots(l, c, figsize=(20,50), sharex = True, sharey = True)
+axes = axes.ravel()
+        
+for count, col in enumerate(Data_to_plot.columns):
+    dataframe2 = Data_to_plot[col].dropna()
+    zg = sns.distplot(dataframe2, kde=True, rug=True, ax=axes[count])
+    plt.xlim(0, 0.01)
+    plt.ylim(0, 800)
+        #    zg.set_xlim(0,1)
+    zg.set_title(col)
+plt.savefig('Dist2.pdf')
