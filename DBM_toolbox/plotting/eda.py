@@ -39,7 +39,7 @@ def plot_eda_all(dataframe):
 		for count, col in enumerate(dataframe.columns):
 			dataframe2 = dataframe[col].dropna()
 			zg = sns.distplot(dataframe2, kde=True, rug=True, ax=axes[count])
-			zg.set_xlim(0,1)
+		#	zg.set_xlim(0,1)
 			zg.set_title(col)
 		plt.savefig(ts + '2.pdf')
 	except:

@@ -36,8 +36,8 @@ else:
 logging.info("Quantizing targets")
 engineered_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()
 
-logging.info("Visualizing distributions")
-config.visualize_dataset(engineered_data)
+# logging.info("Visualizing distributions")
+# config.visualize_dataset(engineered_data)
 
 
 logging.info("Getting optimized models")
