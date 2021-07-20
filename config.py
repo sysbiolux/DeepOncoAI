@@ -3,6 +3,7 @@ import logging
 import pickle
 import pandas as pd
 import numpy as np
+import random
 from datetime import datetime
 from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_predict
 from sklearn.svm import SVC
@@ -196,7 +197,7 @@ class Config:
 		logging.info("Applying slow filters")
 		refiltered_data = filtered_data.apply_filters(filters=slow_filters)
 
-		return refiltered_data
+		return refiltered_data, [fast_filters, slow_filters]
 
 
 
@@ -499,11 +500,9 @@ class Config:
 	def get_over_stacks(self, models: dict, dataset: dataset_class.Dataset):
 		
 		pass
-	
-	def show_results(self, datasets: list):
-		pass
-		results = pd.concat(datasets, ignore_index=True)
-		return results
+
+	def show_results(self, dataset):
+		eda.plot_results(dataset)
 	
 	def visualize_dataset(self, dataset):
 		# TODO: get visualization options from the config file
@@ -513,14 +512,16 @@ class Config:
 			for omic in omics:
 				logging.info(f"plotting info for {omic} in {database}")
 				dataframe = dataset.to_pandas(omic=omic, database=database)
-# 				if len(dataframe.columns) <= 100:
-#  					eda.plot_eda_all(dataframe)
-# 				else:
-# 					pick = np.random.randint(dataframe.shape[1], size=100)
-# 					eda.plot_eda_all(dataframe.iloc[:, pick])
-				eda.plot_missing(dataframe, omic, database)
+#		return dataframe		
+				if len(dataframe.columns) <= 100:
+ 					eda.plot_eda_all(dataframe)
+				else:
+ 					pick = random.sample(range(dataframe.shape[1]), 100)
+                #    print(dataframe.iloc[:, pick])
+ 					eda.plot_eda_all(dataframe.iloc[:, pick])
+		#		eda.plot_missing(dataframe, omic, database)
+        #return dataframe
 
-						
 	def evaluate_stacks(best_stacks):
 		pass
 

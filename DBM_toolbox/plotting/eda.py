@@ -5,6 +5,11 @@ Created on Sat Nov 21 10:52:06 2020
 @author: sebde
 """
 
+import pandas as pd
+import numpy as np
+import seaborn as sns
+
+
 from matplotlib import pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -34,7 +39,7 @@ def plot_eda_all(dataframe):
 		for count, col in enumerate(dataframe.columns):
 			dataframe2 = dataframe[col].dropna()
 			zg = sns.distplot(dataframe2, kde=True, rug=True, ax=axes[count])
-			zg.set_xlim(0,1)
+		#	zg.set_xlim(0,1)
 			zg.set_title(col)
 		plt.savefig(ts + '2.pdf')
 	except:
@@ -64,14 +69,37 @@ def plot_missing(dataframe, omic, database):
 	msno.matrix(dataframe)
 	plt.title(database + '_' + omic)
 	plt.savefig(ts + '_missing.pdf')
-	fig, ax = plt.subplots()
-	msno.heatmap(dataframe)
-	plt.title(database + '_' + omic)
-	plt.savefig(ts + '_missing-correl.pdf')
+# 	fig, ax = plt.subplots()
+# 	msno.heatmap(dataframe)
+# 	plt.title(database + '_' + omic)
+# 	plt.savefig(ts + '_missing-correl.pdf')
 
+def plot_results(dataframe):
+	targets = list(set(dataframe['target']))
+	for this_target in targets:
+		plt.figure()
+		ax = sns.barplot(x='algo', y='perf', hue='omic', data=dataframe).set_title(this_target)
+		plt.xticks(rotation=90)
+	omics = list(set(dataframe['omic']))
+	for this_omic in omics:
+		plt.figure()
+		ax = sns.barplot(x='target', y='perf', hue='algo', data=dataframe).set_title(this_omic)
+		plt.xticks(rotation=90)
+	algos = list(set(dataframe['algo']))
+	for this_algo in algos:
+		plt.figure()
+		ax = sns.barplot(x='target', y='perf', hue='omic', data=dataframe).set_title(this_algo)
+		plt.xticks(rotation=90)
 
-
-
+	for this_target in targets:
+		plt.figure()
+		ax = sns.barplot(x='algo', y='perf', data=dataframe).set_title(this_target)
+	for this_omic in omics:
+		plt.figure()
+		ax = sns.barplot(x='target', y='perf', data=dataframe).set_title(this_omic)
+	for this_algo in algos:
+		plt.figure()
+		ax = sns.barplot(x='omic', y='perf', data=dataframe).set_title(this_algo)
 
 
 
