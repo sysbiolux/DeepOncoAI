@@ -501,10 +501,8 @@ class Config:
 		
 		pass
 
-	def show_results(self, datasets: list):
-		pass
-		results = pd.concat(datasets, ignore_index=True)
-		return results
+	def show_results(self, dataset):
+		eda.plot_results(dataset)
 	
 	def visualize_dataset(self, dataset):
 		# TODO: get visualization options from the config file

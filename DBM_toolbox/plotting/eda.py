@@ -77,8 +77,29 @@ def plot_missing(dataframe, omic, database):
 def plot_results(dataframe):
 	targets = list(set(dataframe['target']))
 	for this_target in targets:
-		ax = sns.barplot(x='algo', y='perf', hue='omic', data=dataframe).set_title('this_target')
+		plt.figure()
+		ax = sns.barplot(x='algo', y='perf', hue='omic', data=dataframe).set_title(this_target)
+		plt.xticks(rotation=90)
+	omics = list(set(dataframe['omic']))
+	for this_omic in omics:
+		plt.figure()
+		ax = sns.barplot(x='target', y='perf', hue='algo', data=dataframe).set_title(this_omic)
+		plt.xticks(rotation=90)
+	algos = list(set(dataframe['algo']))
+	for this_algo in algos:
+		plt.figure()
+		ax = sns.barplot(x='target', y='perf', hue='omic', data=dataframe).set_title(this_algo)
+		plt.xticks(rotation=90)
 
+	for this_target in targets:
+		plt.figure()
+		ax = sns.barplot(x='algo', y='perf', data=dataframe).set_title(this_target)
+	for this_omic in omics:
+		plt.figure()
+		ax = sns.barplot(x='target', y='perf', data=dataframe).set_title(this_omic)
+	for this_algo in algos:
+		plt.figure()
+		ax = sns.barplot(x='omic', y='perf', data=dataframe).set_title(this_algo)
 
 
 
