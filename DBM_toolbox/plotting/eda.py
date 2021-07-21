@@ -8,15 +8,12 @@ Created on Sat Nov 21 10:52:06 2020
 from matplotlib import pyplot as plt
 import matplotlib.colors as c
 from matplotlib.gridspec import GridSpec
-from matplotlib import pyplot, transforms
-from matplotlib.transforms import Affine2D
-from matplotlib.collections import PathCollection
 import seaborn as sns
 import numpy as np
 import pandas as pd
 import datetime
 import random
-import missingno as msno
+# import missingno as msno
 
 def doublesort(dataframe, ascending=True):
 	dataframe['featurecompleteness'] = np.mean(dataframe, axis=1)
@@ -49,7 +46,7 @@ def plot_eda_all(dataframe, title=None):
 
 def plot_eda_generaldistrib(dataframe, title, ts):
 	
-	print(f'general distribution plot...')
+	print(f'general distribution plot for {title}...')
 	
 	ncol = dataframe.shape[1]
 	if ncol > 100:
@@ -72,7 +69,7 @@ def plot_eda_generaldistrib(dataframe, title, ts):
 	
 def plot_eda_meanvariance(dataframe, title, ts):
 	
-	print(f'mean-variance plot...')
+	print(f'mean-variance plot for {title}...')
 	
 	try:
 		fig, axes = plt.subplots(1, 2, figsize=(20, 10))
@@ -95,7 +92,7 @@ def plot_eda_meanvariance(dataframe, title, ts):
 	
 def plot_eda_missingsummary(dataframe, title, ts):
 	
-	print(f'missing data plot')
+	print(f'missing data plot for {title}...')
 	
 	try:
 		bool_df = ~dataframe.isna()
@@ -126,7 +123,7 @@ def plot_eda_missingsummary(dataframe, title, ts):
 	
 def plot_eda_correl(dataframe, title, ts):
 	
-	print(f'correlation plot')
+	print(f'correlation plot for {title}...')
 	
 	ncol = dataframe.shape[1]
 	if ncol > 5000:
@@ -163,7 +160,7 @@ def plot_eda_correl(dataframe, title, ts):
 		
 def plot_eda_missingcorrel(dataframe, title, ts):
 	
-	print(f'missing data correlation plot')
+	print(f'missing data correlation plot for {title}...')
 	
 	ncol = dataframe.shape[1]
 	if ncol > 5000:

@@ -509,8 +509,8 @@ class Config:
 		omics = dataset.omic
 		databases = dataset.database
 		targets = self.raw_dict['data']['targets']
-		for database in databases:
-			for omic in omics:
+		for database in pd.unique(databases):
+			for omic in pd.unique(omics):
 				logging.info(f"plotting info for {omic} in {database}")
 				dataframe = dataset.to_pandas(omic=omic, database=database)
 # 				if len(dataframe.columns) <= 100:

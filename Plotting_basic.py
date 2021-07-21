@@ -7,6 +7,13 @@ Created on Thu Jul 15 14:43:53 2021
 
 import logging
 import random
+import numpy as np
+import datetime
+import missingno as msno
+from matplotlib import pyplot as plt
+import seaborn as sns
+import pandas as pd
+
 logging.basicConfig(filename='run.log', level=logging.INFO, filemode='w', format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%H:%M:%S')
 from config import Config
 from DBM_toolbox.data_manipulation import dataset_class
@@ -38,6 +45,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 import pandas as pd
 
+
 ts = str(round(datetime.datetime.now().timestamp()))
 ncol = test.shape[1]
 l = np.intc(np.ceil(np.sqrt(ncol)))
@@ -54,6 +62,7 @@ plt.savefig(ts + '_distrib.pdf')
 #Organizing data
 
 eig_vect = dataframe.loc[:, dataframe.columns.str.contains('eig')]
+eig_vect = dataframe.loc[:, dataframe.columns.str.contains('bet')]
 Miss_nos = pd.DataFrame(eig_vect.isna().sum(axis = 1))
 eig_vect['Total_Nans'] = Miss_nos
 eig_vect['Total_Feat'] = eig_vect.shape[1]
@@ -68,6 +77,7 @@ index_c = pd.DataFrame(eig_vect.index, columns = ['Samples'])
 sns.barplot(y='Total_Feat', x='Samples', data = eig_vect, color='b',ax = ax)
 sns.barplot(y='Total_Nans', x='Samples', data = eig_vect, color='r', ax=ax)
   
+
 # renaming the axes
 ax.set(xlabel="Samples", ylabel="Data present/Total data")
 ax.set(xticklabels = [])
@@ -96,6 +106,7 @@ ax.set(xticklabels = [])
 plt.show()
 
 
+<<<<<<< Updated upstream
 index_to_plot = max_miss_feat.iloc[0:50,:]
 Data_to_plot = dataframe.loc[:,dataframe.columns.isin(index_to_plot.index)]
 
@@ -123,4 +134,41 @@ for count, col in enumerate(Data_to_plot.columns):
     plt.ylim(0, 800)
         #    zg.set_xlim(0,1)
     zg.set_title(col)
-plt.savefig('Dist2.pdf')
+plt.savefig('Dist2.pdf')plt.savefig('Dist2.pdf')plt.savefig('Dist2.pdf')plt.savefig('Dist2.pdf')
+pick = random.sample(range(dataframe.shape[1]), 100)
+                #    print(dataframe.iloc[:, pick])
+ 					
+
+
+for i in pick:
+    ts = str(round(datetime.datetime.now().timestamp()))
+    
+    index_to_plot = max_miss_feat.iloc[i:i+50,:]
+    Data_to_plot = dataframe.loc[:,dataframe.columns.isin(index_to_plot.index)]
+    
+    Cols = Data_to_plot.columns
+    fig, ax = plt.subplots()
+    
+    ax = sns.boxplot(data=Data_to_plot, palette="Set2")
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=90, fontsize=8)
+    plt.savefig(ts + 'box.png')
+    
+    ncol = Data_to_plot.shape[1]
+    l = np.intc(np.ceil(np.sqrt(ncol)))
+    c = np.intc(np.ceil(ncol/l))
+
+    
+    
+    f, axes = plt.subplots(l, c, figsize=(20,50), sharex = True, sharey = True)
+    axes = axes.ravel()
+            
+    for count, col in enumerate(Data_to_plot.columns):
+        dataframe2 = Data_to_plot[col].dropna()
+        var = Data_to_plot[col].max()
+        zg = sns.distplot(dataframe2, kde=True, rug=True, ax=axes[count])
+        plt.xlim(0, 0.001)
+        plt.ylim(0, 3000)
+            #    zg.set_xlim(0,1)
+        zg.set_title(col)
+    plt.savefig(ts + '2.pdf')
+>>>>>>> Stashed changes
