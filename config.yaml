@@ -2,47 +2,47 @@
 
 data:
   omics:
-    # - name: RPPA
-    #   database: CCLE
-    #   filtering:
-    #     - name: sample_completeness
-    #       threshold: 0.90
-    #       enabled: true
-    #     - name: feature_completeness
-    #       threshold: 0.90
-    #       enabled: true
-    #     - name: feature_variance
-    #       fraction_retained: 0.8
-    #       enabled: true
-    #     - name: cross-correlation
-    #       correlation_threshold: 0.9
-    #       enabled: true
-    #   feature_engineering:
-    #     feature_selection:
-    #       - name: importance
-    #         fraction_selected: 0.05
-    #         enabled: false
-    #       - name: predictivity
-    #         fraction_selected: 0.05
-    #         enabled: false
-    #     transformations:
-    #       - name: PCA
-    #         n_components: 2
-    #         enabled: true
-    #       - name: ICA
-    #         n_components: 10
-    #         enabled: false
-    #       - name: RP
-    #         n_components: 10
-    #         enabled: false
-    #       - name: TSNE
-    #         n_components: 2
-    #         enabled: true
-    #       - name: Poly
-    #         degree: 2
-    #         enabled: false
-    #       - name: OR
-    #         enabled: false
+    - name: RPPA
+      database: CCLE
+      filtering:
+        - name: sample_completeness
+          threshold: 0.90
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.90
+          enabled: true
+        - name: feature_variance
+          fraction_retained: 0.8
+          enabled: true
+        - name: cross-correlation
+          correlation_threshold: 0.9
+          enabled: true
+      feature_engineering:
+        feature_selection:
+          - name: importance
+            fraction_selected: 0.05
+            enabled: false
+          - name: predictivity
+            fraction_selected: 0.05
+            enabled: false
+        transformations:
+          - name: PCA
+            n_components: 2
+            enabled: true
+          - name: ICA
+            n_components: 10
+            enabled: false
+          - name: RP
+            n_components: 10
+            enabled: false
+          - name: TSNE
+            n_components: 2
+            enabled: true
+          - name: Poly
+            degree: 2
+            enabled: false
+          - name: OR
+            enabled: false
     # - name: RNA
     #   database: CCLE
     #   filtering:
@@ -84,170 +84,170 @@ data:
     #         enabled: false
     #       - name: OR
     #         enabled: false
-    # - name: RNA-FILTERED
-    #   database: CCLE
-    #   filtering:
-    #     - name: sample_completeness
-    #       threshold: 0.90
-    #       enabled: false
-    #     - name: feature_completeness
-    #       threshold: 0.90
-    #       enabled: false
-    #     - name: feature_variance
-    #       fraction_retained: 0.25
-    #       enabled: true
-    #     - name: cross-correlation
-    #       correlation_threshold: 0.9
-    #       enabled: false
-    #   feature_engineering:
-    #     feature_selection:
-    #       - name: importance
-    #         fraction_selected: 0.001
-    #         enabled: false
-    #       - name: predictivity
-    #         fraction_selected: 0.001
-    #         enabled: false
-    #     transformations:
-    #       - name: PCA
-    #         n_components: 5
-    #         enabled: true
-    #       - name: ICA
-    #         n_components: 10
-    #         enabled: false
-    #       - name: RP
-    #         n_components: 10
-    #         enabled: false
-    #       - name: TSNE
-    #         n_components: 2
-    #         enabled: true
-    #       - name: Poly
-    #         degree: 2
-    #         enabled: false
-    #       - name: OR
-    #         enabled: false
-    # - name: MIRNA
-    #   database: CCLE
-    #   filtering:
-    #     - name: sample_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_variance
-    #       fraction_retained: 0.5
-    #       enabled: true
-    #     - name: cross-correlation
-    #       correlation_threshold: 0.9
-    #       enabled: true
-    #   feature_engineering:
-    #     feature_selection:
-    #       - name: importance
-    #         fraction_selected: 0.05
-    #         enabled: false
-    #       - name: predictivity
-    #         fraction_selected: 0.02
-    #         enabled: false
-    #     transformations:
-    #       - name: PCA
-    #         n_components: 5
-    #         enabled: true
-    #       - name: ICA
-    #         n_components: 10
-    #         enabled: false
-    #       - name: RP
-    #         n_components: 10
-    #         enabled: false
-    #       - name: TSNE
-    #         n_components: 2
-    #         enabled: true
-    #       - name: Poly
-    #         degree: 2
-    #         enabled: false
-    #       - name: OR
-    #         enabled: false
-    # - name: META
-    #   database: CCLE
-    #   filtering:
-    #     - name: sample_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_variance
-    #       fraction_retained: 0.95
-    #       enabled: true
-    #     - name: cross-correlation
-    #       correlation_threshold: 0.9
-    #       enabled: true
-    #   feature_engineering:
-    #     feature_selection:
-    #       - name: importance
-    #         fraction_selected: 0.1
-    #         enabled: false
-    #       - name: predictivity
-    #         fraction_selected: 0.02
-    #         enabled: false
-    #     transformations:
-    #       - name: PCA
-    #         n_components: 5
-    #         enabled: true
-    #       - name: ICA
-    #         n_components: 10
-    #         enabled: false
-    #       - name: RP
-    #         n_components: 10
-    #         enabled: false
-    #       - name: TSNE
-    #         n_components: 2
-    #         enabled: true
-    #       - name: Poly
-    #         degree: 2
-    #         enabled: false
-    #       - name: OR
-    #         enabled: false
-    # - name: PATHWAYS
-    #   database: OWN
-    #   filtering:
-    #     - name: sample_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_variance
-    #       fraction_retained: 0.9
-    #       enabled: true
-    #     - name: cross-correlation
-    #       correlation_threshold: 0.9
-    #       enabled: true
-    #   feature_engineering:
-    #     feature_selection:
-    #       - name: importance
-    #         fraction_selected: 0.5
-    #         enabled: false
-    #       - name: predictivity
-    #         fraction_selected: 0.5
-    #         enabled: false
-    #     transformations:
-    #       - name: PCA
-    #         n_components: 5
-    #         enabled: false
-    #       - name: ICA
-    #         n_components: 10
-    #         enabled: false
-    #       - name: RP
-    #         n_components: 10
-    #         enabled: false
-    #       - name: TSNE
-    #         n_components: 2
-    #         enabled: false
-    #       - name: Poly
-    #         degree: 2
-    #         enabled: false
-    #       - name: OR
-    #         enabled: false
+    - name: RNA-FILTERED
+      database: CCLE
+      filtering:
+        - name: sample_completeness
+          threshold: 0.90
+          enabled: false
+        - name: feature_completeness
+          threshold: 0.90
+          enabled: false
+        - name: feature_variance
+          fraction_retained: 0.25
+          enabled: true
+        - name: cross-correlation
+          correlation_threshold: 0.9
+          enabled: false
+      feature_engineering:
+        feature_selection:
+          - name: importance
+            fraction_selected: 0.001
+            enabled: false
+          - name: predictivity
+            fraction_selected: 0.001
+            enabled: false
+        transformations:
+          - name: PCA
+            n_components: 5
+            enabled: true
+          - name: ICA
+            n_components: 10
+            enabled: false
+          - name: RP
+            n_components: 10
+            enabled: false
+          - name: TSNE
+            n_components: 2
+            enabled: true
+          - name: Poly
+            degree: 2
+            enabled: false
+          - name: OR
+            enabled: false
+    - name: MIRNA
+      database: CCLE
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_variance
+          fraction_retained: 0.5
+          enabled: true
+        - name: cross-correlation
+          correlation_threshold: 0.9
+          enabled: true
+      feature_engineering:
+        feature_selection:
+          - name: importance
+            fraction_selected: 0.05
+            enabled: false
+          - name: predictivity
+            fraction_selected: 0.02
+            enabled: false
+        transformations:
+          - name: PCA
+            n_components: 5
+            enabled: true
+          - name: ICA
+            n_components: 10
+            enabled: false
+          - name: RP
+            n_components: 10
+            enabled: false
+          - name: TSNE
+            n_components: 2
+            enabled: true
+          - name: Poly
+            degree: 2
+            enabled: false
+          - name: OR
+            enabled: false
+    - name: META
+      database: CCLE
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_variance
+          fraction_retained: 0.95
+          enabled: true
+        - name: cross-correlation
+          correlation_threshold: 0.9
+          enabled: true
+      feature_engineering:
+        feature_selection:
+          - name: importance
+            fraction_selected: 0.1
+            enabled: false
+          - name: predictivity
+            fraction_selected: 0.02
+            enabled: false
+        transformations:
+          - name: PCA
+            n_components: 5
+            enabled: true
+          - name: ICA
+            n_components: 10
+            enabled: false
+          - name: RP
+            n_components: 10
+            enabled: false
+          - name: TSNE
+            n_components: 2
+            enabled: true
+          - name: Poly
+            degree: 2
+            enabled: false
+          - name: OR
+            enabled: false
+    - name: PATHWAYS
+      database: OWN
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_variance
+          fraction_retained: 0.9
+          enabled: true
+        - name: cross-correlation
+          correlation_threshold: 0.9
+          enabled: true
+      feature_engineering:
+        feature_selection:
+          - name: importance
+            fraction_selected: 0.5
+            enabled: false
+          - name: predictivity
+            fraction_selected: 0.5
+            enabled: false
+        transformations:
+          - name: PCA
+            n_components: 5
+            enabled: false
+          - name: ICA
+            n_components: 10
+            enabled: false
+          - name: RP
+            n_components: 10
+            enabled: false
+          - name: TSNE
+            n_components: 2
+            enabled: false
+          - name: Poly
+            degree: 2
+            enabled: false
+          - name: OR
+            enabled: false
     - name: EIGENVECTOR
       database: OWN
       filtering:

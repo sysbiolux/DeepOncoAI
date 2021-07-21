@@ -508,19 +508,19 @@ class Config:
 		# TODO: get visualization options from the config file
 		omics = dataset.omic
 		databases = dataset.database
+		targets = self.raw_dict['data']['targets']
 		for database in databases:
 			for omic in omics:
 				logging.info(f"plotting info for {omic} in {database}")
 				dataframe = dataset.to_pandas(omic=omic, database=database)
-#		return dataframe		
-				if len(dataframe.columns) <= 100:
- 					eda.plot_eda_all(dataframe)
-				else:
- 					pick = random.sample(range(dataframe.shape[1]), 100)
-                #    print(dataframe.iloc[:, pick])
- 					eda.plot_eda_all(dataframe.iloc[:, pick])
+# 				if len(dataframe.columns) <= 100:
+				eda.plot_eda_all(dataframe, title=database + '_' + omic)
+# 				else:
+# 					pick = random.sample(range(dataframe.shape[1]), 100)
+# 					eda.plot_eda_all(dataframe.iloc[:, pick])
 		#		eda.plot_missing(dataframe, omic, database)
-        #return dataframe
+		for target in targets:
+			eda.plot_target(dataframe)
 
 	def evaluate_stacks(best_stacks):
 		pass
