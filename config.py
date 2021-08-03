@@ -87,15 +87,17 @@ class Config:
 		omic = self.raw_dict['data']['omics'][0]
 		print('Loading ' + omic['name'] + ' from ' + omic['database'])
 		full_dataset = load_data.read_data('data', omic=omic['name'], database=omic['database'])
+		print(f'{full_dataset.dataframe.shape[0]} samples and {full_dataset.dataframe.shape[1]} features')
 		for omic in self.raw_dict['data']['omics'][1:]:
 			print('Loading ' + omic['name'] + ' from ' + omic['database'])
 			additional_dataset = load_data.read_data('data', 
 													omic=omic['name'],
 													database=omic['database'],
 													nrows=nrows)
+			print(f'{additional_dataset.dataframe.shape[0]} samples and {additional_dataset.dataframe.shape[1]} features')
 			full_dataset = full_dataset.merge_with(additional_dataset)
 
-		print(full_dataset.dataframe)
+# 		print(full_dataset.dataframe)
 		targets = self.raw_dict['data']['targets']
 		if targets is not None:
 			for target in targets:
@@ -107,7 +109,8 @@ class Config:
 														database=target['database'],
 														keywords=[target_name,
 														target_metric])
-				print(additional_dataset.dataframe)
+				print(f'{additional_dataset.dataframe.shape[0]} samples and {additional_dataset.dataframe.shape[1]} features')
+# 				print(additional_dataset.dataframe)
 				full_dataset = full_dataset.merge_with(additional_dataset)
 		return full_dataset
 	
