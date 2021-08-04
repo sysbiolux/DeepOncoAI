@@ -1,5 +1,8 @@
 
 import logging
+# import numba #does not work?
+# @numba.jit
+
 logging.basicConfig(filename='run.log', level=logging.INFO, filemode='w', format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%H:%M:%S')
 from config import Config
 from DBM_toolbox.data_manipulation import dataset_class

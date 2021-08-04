@@ -16,14 +16,14 @@ import random
 # import missingno as msno
 
 def doublesort(dataframe, ascending=True):
-	dataframe['featurecompleteness'] = np.mean(dataframe, axis=1)
-	dataframe = dataframe.append(pd.Series(data=np.mean(dataframe, axis=0), name='samplecompleteness'))
-	semisorted_dataframe = dataframe.sort_values(by='featurecompleteness', ascending=ascending, axis=0)
-	sorted_columns = semisorted_dataframe['featurecompleteness']
-	semisorted_dataframe = semisorted_dataframe.drop('featurecompleteness', axis=1)
-	sorted_dataframe = semisorted_dataframe.sort_values(by='samplecompleteness', ascending=ascending, axis=1)
-	sorted_indices = sorted_dataframe.loc['samplecompleteness',:]
-	sorted_dataframe = sorted_dataframe.drop('samplecompleteness')
+	dataframe['samplecompleteness'] = np.mean(dataframe, axis=1)
+	dataframe = dataframe.append(pd.Series(data=np.mean(dataframe, axis=0), name='featurecompleteness'))
+	semisorted_dataframe = dataframe.sort_values(by='samplecompleteness', ascending=True, axis=0)
+	sorted_indices = semisorted_dataframe['samplecompleteness']
+	semisorted_dataframe = semisorted_dataframe.drop('samplecompleteness', axis=1)
+	sorted_dataframe = semisorted_dataframe.sort_values(by='featurecompleteness', ascending=True, axis=1)
+	sorted_columns = sorted_dataframe.loc['featurecompleteness',:]
+	sorted_dataframe = sorted_dataframe.drop('featurecompleteness')
 	
 	return sorted_dataframe, sorted_columns, sorted_indices
 	
