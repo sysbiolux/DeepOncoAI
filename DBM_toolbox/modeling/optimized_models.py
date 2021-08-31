@@ -1,12 +1,12 @@
 import logging
 
 import numpy as np
-import logging
+
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score, StratifiedKFold
-from sklearn.linear_model import LogisticRegression, RidgeClassifier, ElasticNet
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression, RidgeClassifier
+from sklearn.neighbors import KNeighborsClassifier #, NearestCentroid
 from sklearn.ensemble import AdaBoostClassifier, ExtraTreesClassifier, GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
 

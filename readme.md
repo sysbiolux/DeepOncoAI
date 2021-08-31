@@ -140,6 +140,10 @@ number of samples might be too low at this point of the project this is not impl
 the filtering concept is already in place. The features flavor of filters need an instance of 
 the `Rule` class, whereas the samples flavor does not.
 * filters are separated into fast (applied first) and slow (applied second) to decrease computation time.
+* the pipeline can be run either in 'optimization' mode, where hyperparameters of each classifier is 
+performed with Bayesian optimization, or in 'standard' mode where a predefined set of hyperparameters 
+is used for all trainings. At this point no increase in predictivity has been observed using hyperoptimized 
+models but this has not been investigated in full.
 * ...
 
 ### Visualizations:
@@ -155,6 +159,7 @@ correlation coefficients and heatmaps of cross-correlations of missing data pres
 both samples and features
 * target analysis: distributions of raw values, and visualization of the thresholds on the 
 distribution of normalized values
+
 
 ## Help
 
