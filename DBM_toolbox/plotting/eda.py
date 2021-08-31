@@ -13,6 +13,8 @@ import numpy as np
 import pandas as pd
 import datetime
 import random
+
+from DBM_toolbox.data_manipulation import preprocessing
 # import missingno as msno
 
 def doublesort(dataframe, ascending=True):
@@ -63,7 +65,7 @@ def plot_eda_generaldistrib(dataframe, title, ts):
 		distr2.set_title('log')
 		fig.suptitle(title)
 		
-		plt.savefig(ts + title + '_distrib.pdf')
+		plt.savefig(ts + '_' +  title + '_distrib.pdf')
 	except:
 		print('no stripplot')
 	
@@ -86,7 +88,7 @@ def plot_eda_meanvariance(dataframe, title, ts):
 		mv2.set_title('log')
 		fig.suptitle(title)
 		
-		plt.savefig(ts + title + '_mean-sd.pdf')
+		plt.savefig(ts + '_' +  title + '_mean-sd.pdf')
 	except:
 		print('no mean-variance plot')
 	
@@ -116,7 +118,7 @@ def plot_eda_missingsummary(dataframe, title, ts):
 		cMap = c.ListedColormap(colors)
 		miss = sns.heatmap(data=bool_df, cbar=False, cmap=cMap, ax=ax3)
 		fig.suptitle(title)
-		plt.savefig(ts + title + '_missing.pdf')
+		plt.savefig(ts + '_' +  title + '_missing.pdf')
 	except:
 		print('no missing data plot')
 	
@@ -154,7 +156,7 @@ def plot_eda_correl(dataframe, title, ts):
 		corr2 = sns.heatmap(data=sorted_samplecorrel, cbar=False, cmap='magma_r', ax=ax4)
 		corr2.set_title('sample correlation matrix')
 		fig.suptitle(title)
-		plt.savefig(ts + title + '_correl.pdf')
+		plt.savefig(ts + '_' +  title + '_correl.pdf')
 	except:
 		print('no correlation plot')
 		
@@ -192,7 +194,7 @@ def plot_eda_missingcorrel(dataframe, title, ts):
 		corr2 = sns.heatmap(data=sorted_misssamplecorrel, cbar=False, cmap='magma_r', ax=ax4)
 		corr2.set_title('missing sample correlation matrix')
 		fig.suptitle(title)
-		plt.savefig(ts + title + '_missingcorrel.pdf')
+		plt.savefig(ts + '_' + title + '_missingcorrel.pdf')
 	except:
 		print('no missing data correlation plot')
 	
@@ -272,36 +274,64 @@ def plot_eda_missingcorrel(dataframe, title, ts):
 # # 	plt.title(database + '_' + omic)
 # # 	plt.savefig(ts + '_missing-correl.pdf')
 
-def plot_target(dataframe):
-	pass
-
+def plot_target(dataframe, bounds):
+	title = dataframe.name
+	ts = str(round(datetime.datetime.now().timestamp()))
+	fig, ax = plt.subplots(2, 1, figsize=(15, 15))
+	sns.distplot(dataframe, bins=50, rug=True, ax=ax[0])
+	dataframe = preprocessing.rescale_data(dataframe)
+	points = sns.kdeplot(dataframe, shade=True, ax=ax[1]).get_lines()[0].get_data()
+	x = points[0]
+	y = points[1]
+	
+	q = np.quantile(dataframe.dropna(), bounds)
+	
+	ax[1].fill_between(x,y, where = x >= q[1], color = 'g')
+	ax[1].fill_between(x,y, where = x <= q[0], color = 'r')
+	ax[1].fill_between(x,y, where = (x <= q[1]) & (x >= q[0]), color = 'y')
+	fig.suptitle(title)
+	plt.savefig(ts + '_' + title + '_distr.pdf')
 
 def plot_results(dataframe):
+	ts = str(round(datetime.datetime.now().timestamp()))
 	targets = list(set(dataframe['target']))
+	palette='colorblind'
+	linewidth=1.5
+	capsize=0.1
+	edgecolor=".2"
 	for this_target in targets:
-		plt.figure()
-		ax = sns.barplot(x='algo', y='perf', hue='omic', data=dataframe).set_title(this_target)
+		plt.figure(figsize=(15,15))
+		ax = sns.barplot(x='algo', y='perf', hue='omic', palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, data=dataframe).set_title(this_target)
 		plt.xticks(rotation=90)
+		plt.savefig(ts + '_' + this_target + '_.pdf')
 	omics = list(set(dataframe['omic']))
 	for this_omic in omics:
-		plt.figure()
-		ax = sns.barplot(x='target', y='perf', hue='algo', data=dataframe).set_title(this_omic)
+		plt.figure(figsize=(15,15))
+		ax = sns.barplot(x='target', y='perf', hue='algo', palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, data=dataframe).set_title(this_omic)
 		plt.xticks(rotation=90)
+		plt.savefig(ts + '_' + this_omic + '_.pdf')
 	algos = list(set(dataframe['algo']))
 	for this_algo in algos:
-		plt.figure()
-		ax = sns.barplot(x='target', y='perf', hue='omic', data=dataframe).set_title(this_algo)
+		plt.figure(figsize=(15,15))
+		ax = sns.barplot(x='target', y='perf', hue='omic', palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, data=dataframe).set_title(this_algo)
 		plt.xticks(rotation=90)
-
+		plt.savefig(ts + '_' + this_algo + '_.pdf')
 	for this_target in targets:
-		plt.figure()
-		ax = sns.barplot(x='algo', y='perf', data=dataframe).set_title(this_target)
+		plt.figure(figsize=(15,15))
+		ax = sns.barplot(x='algo', y='perf', palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, data=dataframe).set_title(this_target)
+		plt.xticks(rotation=90)
+		plt.savefig(ts + '_' + this_target + '_2.pdf')
 	for this_omic in omics:
-		plt.figure()
-		ax = sns.barplot(x='target', y='perf', data=dataframe).set_title(this_omic)
+		plt.figure(figsize=(15,15))
+		ax = sns.barplot(x='target', y='perf', palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, data=dataframe).set_title(this_omic)
+		plt.xticks(rotation=90)
+		plt.savefig(ts + '_' + this_omic + '_.pdf')
 	for this_algo in algos:
-		plt.figure()
-		ax = sns.barplot(x='omic', y='perf', data=dataframe).set_title(this_algo)
+		plt.figure(figsize=(15,15))
+		ax = sns.barplot(x='omic', y='perf',  palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, data=dataframe).set_title(this_algo)
+		plt.xticks(rotation=90)
+		plt.savefig(ts + '_' + this_algo + '_.pdf')
+
 
 
 

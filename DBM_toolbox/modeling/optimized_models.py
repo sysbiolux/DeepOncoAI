@@ -253,13 +253,14 @@ def get_standard_models(data, targets, algos:list=None, metric:str=None):
 		logging.info(f"Training model {model['name']} for {targets.name}")
 # 		try:
 		performance, this_model = get_estimator(model['estimator_method'], data, targets, metric)
+		num = data.shape[0]
 		print(performance)
 # 		except:
 # 			logging.info(f"Could not optimize {model['name']}")
 # 			maximum_value = np.nan
 # 			optimal_model = np.nan
 			
-		optimal_models[model['name']] = {'estimator': this_model, 'result': performance}
+		optimal_models[model['name']] = {'estimator': this_model, 'result': performance, 'N': num}
 	return optimal_models
 	
 	

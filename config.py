@@ -383,6 +383,7 @@ class Config:
 				print(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
 				print(f"y: {targets.size} samples")
 				
+				
 				this_result = optimized_models.get_standard_models(data=this_dataframe, 
 																	targets=targets, 
 																	algos=algos, 
@@ -425,7 +426,7 @@ class Config:
 		#for each target
 		models = dict()
 		targets = optimal_algos.keys()
-		results_df = pd.DataFrame(columns=['target', 'omic', 'algo', 'perf', 'estim'])
+		results_df = pd.DataFrame(columns=['target', 'omic', 'algo', 'perf', 'estim', 'N'])
 		for target in targets:
 			print(target)
 			models[target] = dict()
@@ -441,11 +442,12 @@ class Config:
 				for algo in algos:
 					i = optimal_algos[target][omic][algo]
 					estimator = i['estimator']
+					num = i['N']
 					try:
 						result = i['result']
 					except:
 						result = np.nan
-					results_df = results_df.append(pd.Series([target, omic, algo, result, estimator],
+					results_df = results_df.append(pd.Series([target, omic, algo, result, estimator, num],
 													index=results_df.columns),
 													ignore_index=True)
 				# select the best one
@@ -512,18 +514,17 @@ class Config:
 		omics = dataset.omic
 		databases = dataset.database
 		targets = self.raw_dict['data']['targets']
-		for database in pd.unique(databases):
-			for omic in pd.unique(omics):
-				logging.info(f"plotting info for {omic} in {database}")
-				dataframe = dataset.to_pandas(omic=omic, database=database)
-# 				if len(dataframe.columns) <= 100:
-				eda.plot_eda_all(dataframe, title=database + '_' + omic)
-# 				else:
-# 					pick = random.sample(range(dataframe.shape[1]), 100)
-# 					eda.plot_eda_all(dataframe.iloc[:, pick])
-		#		eda.plot_missing(dataframe, omic, database)
+# 		for database in pd.unique(databases):
+# 			for omic in pd.unique(omics):
+# 				dataframe = dataset.to_pandas(omic=omic, database=database)
+# 				if dataframe.shape[1] > 0:
+# 					logging.info(f"plotting info for {omic} in {database}")
+# 					eda.plot_eda_all(dataframe, title=database + '_' + omic)
 		for target in targets:
-			eda.plot_target(dataframe)
+			this_target = target['target_drug_name'] + '_' + target['responses']
+			print(target)
+			bounds = target['target_engineering'][0]['upper_bound_resistant'], target['target_engineering'][0]['lower_bound_sensitive']
+			eda.plot_target(dataset.dataframe[this_target], bounds=bounds)
 
 	def evaluate_stacks(best_stacks):
 		pass
