@@ -24,7 +24,7 @@ data analysis and a dedication to professional software engineering.
 ### Dependencies
 
 * Python3
-* To install all necessary modules use `pip3 install -r requirements.txt`
+* To install all necessary modules use `pip3 install -r requirements.txt` in a fresh virtual environment
 * Some data must be downloaded externally to the */data* folder:
 	CCLE_RNAseq_genes_rpkm_20180929
 
@@ -75,13 +75,14 @@ The following filters are available:
 for large datasets instead of exact solution)
 
 Furthermore, all filters are fitted on the original data and then applied 
-in no particular order, In other words, the only features that are retained 
-are the ones that pass all the filters.
+in no particular order. In other words, the only features that are retained 
+are the ones that pass all the filters in each of the two filtering steps.
 
 The following selections are available:
 * importance: selects the top features according to XGBoost
 * predictivity: selects the top features by cross-elimination (not recommended 
 for large datasets)
+
 These methods will select the features with the most signal for the next step.
 
 The following transformations are available:
@@ -123,11 +124,37 @@ configuration of the ensembling step.
 
 * modify the file *config.yaml*
 * run `python3 master_script.py`
-* the results of the stacking is written as a *pickle* object
+* the results of the stacking is written as a *pickle* object. Here is some info 
+about [pickle](https://docs.python.org/3/library/pickle.html)
 * the analysis is recored in *run.log*
 
-### Functions
+### Structure
+* the highest-level functions are located in `config.py`
+* data is organized with samples as lines and features as columns
+* the `Dataset` class is used throughout the project. It contains a Pandas Dataframe, and two 
+Pandas Series corresponding to the 'omic' and 'database' of each feature (columns)
+* there are two `Filter` classes: one for samples, and one for features. That is because the 
+samples flavor is applied once, whereas internal validation would require that preprocessing 
+is applied to both training and test subsets but trained only on the training set. As the 
+number of samples might be too low at this point of the project this is not implemented yet but 
+the filtering concept is already in place. The features flavor of filters need an instance of 
+the `Rule` class, whereas the samples flavor does not.
+* filters are separated into fast (applied first) and slow (applied second) to decrease computation time.
+* ...
 
+### Visualizations:
+Both data and results are visualized. Here is the list of all available plots for each 'omic':
+* general distribution of the features before and after log transformation. If more than 100 features are present
+a sample of 100 is created at random
+* mean vs variance scatterplot, before and after log transformation
+* analysis of missing data: fraction of data present per sample, per feature, and 
+binary map of missing data
+* analysis of missing data correlation:  per sample, per feature: histograms of 
+correlation coefficients and heatmaps of cross-correlations of missing data presence
+* correlation analysis: histograms of correlation coefficients and heatmap of data cross-correlations, for 
+both samples and features
+* target analysis: distributions of raw values, and visualization of the thresholds on the 
+distribution of normalized values
 
 ## Help
 
@@ -135,19 +162,19 @@ Contact the authors for any help in using the tools.
 
 ## Contributing
 
-Contributions are welcome from mebers of the group. Look for the TODO keyword. Here is 
+Contributions are welcome from members of the group. Look for the TODO keyword. Here is 
 a brief list of things yet to implement:
 
 * upsampling with SMOTE and VAEs
 * thresholding of responses in combination with the quantization
 * loading of the 'BinarizedIC50' values (alternative targets)
 * more models to hyper-optimize (elastic net, NN architectures)
-* stacking with more algorithms
+* stacking with more algorithms for scikit-learn or others
 * stack of stacks
-* load mutational, metabolomic data
+* load mutational data
 * compile gene-level versus transcript level expression
 * more filters (outliers, ...)
-* grid-search to compare with bayesian search
+* grid-search or other to compare with bayesian search
 * add dunder methods for classes
 * 
 

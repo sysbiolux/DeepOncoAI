@@ -514,12 +514,12 @@ class Config:
 		omics = dataset.omic
 		databases = dataset.database
 		targets = self.raw_dict['data']['targets']
-# 		for database in pd.unique(databases):
-# 			for omic in pd.unique(omics):
-# 				dataframe = dataset.to_pandas(omic=omic, database=database)
-# 				if dataframe.shape[1] > 0:
-# 					logging.info(f"plotting info for {omic} in {database}")
-# 					eda.plot_eda_all(dataframe, title=database + '_' + omic)
+		for database in pd.unique(databases):
+			for omic in pd.unique(omics):
+				dataframe = dataset.to_pandas(omic=omic, database=database)
+				if dataframe.shape[1] > 0:
+					logging.info(f"plotting info for {omic} in {database}")
+					eda.plot_eda_all(dataframe, title=database + '_' + omic)
 		for target in targets:
 			this_target = target['target_drug_name'] + '_' + target['responses']
 			print(target)
