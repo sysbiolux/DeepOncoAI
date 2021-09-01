@@ -8,6 +8,7 @@ Created on Sat Nov 21 10:52:06 2020
 from matplotlib import pyplot as plt
 import matplotlib.colors as c
 from matplotlib.gridspec import GridSpec
+from sklearn.decomposition import PCA
 import seaborn as sns
 import numpy as np
 import pandas as pd
@@ -35,6 +36,8 @@ def plot_eda_all(dataframe, title=None):
 	
 	ts = str(round(datetime.datetime.now().timestamp()))
 	
+	plot_eda_PCA(dataframe = dataframe, title=title, ts=ts)
+	
 	plot_eda_generaldistrib(dataframe = dataframe, title=title, ts=ts)
 	
 	plot_eda_meanvariance(dataframe = dataframe, title=title, ts=ts)
@@ -49,6 +52,20 @@ def plot_eda_all(dataframe, title=None):
 	
 def plot_overlaps(dataframe):
 	pass ##TODO: overlaps of datasets
+	
+
+def plot_eda_PCA(dataframe, title, ts):
+	pca = PCA(n_components=2)
+	principal_components = pca.fit_transform(dataframe.dropna() ))
+	principal_df = pd.DataFrame(data = principal_components, columns = ['PC1', 'PC2'])
+	
+# 	final_df = pd.concat([principal_df, df[['target']]], axis = 1)
+	fig, ax = plt.subplots(figsize = (15,15))
+	ax = sns.scatterplot(x='PC1', y='PC2', data=principal_df)
+	ax.set_xlabel('Principal Component 1', fontsize = 15)
+	ax.set_ylabel('Principal Component 2', fontsize = 15)
+	ax.set_title('2 component PCA', fontsize = 20)
+
 
 
 def plot_eda_generaldistrib(dataframe, title, ts):

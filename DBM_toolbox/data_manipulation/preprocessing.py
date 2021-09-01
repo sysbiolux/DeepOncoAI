@@ -170,7 +170,7 @@ def preprocess_features_eigenvector(dataset, flag: str=None):
 #    df.index = [idx[6:-11] for idx in df.index]
     df.index = [idx.rsplit('_',1)[0].split('_',1)[1] for idx in df.index]
     df = df.add_suffix('_topo_eig')
-    #df = impute_missing_data(df, method='zeros')
+    df = impute_missing_data(df, method='zeros')
     # additional steps if necessary
     return dataset_class.Dataset(df, omic='EIGENVECTOR', database='OWN')
 
@@ -224,9 +224,11 @@ def rescale_data(dataframe):
     this is the same as maxScaler? should we leave it?'''
     return (dataframe - dataframe.min()) / (dataframe.max() - dataframe.min())
 
-def impute_missing_data(dataframe, method: str='average'):
+def impute_missing_data(dataframe, method: str='average'): ##add threshold
     '''imputes computed values for missing data according to the specified method'''
     ##TODO: implement other methods of imputation
+	
+	## reduce dataframe according to threshold (remove the samples with too much missing)
     if method == 'average':
         dataframe = dataframe.fillna(dataframe.mean())
     elif method == 'null':
@@ -241,6 +243,8 @@ def impute_missing_data(dataframe, method: str='average'):
         dataframe = imputer.transform(dataframe)
     elif method == 'zeros':
         dataframe = dataframe.fillna(value=0)
+	
+	## log how much was imputed and where
     return dataframe
 
 def remove_constant_data(dataframe):
