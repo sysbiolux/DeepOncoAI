@@ -44,6 +44,11 @@ def plot_eda_all(dataframe, title=None):
 	plot_eda_correl(dataframe = dataframe, title=title, ts=ts)
 	
 	plot_eda_missingcorrel(dataframe = dataframe, title=title, ts=ts)
+	
+	
+	
+def plot_overlaps(dataframe):
+	pass ##TODO: overlaps of datasets
 
 
 def plot_eda_generaldistrib(dataframe, title, ts):
@@ -65,7 +70,7 @@ def plot_eda_generaldistrib(dataframe, title, ts):
 		distr2.set_title('log')
 		fig.suptitle(title)
 		
-		plt.savefig(ts + '_' +  title + '_distrib.pdf')
+		plt.savefig(ts + '_' +  title + '_distrib.svg')
 	except:
 		print('no stripplot')
 	
@@ -88,7 +93,7 @@ def plot_eda_meanvariance(dataframe, title, ts):
 		mv2.set_title('log')
 		fig.suptitle(title)
 		
-		plt.savefig(ts + '_' +  title + '_mean-sd.pdf')
+		plt.savefig(ts + '_' +  title + '_mean-sd.svg')
 	except:
 		print('no mean-variance plot')
 	
@@ -106,7 +111,7 @@ def plot_eda_missingsummary(dataframe, title, ts):
 		gs = GridSpec(5, 5)
 		ax1 = fig.add_subplot(gs[0, :])
 		ax2 = fig.add_subplot(gs[1, :])
-		ax3 = fig.add_subplot(gs[2:,1:])
+# 		ax3 = fig.add_subplot(gs[2:,1:])
 		
 		line1 = sns.lineplot(data=sorted_featcompl.to_numpy()[::-1], ax=ax1)
 		line1.set_ylabel('feature completeness')
@@ -114,11 +119,11 @@ def plot_eda_missingsummary(dataframe, title, ts):
 		line2 = sns.lineplot(data=sorted_samplecompl.to_numpy()[::-1], ax=ax2)
 		line2.set_ylabel('sample completeness')
 		
-		colors = {'black':1, 'white':0}
-		cMap = c.ListedColormap(colors)
-		miss = sns.heatmap(data=bool_df, cbar=False, cmap=cMap, ax=ax3)
-		fig.suptitle(title)
-		plt.savefig(ts + '_' +  title + '_missing.pdf')
+# 		colors = {'black':1, 'white':0}
+# 		cMap = c.ListedColormap(colors)
+# 		miss = sns.heatmap(data=bool_df, cbar=False, cmap=cMap, ax=ax3)
+# 		fig.suptitle(title)
+# 		plt.savefig(ts + '_' +  title + '_missing.svg')
 	except:
 		print('no missing data plot')
 	
@@ -143,20 +148,20 @@ def plot_eda_correl(dataframe, title, ts):
 		gs=GridSpec(3, 2)
 		ax1 = fig.add_subplot(gs[0, 0])
 		ax2 = fig.add_subplot(gs[0, 1])
-		ax3 = fig.add_subplot(gs[1:, 0])
-		ax4 = fig.add_subplot(gs[1:, 1])
+# 		ax3 = fig.add_subplot(gs[1:, 0])
+# 		ax4 = fig.add_subplot(gs[1:, 1])
 		
 		line1 = sns.distplot(sorted_featcorrel.to_numpy().flatten(), norm_hist=True, ax=ax1)
 		line1.set_title('feature correlations')
 		line2 = sns.distplot(sorted_samplecorrel.to_numpy().flatten(), norm_hist=True, ax=ax2)
 		line2.set_title('sample correlations')
 		
-		corr1 = sns.heatmap(data=sorted_featcorrel, cbar=False, cmap='magma_r', ax=ax3)
-		corr1.set_title('feature correlation matrix')
-		corr2 = sns.heatmap(data=sorted_samplecorrel, cbar=False, cmap='magma_r', ax=ax4)
-		corr2.set_title('sample correlation matrix')
-		fig.suptitle(title)
-		plt.savefig(ts + '_' +  title + '_correl.pdf')
+# 		corr1 = sns.heatmap(data=sorted_featcorrel, cbar=False, cmap='magma_r', ax=ax3)
+# 		corr1.set_title('feature correlation matrix')
+# 		corr2 = sns.heatmap(data=sorted_samplecorrel, cbar=False, cmap='magma_r', ax=ax4)
+# 		corr2.set_title('sample correlation matrix')
+# 		fig.suptitle(title)
+# 		plt.savefig(ts + '_' +  title + '_correl.svg')
 	except:
 		print('no correlation plot')
 		
@@ -181,20 +186,20 @@ def plot_eda_missingcorrel(dataframe, title, ts):
 		gs=GridSpec(3, 2)
 		ax1 = fig.add_subplot(gs[0, 0])
 		ax2 = fig.add_subplot(gs[0, 1])
-		ax3 = fig.add_subplot(gs[1:, 0])
-		ax4 = fig.add_subplot(gs[1:, 1])
+# 		ax3 = fig.add_subplot(gs[1:, 0])
+# 		ax4 = fig.add_subplot(gs[1:, 1])
 		
 		line1 = sns.distplot(sorted_missfeatcorrel.to_numpy().flatten(), norm_hist=True, ax=ax1)
 		line1.set_title('missing feature correlations')
 		line2 = sns.distplot(sorted_misssamplecorrel.to_numpy().flatten(), norm_hist=True, ax=ax2)
 		line2.set_title('missing sample correlations')
 		
-		corr1 = sns.heatmap(data=sorted_missfeatcorrel, cbar=False, cmap='magma_r', ax=ax3)
-		corr1.set_title('missing feature correlation matrix')
-		corr2 = sns.heatmap(data=sorted_misssamplecorrel, cbar=False, cmap='magma_r', ax=ax4)
-		corr2.set_title('missing sample correlation matrix')
-		fig.suptitle(title)
-		plt.savefig(ts + '_' + title + '_missingcorrel.pdf')
+# 		corr1 = sns.heatmap(data=sorted_missfeatcorrel, cbar=False, cmap='magma_r', ax=ax3)
+# 		corr1.set_title('missing feature correlation matrix')
+# 		corr2 = sns.heatmap(data=sorted_misssamplecorrel, cbar=False, cmap='magma_r', ax=ax4)
+# 		corr2.set_title('missing sample correlation matrix')
+# 		fig.suptitle(title)
+# 		plt.savefig(ts + '_' + title + '_missingcorrel.svg')
 	except:
 		print('no missing data correlation plot')
 	
@@ -295,42 +300,58 @@ def plot_target(dataframe, bounds):
 def plot_results(dataframe):
 	ts = str(round(datetime.datetime.now().timestamp()))
 	targets = list(set(dataframe['target']))
+	omics = list(set(dataframe['omic']))
+	algos = list(set(dataframe['algo']))
 	palette='colorblind'
 	linewidth=1.5
 	capsize=0.1
 	edgecolor=".2"
 	for this_target in targets:
 		plt.figure(figsize=(15,15))
-		ax = sns.barplot(x='algo', y='perf', hue='omic', palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, data=dataframe).set_title(this_target)
+		ax = sns.barplot(x='algo', y='perf', hue='omic', 
+				   palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
+				   data=dataframe).set_title(this_target)
 		plt.xticks(rotation=90)
 		plt.savefig(ts + '_' + this_target + '_.pdf')
-	omics = list(set(dataframe['omic']))
 	for this_omic in omics:
 		plt.figure(figsize=(15,15))
-		ax = sns.barplot(x='target', y='perf', hue='algo', palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, data=dataframe).set_title(this_omic)
+		ax = sns.barplot(x='target', y='perf', hue='algo', 
+				   palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
+				   data=dataframe).set_title(this_omic)
 		plt.xticks(rotation=90)
 		plt.savefig(ts + '_' + this_omic + '_.pdf')
-	algos = list(set(dataframe['algo']))
 	for this_algo in algos:
 		plt.figure(figsize=(15,15))
-		ax = sns.barplot(x='target', y='perf', hue='omic', palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, data=dataframe).set_title(this_algo)
+		ax = sns.barplot(x='target', y='perf', hue='omic', 
+				   palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
+				   data=dataframe).set_title(this_algo)
 		plt.xticks(rotation=90)
 		plt.savefig(ts + '_' + this_algo + '_.pdf')
 	for this_target in targets:
 		plt.figure(figsize=(15,15))
-		ax = sns.barplot(x='algo', y='perf', palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, data=dataframe).set_title(this_target)
+		ax = sns.barplot(x='algo', y='perf', 
+				   palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
+				   data=dataframe).set_title(this_target)
 		plt.xticks(rotation=90)
 		plt.savefig(ts + '_' + this_target + '_2.pdf')
 	for this_omic in omics:
 		plt.figure(figsize=(15,15))
-		ax = sns.barplot(x='target', y='perf', palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, data=dataframe).set_title(this_omic)
+		ax = sns.barplot(x='target', y='perf', 
+				   palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
+				   data=dataframe).set_title(this_omic)
 		plt.xticks(rotation=90)
 		plt.savefig(ts + '_' + this_omic + '_.pdf')
 	for this_algo in algos:
 		plt.figure(figsize=(15,15))
-		ax = sns.barplot(x='omic', y='perf',  palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, data=dataframe).set_title(this_algo)
+		ax = sns.barplot(x='omic', y='perf',  
+				   palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
+				   data=dataframe).set_title(this_algo)
 		plt.xticks(rotation=90)
 		plt.savefig(ts + '_' + this_algo + '_.pdf')
+	
+	plt.figure(figsize=(15,15))
+	ax = sns.scatterplot(x='perf', y='N', hue='target', style='algo', data=dataframe)
+	plt.savefig(ts + '_' + '_overall_.pdf')
 
 
 

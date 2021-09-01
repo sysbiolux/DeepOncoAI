@@ -11,8 +11,8 @@ config = Config()
 logging.info("Reading data")
 data = config.read_data()
 
-logging.info("Creating visualizations")
-config.visualize_dataset(data)
+# logging.info("Creating visualizations")
+# config.visualize_dataset(data)
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
@@ -34,13 +34,13 @@ if selected_subset is not None:
  	logging.info("Merging engineered features")
  	engineered_data = filtered_data.merge_with(engineered_features).normalize()
 else:
- 	engineered_data = filtered_data
+ 	engineered_data = filtered_data.normalize()
 
 logging.info("Quantizing targets")
 engineered_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()
 
-# logging.info("Visualizing distributions")
-# config.visualize_dataset(engineered_data)
+logging.info("Visualizing distributions")
+config.visualize_dataset(engineered_data)
 
 
 logging.info("Getting optimized models")

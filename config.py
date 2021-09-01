@@ -514,6 +514,8 @@ class Config:
 		omics = dataset.omic
 		databases = dataset.database
 		targets = self.raw_dict['data']['targets']
+		eda.plot_overlaps(dataset.dataframe)
+		
 		for database in pd.unique(databases):
 			for omic in pd.unique(omics):
 				dataframe = dataset.to_pandas(omic=omic, database=database)
