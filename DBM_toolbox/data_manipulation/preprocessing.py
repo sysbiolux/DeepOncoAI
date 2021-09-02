@@ -160,9 +160,8 @@ def preprocess_features_pathway(dataset, flag: str=None):
     df = dataset.dataframe
     if flag == None:
         df = df.set_index(['Cell_line'])
-    
     return dataset_class.Dataset(df, omic='PATHWAYS', database='OWN')
-    
+
 
 def preprocess_features_eigenvector(dataset, flag: str=None):
     df = dataset.dataframe
@@ -171,6 +170,8 @@ def preprocess_features_eigenvector(dataset, flag: str=None):
     df.index = [idx.rsplit('_',1)[0].split('_',1)[1] for idx in df.index]
     df = df.add_suffix('_topo_eig')
     df = impute_missing_data(df, method='zeros')
+    df = impute_missing_data(df, method='zeros', threshold = 0.9)
+    
     # additional steps if necessary
     return dataset_class.Dataset(df, omic='EIGENVECTOR', database='OWN')
 
@@ -178,10 +179,10 @@ def preprocess_features_betweenness(dataset, flag: str=None):
      # @Apurva
      df = dataset.dataframe
      df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
-#     df.index = [idx[12:-11] for idx in df.index]
+     df.index = [idx[12:-11] for idx in df.index]
      df.index = [idx.rsplit('_',1)[0].split('_',1)[1] for idx in df.index]
      df = df.add_suffix('_topo_bet')
-#     df = impute_missing_data(df, method='zeros')
+     df = impute_missing_data(df, method='zeros', threshold=0.9)
      # additional steps if necessary
      return dataset_class.Dataset(df, omic='BETWEENNESS', database='OWN')
 
@@ -190,7 +191,7 @@ def preprocess_features_closeness(dataset, flag: str=None):
      df = dataset.dataframe
      df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
 #     df.index = [idx[10:-11] for idx in df.index]
-     df.index = [idx.rsplit('_',1)[0].split('_',1)[1] for idx in df.index]     
+     df.index = [idx.rsplit('_',1)[0].split('_',1)[1] for idx in df.index]
      df = df.add_suffix('_topo_clo')
 #     df = impute_missing_data(df, method='zeros')
      # additional steps if necessary
@@ -201,7 +202,7 @@ def preprocess_features_pagerank(dataset, flag: str=None):
      df = dataset.dataframe
      df = df.drop('Unnamed: 0', axis=1).set_index(['Gene']).transpose()
 #     df.index = [idx[10:-11] for idx in df.index]
-     df.index = [idx.rsplit('_',1)[0].split('_',1)[1] for idx in df.index]     
+     df.index = [idx.rsplit('_',1)[0].split('_',1)[1] for idx in df.index]
      df = df.add_suffix('_topo_pgrk')
 #     df = impute_missing_data(df, method='zeros')
      # additional steps if necessary
@@ -224,11 +225,21 @@ def rescale_data(dataframe):
     this is the same as maxScaler? should we leave it?'''
     return (dataframe - dataframe.min()) / (dataframe.max() - dataframe.min())
 
-def impute_missing_data(dataframe, method: str='average'): ##add threshold
+def impute_missing_data(dataframe, method: str='average', threshold: float=None): ##add threshold
     '''imputes computed values for missing data according to the specified method'''
     ##TODO: implement other methods of imputation
-	
-	## reduce dataframe according to threshold (remove the samples with too much missing)
+
+    if threshold is not None:
+        df_copy = dataframe.copy()
+        df_sum_missing = df_copy.isna().sum(axis=1)
+       # print(df_sum)
+        df_shape = df_copy.shape[1]
+        frac_data = 1 - (df_sum_missing/df_shape)
+        print(frac_data)
+        df_copy['frac'] = frac_data
+        dataframe = df_copy[df_copy['frac'] > threshold].drop(columns = ['frac'])
+        df_unselected = df_copy[df_copy['frac'] <= threshold].drop(columns = ['frac'])
+
     if method == 'average':
         dataframe = dataframe.fillna(dataframe.mean())
     elif method == 'null':
@@ -243,8 +254,9 @@ def impute_missing_data(dataframe, method: str='average'): ##add threshold
         dataframe = imputer.transform(dataframe)
     elif method == 'zeros':
         dataframe = dataframe.fillna(value=0)
-	
-	## log how much was imputed and where
+    dataframe = pd.concat([dataframe, df_unselected])
+    
+    ## TODO: log how much was imputed and where
     return dataframe
 
 def remove_constant_data(dataframe):
