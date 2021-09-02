@@ -207,47 +207,47 @@ data:
     #         enabled: false
     #       - name: OR
     #         enabled: false
-    - name: PATHWAYS
-      database: OWN
-      filtering:
-        - name: sample_completeness
-          threshold: 0.95
-          enabled: true
-        - name: feature_completeness
-          threshold: 0.95
-          enabled: true
-        - name: feature_variance
-          fraction_retained: 0.9
-          enabled: true
-        - name: cross-correlation
-          correlation_threshold: 0.9
-          enabled: true
-      feature_engineering:
-        feature_selection:
-          - name: importance
-            fraction_selected: 0.5
-            enabled: false
-          - name: predictivity
-            fraction_selected: 0.5
-            enabled: false
-        transformations:
-          - name: PCA
-            n_components: 5
-            enabled: false
-          - name: ICA
-            n_components: 10
-            enabled: false
-          - name: RP
-            n_components: 10
-            enabled: false
-          - name: TSNE
-            n_components: 2
-            enabled: false
-          - name: Poly
-            degree: 2
-            enabled: false
-          - name: OR
-            enabled: false
+    # - name: PATHWAYS
+    #   database: OWN
+    #   filtering:
+    #     - name: sample_completeness
+    #       threshold: 0.95
+    #       enabled: true
+    #     - name: feature_completeness
+    #       threshold: 0.95
+    #       enabled: true
+    #     - name: feature_variance
+    #       fraction_retained: 0.9
+    #       enabled: true
+    #     - name: cross-correlation
+    #       correlation_threshold: 0.9
+    #       enabled: true
+    #   feature_engineering:
+    #     feature_selection:
+    #       - name: importance
+    #         fraction_selected: 0.5
+    #         enabled: false
+    #       - name: predictivity
+    #         fraction_selected: 0.5
+    #         enabled: false
+    #     transformations:
+    #       - name: PCA
+    #         n_components: 5
+    #         enabled: false
+    #       - name: ICA
+    #         n_components: 10
+    #         enabled: false
+    #       - name: RP
+    #         n_components: 10
+    #         enabled: false
+    #       - name: TSNE
+    #         n_components: 2
+    #         enabled: false
+    #       - name: Poly
+    #         degree: 2
+    #         enabled: false
+    #       - name: OR
+    #         enabled: false
     - name: EIGENVECTOR
       database: OWN
       filtering:
@@ -256,7 +256,7 @@ data:
           enabled: false
         - name: feature_completeness
           threshold: 0.99
-          enabled: true
+          enabled: false
         - name: feature_variance
           fraction_retained: 0.5
           enabled: true
@@ -492,29 +492,29 @@ data:
     #       - name: OR
     #         enabled: false
   targets:
-    # - name: DRUGS_1
-    #   database: CCLE
-    #   responses: ActArea
-    #   target_drug_name: AEW541
-    #   filtering:
-    #     - name: sample_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #   normalization:
-    #     - name: unit
-    #       enabled: true
-    #   target_engineering:
-    #     - name: quantization
-    #       upper_bound_resistant: 0.33
-    #       lower_bound_sensitive: 0.67
-    #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
-    #       enabled: false
+    - name: DRUGS_1
+      database: CCLE
+      responses: ActArea
+      target_drug_name: AEW541
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+      normalization:
+        - name: unit
+          enabled: true
+      target_engineering:
+        - name: quantization
+          upper_bound_resistant: 0.33
+          lower_bound_sensitive: 0.67
+          enabled: true
+        - name: thresholding # TODO: implement this
+          upper_bound_resistant: 0.25
+          lower_bound_sensitive: 0.75
+          enabled: false
     - name: DRUGS_2
       database: CCLE
       responses: ActArea
@@ -538,29 +538,29 @@ data:
           upper_bound_resistant: 0.25
           lower_bound_sensitive: 0.75
           enabled: false
-    # - name: DRUGS_3
-    #   database: CCLE
-    #   responses: ActArea
-    #   target_drug_name: 17-AAG
-    #   filtering:
-    #     - name: sample_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #   normalization:
-    #     - name: unit
-    #       enabled: true
-    #   target_engineering:
-    #     - name: quantization
-    #       upper_bound_resistant: 0.33
-    #       lower_bound_sensitive: 0.67
-    #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
-    #       enabled: false
+    - name: DRUGS_3
+      database: CCLE
+      responses: ActArea
+      target_drug_name: 17-AAG
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+      normalization:
+        - name: unit
+          enabled: true
+      target_engineering:
+        - name: quantization
+          upper_bound_resistant: 0.33
+          lower_bound_sensitive: 0.67
+          enabled: true
+        - name: thresholding # TODO: implement this
+          upper_bound_resistant: 0.25
+          lower_bound_sensitive: 0.75
+          enabled: false
     # - name: DRUGS_4
     #   database: CCLE
     #   responses: ActArea

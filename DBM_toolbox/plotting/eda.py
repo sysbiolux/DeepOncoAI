@@ -36,7 +36,7 @@ def plot_eda_all(dataframe, title=None):
 	
 	ts = str(round(datetime.datetime.now().timestamp()))
 	
-	plot_eda_PCA(dataframe = dataframe, title=title, ts=ts)
+# 	plot_eda_PCA(dataframe = dataframe, title=title, ts=ts)
 	
 	plot_eda_generaldistrib(dataframe = dataframe, title=title, ts=ts)
 	

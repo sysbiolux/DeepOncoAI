@@ -23,18 +23,18 @@ filtered_data, filters = config.filter_data(data)
 
 print(filtered_data.dataframe.shape)
 for omic in list(set(filtered_data.omic)):
- 	print(f"{omic}: {filtered_data.omic[filtered_data.omic == omic].shape[0]}")
+    print(f"{omic}: {filtered_data.omic[filtered_data.omic == omic].shape[0]}")
 
 logging.info("Selecting subsets for feature engineering")
 selected_subset = config.select_subsets(filtered_data)
 
 logging.info("Engineering features")
 if selected_subset is not None:
- 	engineered_features = config.engineer_features(selected_subset)
- 	logging.info("Merging engineered features")
- 	engineered_data = filtered_data.merge_with(engineered_features).normalize()
+    engineered_features = config.engineer_features(selected_subset)
+    logging.info("Merging engineered features")
+    engineered_data = filtered_data.merge_with(engineered_features).normalize()
 else:
- 	engineered_data = filtered_data.normalize()
+    engineered_data = filtered_data.normalize()
 
 logging.info("Quantizing targets")
 engineered_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()
