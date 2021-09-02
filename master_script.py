@@ -1,25 +1,27 @@
+####################
+### HOUSEKEEPING ###
+####################
 
 import logging
 # import numba #does not work?
 # @numba.jit
-
 logging.basicConfig(filename='run.log', level=logging.INFO, filemode='w', format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%H:%M:%S')
 from config import Config
 from DBM_toolbox.data_manipulation import dataset_class
 config = Config()
 
+###################################
+### READING AND PROCESSING DATA ###
+###################################
+
 logging.info("Reading data")
 data = config.read_data()
 
-# logging.info("Creating visualizations")
-# config.visualize_dataset(data)
+logging.info("Creating visualizations")
+config.visualize_dataset(data, mode='pre')
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
-
-# df = filtered_data.to_pandas(omic='RNA')
-# df.to_csv('own_filtered_RNA.csv')
-
 
 print(filtered_data.dataframe.shape)
 for omic in list(set(filtered_data.omic)):
@@ -40,7 +42,7 @@ logging.info("Quantizing targets")
 engineered_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()
 
 logging.info("Visualizing distributions")
-config.visualize_dataset(engineered_data)
+config.visualize_dataset(engineered_data, mode='post')
 
 
 logging.info("Getting optimized models")
