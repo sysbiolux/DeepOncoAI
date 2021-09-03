@@ -13,7 +13,7 @@ class Dataset:
         if isinstance(omic, str):
             self.omic = pd.Series(data=[omic for x in range(n_cols)], index=dataframe.columns)
         elif len(omic) == n_cols:
-            self.omic = omic
+                self.omic = omic
         else:
             raise ValueError('Omic should be either a string or a Series with the same lengths as the number of features')
         if isinstance(database, str):
@@ -22,7 +22,7 @@ class Dataset:
             self.database = database
         else:
             raise ValueError('Database should be either a string or a Series with the same lengths as the number of features')
-        
+    
     def __str__(self):
         return f'Dataset with omic {self.omic}, from database {self.database}'
     
@@ -40,13 +40,13 @@ class Dataset:
                 logging.info(f"pre-filter: {size_pre[0]} samples and {size_pre[1]} features")
                 logging.info(f"post-filter: {size_post[0]} samples and {size_post[1]} features")
         return resulting_dataset
-
+    
     def to_pandas(self, omic: str=None, database: str=None): #TODO: possibility to use lists of omics and databases?
         """
         returns the Pandas Dataframe of the dataset for columns matching BOTH the omic and database
-        
-        """
     
+        """
+        
         resulting_dataframe = self.dataframe
         resulting_database = self.database
         if omic is not None:
@@ -63,7 +63,7 @@ class Dataset:
     def extract(self, omics_list: list=[], databases_list: list=[]):
         """
         retuns the parts of the dataset matching EITHER ONE of the the elements of the omics_list and databases_list
-         
+    
         """
         resulting_dataframe = self.dataframe
         resulting_database = self.database
@@ -89,8 +89,8 @@ class Dataset:
         other_dataframe = other_dataset.dataframe
         
         cols = dataframe.columns
-        
-#         merged_dataframe = pd.merge(dataframe, other_dataframe, left_index = True, right_index = True)
+    
+#    merged_dataframe = pd.merge(dataframe, other_dataframe, left_index = True, right_index = True)
         merged_dataframe = pd.concat([dataframe, other_dataframe], axis=1)
         merged_omic = pd.concat([self.omic, other_dataset.omic])
         merged_database = pd.concat([self.database, other_dataset.database])
@@ -117,7 +117,7 @@ class Dataset:
 
     def quantize(self, target_omic: str, quantiles:list=None):
         """
-        will ternarize the columns with the corresponding prefix (ex: 'DRUGS')
+        will ternarize the columns
         quantiles should be a list of two values in [0, 1]
         """
         omic = self.omic
@@ -125,16 +125,16 @@ class Dataset:
         dataframe = self.to_pandas()
         if quantiles is None:
             quantiles = [0.333, 0.667]
-        
+            
         quantized_dataframe = dataframe.copy()
         for target in omic[omic.str.startswith(target_omic)].index:
             q = np.quantile(dataframe[target].dropna(), quantiles)
             quantized_dataframe[target] = 0.5 #start assigning 'intermediate' to all samples
             quantized_dataframe[target].mask(dataframe[target] < q[0], 0, inplace=True) #samples below the first quantile get 0
             quantized_dataframe[target].mask(dataframe[target] >= q[1], 1, inplace=True) #samples above get 1
-#             # uncomment to get random values
-#             q_df[target] = np.random.randint(low=0, high=2, size=len(q_df))
-                
+## uncomment to get random values
+#            q_df[target] = np.random.randint(low=0, high=2, size=len(q_df))
+    
         return Dataset(dataframe=quantized_dataframe, omic=omic, database=database)
 
     def optimize_formats(self):
@@ -144,8 +144,8 @@ class Dataset:
         dataframe_copy = dataframe.copy()   #EDIT_AHB
         optimal_dataframe = preprocessing.reduce_mem_usage(dataframe_copy)
         return Dataset(dataframe=optimal_dataframe, omic=self.omic, database=self.database)
-        
-        
+    
+    
     def to_binary(self, target: str):
         omic=self.omic
         database = self.database
@@ -157,7 +157,7 @@ class Dataset:
         dataframe = dataframe[dataframe[target].isin([m, n])]
         
         return Dataset(dataframe=dataframe, omic=omic, database=database)
-        
+    
     def split(self, train_index: list, test_index: list):
         omic = self.omic
         database = self.database

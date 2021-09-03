@@ -1,43 +1,48 @@
+####################
+### HOUSEKEEPING ###
+####################
 
 import logging
+# import numba #does not work?
+# @numba.jit
 logging.basicConfig(filename='run.log', level=logging.INFO, filemode='w', format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%H:%M:%S')
 from config import Config
 from DBM_toolbox.data_manipulation import dataset_class
 config = Config()
 
+###################################
+### READING AND PROCESSING DATA ###
+###################################
+
 logging.info("Reading data")
 data = config.read_data()
 
 logging.info("Creating visualizations")
-config.visualize_dataset(data)
+config.visualize_dataset(data, mode='pre')
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
 
-# df = filtered_data.to_pandas(omic='RNA')
-# df.to_csv('own_filtered_RNA.csv')
-
-
 print(filtered_data.dataframe.shape)
 for omic in list(set(filtered_data.omic)):
- 	print(f"{omic}: {filtered_data.omic[filtered_data.omic == omic].shape[0]}")
+    print(f"{omic}: {filtered_data.omic[filtered_data.omic == omic].shape[0]}")
 
 logging.info("Selecting subsets for feature engineering")
 selected_subset = config.select_subsets(filtered_data)
 
 logging.info("Engineering features")
 if selected_subset is not None:
- 	engineered_features = config.engineer_features(selected_subset)
- 	logging.info("Merging engineered features")
- 	engineered_data = filtered_data.merge_with(engineered_features).normalize()
+    engineered_features = config.engineer_features(selected_subset)
+    logging.info("Merging engineered features")
+    engineered_data = filtered_data.merge_with(engineered_features).normalize()
 else:
- 	engineered_data = filtered_data
+    engineered_data = filtered_data.normalize()
 
 logging.info("Quantizing targets")
 engineered_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()
 
-# logging.info("Visualizing distributions")
-# config.visualize_dataset(engineered_data)
+logging.info("Visualizing distributions")
+config.visualize_dataset(engineered_data, mode='post')
 
 
 logging.info("Getting optimized models")
