@@ -254,7 +254,8 @@ def impute_missing_data(dataframe, method: str='average', threshold: float=None)
         dataframe = imputer.transform(dataframe)
     elif method == 'zeros':
         dataframe = dataframe.fillna(value=0)
-    dataframe = pd.concat([dataframe, df_unselected])
+    if threshold is not None:
+        dataframe = pd.concat([dataframe, df_unselected])
     
     ## TODO: log how much was imputed and where
     return dataframe
