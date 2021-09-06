@@ -327,47 +327,47 @@ def plot_results(dataframe):
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='algo', y='perf', hue='omic', 
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
-                   data=dataframe).set_title(this_target)
+                   data=dataframe[dataframe['target']==this_target]).set_title(this_target)
         plt.xticks(rotation=90)
         plt.savefig(ts + '_' + this_target + '_.pdf')
     for this_omic in omics:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='target', y='perf', hue='algo', 
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
-                   data=dataframe).set_title(this_omic)
+                   data=dataframe[dataframe['omic']==this_omic]).set_title(this_omic)
         plt.xticks(rotation=90)
         plt.savefig(ts + '_' + this_omic + '_.pdf')
     for this_algo in algos:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='target', y='perf', hue='omic', 
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
-                   data=dataframe).set_title(this_algo)
+                   data=dataframe[dataframe['algo']==this_algo]).set_title(this_algo)
         plt.xticks(rotation=90)
         plt.savefig(ts + '_' + this_algo + '_.pdf')
     for this_target in targets:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='algo', y='perf', 
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
-                   data=dataframe).set_title(this_target)
+                   data=dataframe[dataframe['target']==this_target]).set_title(this_target)
         plt.xticks(rotation=90)
         plt.savefig(ts + '_' + this_target + '_2.pdf')
     for this_omic in omics:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='target', y='perf', 
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
-                   data=dataframe).set_title(this_omic)
+                   data=dataframe[dataframe['omic']==this_omic]).set_title(this_omic)
         plt.xticks(rotation=90)
         plt.savefig(ts + '_' + this_omic + '_.pdf')
     for this_algo in algos:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='omic', y='perf',  
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
-                   data=dataframe).set_title(this_algo)
+                   data=dataframe[dataframe['algo']==this_algo]).set_title(this_algo)
         plt.xticks(rotation=90)
         plt.savefig(ts + '_' + this_algo + '_.pdf')
     
-    plt.figure(figsize=(15,15))
-    ax = sns.scatterplot(x='perf', y='N', hue='target', style='algo', data=dataframe)
+    fig, ax = plt.figure(figsize=(15,15))
+    sns.scatterplot(x='perf', y='N', hue='target', style='algo', data=dataframe, ax=ax)
     plt.savefig(ts + '_' + '_overall_.pdf')
 
 
