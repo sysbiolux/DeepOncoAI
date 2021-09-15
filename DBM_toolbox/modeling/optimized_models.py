@@ -262,6 +262,7 @@ def get_standard_models(data, targets, algos:list=None, metric:str=None):
             num = data.shape[0]
             
         optimal_models[model['name']] = {'estimator': this_model, 'result': performance, 'N': num}
+        logging.info(f'performance: {performance}')
     return optimal_models
     
     

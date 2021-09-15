@@ -221,81 +221,6 @@ def plot_eda_missingcorrel(dataframe, title, ts):
         print('no missing data correlation plot')
     
 
-
-
-
-
-
-
-
-#     
-#     
-#     
-#     
-#     l = np.intc(np.ceil(np.sqrt(ncol)))
-#     c = np.intc(np.ceil(ncol/l))
-#     
-#     
-#     
-#     
-#     
-#     
-#     
-#     
-#     
-#     
-#     
-#     
-#     try:
-#         f, axes = plt.subplots(figsize=(20,50), sharex = True, sharey = True)
-#         zg = sns.violinplot(data=dataframe, ax=axes)
-#         zg.set_xticklabels(zg.get_xticklabels(), rotation=90)
-#         plt.savefig(ts + '_distrib.pdf')
-#     except:
-#         print('no plot 1')
-#     
-#     try:
-#         f, axes = plt.subplots(l, c, figsize=(20,50), sharex = True, sharey = True)
-#         axes = axes.ravel()
-#         
-#         for count, col in enumerate(dataframe.columns):
-#             dataframe2 = dataframe[col].dropna()
-#             zg = sns.distplot(dataframe2, kde=True, rug=True, ax=axes[count])
-#         #    zg.set_xlim(0,1)
-#             zg.set_title(col)
-#         plt.savefig(ts + '2.pdf')
-#     except:
-#         print('no plot 2')
-#     
-#     try:
-#         fig, ax = plt.subplots()
-#         cmap = sns.diverging_palette(220, 10, as_cmap=True)
-#         sns.heatmap(dataframe.corr(), vmin = 0, vmax = 1, cmap = cmap)
-#         plt.savefig(ts + 'correl.pdf')
-#     except:
-#         print('no plot 3')
-#     
-#     try:
-#         fig, ax = plt.subplots()
-#         means = dataframe.mean().rename('Mean')
-#         stds = dataframe.std().rename('Std')
-#         toplot = pd.concat([means, stds], axis = 1)
-#         sns.scatterplot(x = 'Mean', y = 'Std', data = toplot)
-#         plt.savefig(ts + '_mean-sd.pdf')
-#     except:
-#         print('no plot 4')
-
-# def plot_missing(dataframe, omic, database):
-#     ts = str(round(datetime.datetime.now().timestamp()))
-#     fig, ax = plt.subplots()
-#     msno.matrix(dataframe)
-#     plt.title(database + '_' + omic)
-#     plt.savefig(ts + '_missing.pdf')
-# #     fig, ax = plt.subplots()
-# #     msno.heatmap(dataframe)
-# #     plt.title(database + '_' + omic)
-# #     plt.savefig(ts + '_missing-correl.pdf')
-
 def plot_target(dataframe, bounds):
     title = dataframe.name
     ts = str(round(datetime.datetime.now().timestamp()))
@@ -312,7 +237,7 @@ def plot_target(dataframe, bounds):
     ax[1].fill_between(x,y, where = x <= q[0], color = 'r')
     ax[1].fill_between(x,y, where = (x <= q[1]) & (x >= q[0]), color = 'y')
     fig.suptitle(title)
-    plt.savefig(ts + '_' + title + '_distr.pdf')
+    plt.savefig(ts + '_' + title + '_distr.svg')
 
 def plot_results(dataframe):
     ts = str(round(datetime.datetime.now().timestamp()))
@@ -327,48 +252,48 @@ def plot_results(dataframe):
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='algo', y='perf', hue='omic', 
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
-                   data=dataframe).set_title(this_target)
+                   data=dataframe[dataframe['target']==this_target]).set_title(this_target)
         plt.xticks(rotation=90)
-        plt.savefig(ts + '_' + this_target + '_.pdf')
+        plt.savefig(ts + '_' + this_target + '_.svg')
     for this_omic in omics:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='target', y='perf', hue='algo', 
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
-                   data=dataframe).set_title(this_omic)
+                   data=dataframe[dataframe['omic']==this_omic]).set_title(this_omic)
         plt.xticks(rotation=90)
-        plt.savefig(ts + '_' + this_omic + '_.pdf')
+        plt.savefig(ts + '_' + this_omic + '_.svg')
     for this_algo in algos:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='target', y='perf', hue='omic', 
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
-                   data=dataframe).set_title(this_algo)
+                   data=dataframe[dataframe['algo']==this_algo]).set_title(this_algo)
         plt.xticks(rotation=90)
-        plt.savefig(ts + '_' + this_algo + '_.pdf')
+        plt.savefig(ts + '_' + this_algo + '_.svg')
     for this_target in targets:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='algo', y='perf', 
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
-                   data=dataframe).set_title(this_target)
+                   data=dataframe[dataframe['target']==this_target]).set_title(this_target)
         plt.xticks(rotation=90)
-        plt.savefig(ts + '_' + this_target + '_2.pdf')
+        plt.savefig(ts + '_' + this_target + '_2.svg')
     for this_omic in omics:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='target', y='perf', 
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
-                   data=dataframe).set_title(this_omic)
+                   data=dataframe[dataframe['omic']==this_omic]).set_title(this_omic)
         plt.xticks(rotation=90)
-        plt.savefig(ts + '_' + this_omic + '_.pdf')
+        plt.savefig(ts + '_' + this_omic + '_.svg')
     for this_algo in algos:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='omic', y='perf',  
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
-                   data=dataframe).set_title(this_algo)
+                   data=dataframe[dataframe['algo']==this_algo]).set_title(this_algo)
         plt.xticks(rotation=90)
-        plt.savefig(ts + '_' + this_algo + '_.pdf')
+        plt.savefig(ts + '_' + this_algo + '_.svg')
     
-    plt.figure(figsize=(15,15))
-    ax = sns.scatterplot(x='perf', y='N', hue='target', style='algo', data=dataframe)
-    plt.savefig(ts + '_' + '_overall_.pdf')
+    fig, ax = plt.figure(figsize=(15,15))
+    sns.scatterplot(x='perf', y='N', hue='target', style='algo', data=dataframe, ax=ax)
+    plt.savefig(ts + '_' + '_overall_.svg')
 
 
 

@@ -404,6 +404,8 @@ class Config:
                     targets = targets.drop(indices_to_drop)
                     print(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
                     print(f"y: {targets.size} samples")
+                    logging.info(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
+                    logging.info(f"y: {targets.size} samples")
                     
                     this_result = optimized_models.get_standard_models(data=this_dataframe, 
                                                                         targets=targets, 
