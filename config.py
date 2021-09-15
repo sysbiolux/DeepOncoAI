@@ -99,6 +99,7 @@ class Config:
 
 #         print(full_dataset.dataframe)
         targets = self.raw_dict['data']['targets']
+        print(targets)
         if targets is not None:
             for target in targets:
                 target_metric = target['responses']
@@ -109,10 +110,33 @@ class Config:
                                                         database=target['database'],
                                                         keywords=[target_name,
                                                         target_metric])
+                IC50s = preprocessing.extract_IC50s(additional_dataset)
+                
+                additional_dataset = preprocessing.select_drug_metric(additional_dataset, target_name + '_' + target_metric)
                 print(f'{additional_dataset.dataframe.shape[0]} samples and {additional_dataset.dataframe.shape[1]} features')
 #                 print(additional_dataset.dataframe)
                 full_dataset = full_dataset.merge_with(additional_dataset)
-        return full_dataset
+        return full_dataset, IC50s
+    
+    def quantize(self, dataset, target_omic: str, quantiles:list=None, IC50s = None):
+        
+        names = dataset.to_pandas(omic=target_omic).columns
+        names = [x.split('_')[0] for x in names]
+        thresholds = pd.Series(index=names)
+        targets = self.raw_dict['data']['targets']
+        for this_target in targets:
+            # print(this_target)
+            for engineering in this_target['target_engineering']:
+                # print(engineering)
+                if engineering['name'] == 'thresholding' and engineering['enabled']:
+                    # print('yes')
+                    thresholds[this_target['target_drug_name']] = engineering['threshold']
+        
+        # print(thresholds)
+        
+        dataset = dataset.data_quantize(target_omic=target_omic, quantiles=quantiles, IC50s=IC50s, thresholds = thresholds)
+        
+        return dataset
     
     def split(self, dataset: dataset_class.Dataset, target_name: str, split_type: str ='outer'):
         '''

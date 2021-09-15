@@ -15,10 +15,10 @@ config = Config()
 ###################################
 
 logging.info("Reading data")
-data = config.read_data()
+data, IC50s = config.read_data()
 
-logging.info("Creating visualizations")
-config.visualize_dataset(data, mode='pre')
+# logging.info("Creating visualizations")
+# config.visualize_dataset(data, mode='pre')
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
@@ -34,19 +34,26 @@ logging.info("Engineering features")
 if selected_subset is not None:
     engineered_features = config.engineer_features(selected_subset)
     logging.info("Merging engineered features")
-    engineered_data = filtered_data.merge_with(engineered_features).normalize()
+    engineered_data = filtered_data.merge_with(engineered_features)
 else:
-    engineered_data = filtered_data.normalize()
+    engineered_data = filtered_data
+
 
 logging.info("Quantizing targets")
-engineered_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()
+quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
+
+
+
+
+
+final_data = quantized_data.normalize().optimize_formats()
 
 logging.info("Visualizing distributions")
-config.visualize_dataset(engineered_data, mode='post')
+config.visualize_dataset(final_data, mode='post')
 
 
 logging.info("Getting optimized models")
-optimal_algos = config.get_models(dataset=engineered_data)
+optimal_algos = config.get_models(dataset=final_data)
 config.save(to_save=optimal_algos, name='optimal_algos_complete')
 
 algos_dict, results_prim = config.get_best_algos(optimal_algos)

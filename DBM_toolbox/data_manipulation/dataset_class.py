@@ -115,7 +115,7 @@ class Dataset:
     def normalize(self):
         return Dataset(dataframe = preprocessing.rescale_data(self.dataframe), omic=self.omic, database=self.database)
 
-    def quantize(self, target_omic: str, quantiles:list=None):
+    def data_quantize(self, target_omic: str, quantiles:list=None, IC50s = None, thresholds = None): ### add the second step here
         """
         will ternarize the columns
         quantiles should be a list of two values in [0, 1]
@@ -128,12 +128,36 @@ class Dataset:
             
         quantized_dataframe = dataframe.copy()
         for target in omic[omic.str.startswith(target_omic)].index:
+            #step 1
             q = np.quantile(dataframe[target].dropna(), quantiles)
             quantized_dataframe[target] = 0.5 #start assigning 'intermediate' to all samples
             quantized_dataframe[target].mask(dataframe[target] < q[0], 0, inplace=True) #samples below the first quantile get 0
             quantized_dataframe[target].mask(dataframe[target] >= q[1], 1, inplace=True) #samples above get 1
-## uncomment to get random values
-#            q_df[target] = np.random.randint(low=0, high=2, size=len(q_df))
+            
+            #step 2
+            if IC50s is not None:
+                drug_name = target.split('_')[0]
+                this_threshold = thresholds[drug_name]
+
+                df = pd.concat([quantized_dataframe[target], IC50s.loc[:, IC50s.columns.str.contains(drug_name)]])
+                df['sens'] = df.iloc[:, -1] < this_threshold
+                df['final'] = df.iloc[:, 0]
+                for i, s in enumerate(df.index):
+                    print(i)
+                    print(df.iloc[i, 0])
+                    if df.iloc[i, 0] == np.nan:
+                        df[i, -1] == 0.5
+                    else:
+                        # print(f'base: {df.iloc[i, 0]}, thresholded: {df.iloc[i, -2]}')
+                        if df.iloc[i, 0] == 1 and df.iloc[i, -2] == True:
+                            df[i, -1] == 0.5
+                        elif df.iloc[i, 0] == 0 and df.iloc[i, -2] == False:
+                            df.loc[s, 'final'] = 0.5
+                print(df)
+                
+            #if IC50 < threshold and 1 => 0.5
+         #if IC50 > threshold and 0 => 0.5
+
     
         return Dataset(dataframe=quantized_dataframe, omic=omic, database=database)
 
