@@ -511,32 +511,31 @@ data:
           upper_bound_resistant: 0.33
           lower_bound_sensitive: 0.67
           enabled: true
-        - name: thresholding # TODO: implement this
+        - name: thresholding
           threshold: 7
-          enabled: false
-    # - name: DRUGS_2
-    #   database: CCLE
-    #   responses: ActArea
-    #   target_drug_name: Nilotinib
-    #   filtering:
-    #     - name: sample_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #     - name: feature_completeness
-    #       threshold: 0.95
-    #       enabled: true
-    #   normalization:
-    #     - name: unit
-    #       enabled: true
-    #   target_engineering:
-    #     - name: quantization
-    #       upper_bound_resistant: 0.33
-    #       lower_bound_sensitive: 0.67
-    #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
-    #       enabled: false
+          enabled: true
+    - name: DRUGS_2
+      database: CCLE
+      responses: ActArea
+      target_drug_name: Nilotinib
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+      normalization:
+        - name: unit
+          enabled: true
+      target_engineering:
+        - name: quantization
+          upper_bound_resistant: 0.33
+          lower_bound_sensitive: 0.67
+          enabled: true
+        - name: thresholding
+          threshold: 7
+          enabled: true
     # - name: DRUGS_3
     #   database: CCLE
     #   responses: ActArea
@@ -556,9 +555,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_4
     #   database: CCLE
@@ -579,9 +577,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_5
     #   database: CCLE
@@ -602,9 +599,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_6
     #   database: CCLE
@@ -625,9 +621,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_7
     #   database: CCLE
@@ -648,9 +643,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_8
     #   database: CCLE
@@ -671,9 +665,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_9
     #   database: CCLE
@@ -694,9 +687,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_10
     #   database: CCLE
@@ -717,9 +709,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_11
     #   database: CCLE
@@ -740,9 +731,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_12
     #   database: CCLE
@@ -763,9 +753,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_13
     #   database: CCLE
@@ -786,9 +775,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_14
     #   database: CCLE
@@ -809,9 +797,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_15
     #   database: CCLE
@@ -832,9 +819,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_16
     #   database: CCLE
@@ -855,9 +841,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_17
     #   database: CCLE
@@ -878,9 +863,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_18
     #   database: CCLE
@@ -901,9 +885,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_19
     #   database: CCLE
@@ -924,9 +907,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_20
     #   database: CCLE
@@ -947,9 +929,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_21
     #   database: CCLE
@@ -970,9 +951,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_22
     #   database: CCLE
@@ -993,9 +973,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
     # - name: DRUGS_23
     #   database: CCLE
@@ -1016,9 +995,8 @@ data:
     #       upper_bound_resistant: 0.33
     #       lower_bound_sensitive: 0.67
     #       enabled: true
-    #     - name: thresholding # TODO: implement this
-    #       upper_bound_resistant: 0.25
-    #       lower_bound_sensitive: 0.75
+    #     - name: thresholding
+    #       threshold: 7
     #       enabled: false
 modeling:
   general:
@@ -1051,7 +1029,7 @@ modeling:
       enabled: true
       value: 30
     sampling:
-      enabled: false # TODO: implement this
+      enabled: false
       value: upsample_minority_class_SMOTE
   ensembling:
     metalearner: XGBoost
