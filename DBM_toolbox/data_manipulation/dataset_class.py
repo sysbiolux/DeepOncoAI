@@ -179,8 +179,8 @@ class Dataset:
             
             final_dataframe[target] = t_dataframe[target] * binarized_IC50s
         
-        chosen_omics = list(omic.unique()).remove('DRUGS')
-        left_dataframe = self.extract(omics_list=chosen_omics).dataframe ### Does not work
+        chosen_omics = [x for x in omic.unique() if x != target_omic]
+        left_dataframe = self.extract(omics_list=chosen_omics).dataframe
         
         dataframe = pd.merge(left_dataframe, final_dataframe, left_index=True, right_index=True)
         
