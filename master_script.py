@@ -42,7 +42,8 @@ else:
 logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
 
-
+x = quantized_data.to_pandas(omic='DRUGS')
+print(x)
 
 
 

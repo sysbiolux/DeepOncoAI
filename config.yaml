@@ -512,7 +512,7 @@ data:
           lower_bound_sensitive: 0.67
           enabled: true
         - name: thresholding
-          threshold: 7
+          threshold: 5
           enabled: true
     - name: DRUGS_2
       database: CCLE
@@ -534,7 +534,7 @@ data:
           lower_bound_sensitive: 0.67
           enabled: true
         - name: thresholding
-          threshold: 7
+          threshold: 5
           enabled: true
     # - name: DRUGS_3
     #   database: CCLE

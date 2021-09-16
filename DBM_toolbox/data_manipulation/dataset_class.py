@@ -148,8 +148,10 @@ class Dataset:
             print(target)
             this_threshold = thresholds[target.split('_')[0]]
             binarized_IC50s[target] = 0.5
-            binarized_IC50s[target].mask(binarized_IC50s[target] > this_threshold, 0, inplace=True)
-            binarized_IC50s[target].mask(binarized_IC50s[target] < this_threshold, 1, inplace=True)
+            # if -log(IC50) is higher than threshold, then the IC50 is low (sensitive) :
+            binarized_IC50s[target].mask(IC50s[target] > this_threshold, 1, inplace=True)
+            # if -log(IC50) is lower than threshold (resistant) :
+            binarized_IC50s[target].mask(IC50s[target] < this_threshold, 0, inplace=True)
         
         t_dataframe = self.to_pandas(omic = 'DRUGS').sort_index()
         binarized_IC50s = binarized_IC50s.sort_index()
@@ -159,25 +161,22 @@ class Dataset:
         
         for target in t_dataframe.columns:
             drug_name = target.split('_')[0]
+            IC50_name = drug_name + '_IC50'
+            print(f'target: {target}')
             
             for sample in t_dataframe.index:
-                if sample in binarized_IC50s.index: #[drug_name + '_IC50']:
-                    
-                    # print(sample)
-                    # print(t_dataframe)
-                    # print(binarized_IC50s)
-                    # print('*****')
-                    # print(t_dataframe.loc[sample, target])
-                    # print(binarized_IC50s.loc[sample, drug_name + '_IC50'])
-                    
-                    
-                    if t_dataframe.loc[sample, target] == binarized_IC50s.loc[sample, drug_name + '_IC50']:
+                print('***'*20)
+                print(f'sample: {sample}, ', end='')
+                if sample in binarized_IC50s.index:
+                    print('sample_found in IC50s, ', end='')
+                    print(f'quantized: {t_dataframe.loc[sample, target]}, IC50: {IC50s.loc[sample, IC50_name]}, binarized_IC50: {binarized_IC50s.loc[sample, IC50_name]}, ', end='')
+                    if t_dataframe.loc[sample, target] == binarized_IC50s.loc[sample, IC50_name]:
                         final_dataframe.loc[sample, target] = t_dataframe.loc[sample, target]
-            
+                        print(f'decision: {final_dataframe.loc[sample, target]}')
             
             # t_dataframe[target] == binarized_IC50s[drug_name + '_IC50']
             
-            final_dataframe[target] = t_dataframe[target] * binarized_IC50s
+            # final_dataframe[target] = t_dataframe[target] * binarized_IC50s
         
         chosen_omics = [x for x in omic.unique() if x != target_omic]
         left_dataframe = self.extract(omics_list=chosen_omics).dataframe
