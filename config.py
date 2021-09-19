@@ -141,6 +141,7 @@ class Config:
         print(f'Thresholds: {thresholds}')
         print(f'Quantiles: {quantiles}')
         dataset = dataset.data_pop_quantize(target_omic=target_omic, quantiles_df=quantiles)
+        
         dataset = dataset.data_threshold_quantize(target_omic=target_omic, IC50s=IC50s, thresholds=thresholds)
         
         return dataset

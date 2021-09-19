@@ -49,8 +49,8 @@ print(x)
 
 final_data = quantized_data.normalize().optimize_formats()
 
-logging.info("Visualizing distributions")
-config.visualize_dataset(final_data, mode='post')
+# logging.info("Visualizing distributions")
+# config.visualize_dataset(final_data, mode='post')
 
 
 logging.info("Getting optimized models")
@@ -60,6 +60,11 @@ config.save(to_save=optimal_algos, name='optimal_algos_complete')
 algos_dict, results_prim = config.get_best_algos(optimal_algos)
 
 config.show_results(results_prim)
+
+
+
+
+
 
 
 #%%
