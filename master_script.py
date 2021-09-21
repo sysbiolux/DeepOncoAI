@@ -17,8 +17,8 @@ config = Config()
 logging.info("Reading data")
 data, IC50s = config.read_data()
 
-# logging.info("Creating visualizations")
-# config.visualize_dataset(data, mode='pre')
+logging.info("Creating visualizations")
+config.visualize_dataset(data, mode='pre')
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
