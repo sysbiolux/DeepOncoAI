@@ -39,14 +39,14 @@ else:
     engineered_data = filtered_data.normalize()
 
 logging.info("Quantizing targets")
-engineered_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()
+final_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()
 
-logging.info("Visualizing distributions")
-config.visualize_dataset(engineered_data, mode='post')
+# logging.info("Visualizing distributions")
+# config.visualize_dataset(final_data, mode='post')
 
 
 logging.info("Getting optimized models")
-optimal_algos = config.get_models(dataset=engineered_data)
+optimal_algos = config.get_models(dataset=final_data)
 config.save(to_save=optimal_algos, name='optimal_algos_complete')
 
 logging.info("Getting standard models")
