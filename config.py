@@ -99,20 +99,52 @@ class Config:
 
 #         print(full_dataset.dataframe)
         targets = self.raw_dict['data']['targets']
+        print(targets)
+        list_target_names = []
         if targets is not None:
             for target in targets:
                 target_metric = target['responses']
                 target_name = target['target_drug_name']
+                list_target_names.append(target_name + '_IC50')
                 print('Loading ' + target['name'] + ' from ' + target['database'])
                 additional_dataset = load_data.read_data('data',
                                                         omic=target['name'],
                                                         database=target['database'],
                                                         keywords=[target_name,
                                                         target_metric])
+                IC50s = preprocessing.extract_IC50s(additional_dataset)
+                
+                additional_dataset = preprocessing.select_drug_metric(additional_dataset, target_name + '_' + target_metric)
                 print(f'{additional_dataset.dataframe.shape[0]} samples and {additional_dataset.dataframe.shape[1]} features')
 #                 print(additional_dataset.dataframe)
                 full_dataset = full_dataset.merge_with(additional_dataset)
-        return full_dataset
+            cols = [x for x in IC50s.columns if x in list_target_names]
+            IC50s = IC50s[cols]
+        return full_dataset, IC50s
+    
+    def quantize(self, dataset, target_omic: str, quantiles = None, IC50s = None):
+        
+        names = dataset.to_pandas(omic=target_omic).columns
+        names = [x.split('_')[0] for x in names]
+        quantiles = pd.DataFrame(index=names, columns=['low', 'high'])
+        thresholds = pd.Series(index=names)
+        targets = self.raw_dict['data']['targets']
+        for this_target in targets:
+            # print(this_target)
+            for engineering in this_target['target_engineering']:
+                if engineering['name'] == 'quantization' and engineering['enabled']:
+                    quantiles.loc[this_target['target_drug_name'], 'low'] = engineering['upper_bound_resistant']
+                    quantiles.loc[this_target['target_drug_name'], 'high'] = engineering['lower_bound_sensitive']
+                elif engineering['name'] == 'thresholding' and engineering['enabled']:
+                    thresholds[this_target['target_drug_name']] = engineering['threshold']
+        
+        print(f'Thresholds: {thresholds}')
+        print(f'Quantiles: {quantiles}')
+        dataset = dataset.data_pop_quantize(target_omic=target_omic, quantiles_df=quantiles)
+        
+        dataset = dataset.data_threshold_quantize(target_omic=target_omic, IC50s=IC50s, thresholds=thresholds)
+        
+        return dataset
     
     def split(self, dataset: dataset_class.Dataset, target_name: str, split_type: str ='outer'):
         '''
@@ -299,7 +331,7 @@ class Config:
 
     def get_models(self, dataset: dataset_class.Dataset, method: str=None):
         '''
-        Optimizes a set of models by retrieving omics and targets from the comfig files
+        Optimizes a set of models by retrieving omics and targets from the config files
         Bayesian hyperparameter optimization is performed for each model, predicting each target with each omic.
         Returns the a dictionary of optimized models and their performances 
         '''
@@ -337,36 +369,54 @@ class Config:
             if method == 'optimize':
                 logging.info(f"*** Optimizing models for {this_target_name} with the complete set of predictors")
                 print('Optimizing models for '+ this_target_name + ' with the complete set of predictors')
-#                 data = complete_dataframe
-#                 targets = this_dataset.dataframe[this_target_name]
-#                 
-#                 index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
-#                 index2 = data.index[data.apply(np.isnan).any(axis=1)]  ## SOLVED?
-#                 indices_to_drop = index1.union(index2)
-#                 
-#                 data = dataset_class.Dataset(dataframe=data.drop(indices_to_drop), omic=complete_dataframe.omic, database=complete_dataframe.database)
-#                 targets = targets.drop(indices_to_drop)
-#                 print(data.dataframe)
-#                 print(targets)
-#                 this_result = optimized_models.bayes_optimize_models(data=data, 
-#                                                                     targets=targets, 
-#                                                                     n_trials=depth, 
-#                                                                     algos=algos, 
-#                                                                     metric=metric)
-#                 results[this_target_name]['complete'] = this_result
-#                 
-#                 for this_omic in omics_list:
-#                     this_dataframe = this_dataset.to_pandas(omic=this_omic)
-#                     logging.info(f"*** Optimizing models for {this_target_name} with {this_omic}")
-#                     print('Optimizing models for ' + this_target_name + ' with ' + this_omic)
-#                     this_result = optimized_models.bayes_optimize_models(data=this_dataframe, 
-#                                                                         targets=this_dataset.dataframe[this_target_name], 
-#                                                                         n_trials=depth, 
-#                                                                         algos=algos, 
-#                                                                         metric=metric)
-#                     
-#                     if this_omic not in results[this_target_name]:
-#                         results[this_target_name][this_omic] = this_result
+                this_dataframe = complete_dataframe
+                print(this_dataframe)
+                targets = this_dataset.dataframe[this_target_name]
+                
+                index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+                index2 = this_dataframe.index[this_dataframe.apply(np.isnan).any(axis=1)]  ## SOLVED?
+                indices_to_drop = index1.union(index2)
+                # TODO: log number of dropped here
+                print(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
+                print(f"y: {targets.size} samples")
+                
+                this_dataframe = this_dataframe.drop(indices_to_drop)
+                targets = targets.drop(indices_to_drop)
+                # TODO: log nr of positive vs negative
+
+                this_result = optimized_models.bayes_optimize_models(data=this_dataframe, 
+                                                                    targets=targets, 
+                                                                    n_trials=depth, 
+                                                                    algos=algos, 
+                                                                    metric=metric)
+                results[this_target_name]['complete'] = this_result
+                
+                for this_omic in omics_list:
+                    this_dataframe = this_dataset.to_pandas(omic=this_omic)
+                    targets = this_dataset.dataframe[this_target_name]
+                    logging.info(f"*** Optimizing models for {this_target_name} with {this_omic}")
+                    print('Optimizing models for ' + this_target_name + ' with ' + this_omic)
+                    
+                    index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+                    index2 = this_dataframe.index[this_dataframe.apply(np.isnan).any(axis=1)]  ## SOLVED?
+                    indices_to_drop = index1.union(index2)
+                    
+                    this_dataframe = this_dataframe.drop(indices_to_drop)
+                    targets = targets.drop(indices_to_drop)
+                    print(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
+                    print(f"y: {targets.size} samples")
+                    logging.info(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
+                    logging.info(f"y: {targets.size} samples")
+                    
+                    this_result = optimized_models.bayes_optimize_models(data=this_dataframe, 
+                                                                        targets=targets, 
+                                                                        n_trials=depth, 
+                                                                        algos=algos, 
+                                                                        metric=metric)
+                    
+                    
+                    if this_omic not in results[this_target_name]:
+                        results[this_target_name][this_omic] = this_result
             elif method == 'standard':
                 logging.info(f"*** Computing standard models for {this_target_name} with the complete set of predictors")
                 print('Computing standard models for '+ this_target_name + ' with the complete set of predictors')
@@ -377,9 +427,11 @@ class Config:
                 index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
                 index2 = this_dataframe.index[this_dataframe.apply(np.isnan).any(axis=1)]  ## SOLVED?
                 indices_to_drop = index1.union(index2)
+                # TODO: log number of dropped here
                 
                 this_dataframe = this_dataframe.drop(indices_to_drop)
                 targets = targets.drop(indices_to_drop)
+                # TODO: log nr of positive vs negative
                 print(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
                 print(f"y: {targets.size} samples")
                 

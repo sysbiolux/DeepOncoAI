@@ -353,3 +353,10 @@ def reduce_mem_usage(df):
     print('Min, Max and Mean of pre/post differences: {:.2f}, {:.2f}, {:.2f}'.format(min_test, max_test, mean_test))
     
     return df
+
+def extract_IC50s(dataset):
+    dataframe = dataset.dataframe
+    
+    dataframe = dataframe.loc[:, dataframe.columns.str.contains('IC50')]
+
+    return dataframe

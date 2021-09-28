@@ -115,27 +115,78 @@ class Dataset:
     def normalize(self):
         return Dataset(dataframe = preprocessing.rescale_data(self.dataframe), omic=self.omic, database=self.database)
 
-    def quantize(self, target_omic: str, quantiles:list=None):
+    def data_pop_quantize(self, target_omic: str, quantiles_df=None):
         """
-        will ternarize the columns
+        will ternarize the columns based on the population distribution
         quantiles should be a list of two values in [0, 1]
         """
         omic = self.omic
         database = self.database
         dataframe = self.to_pandas()
-        if quantiles is None:
-            quantiles = [0.333, 0.667]
-            
-        quantized_dataframe = dataframe.copy()
-        for target in omic[omic.str.startswith(target_omic)].index:
-            q = np.quantile(dataframe[target].dropna(), quantiles)
-            quantized_dataframe[target] = 0.5 #start assigning 'intermediate' to all samples
-            quantized_dataframe[target].mask(dataframe[target] < q[0], 0, inplace=True) #samples below the first quantile get 0
-            quantized_dataframe[target].mask(dataframe[target] >= q[1], 1, inplace=True) #samples above get 1
-## uncomment to get random values
-#            q_df[target] = np.random.randint(low=0, high=2, size=len(q_df))
-    
+        if quantiles_df is None:
+            # quantiles = [0.333, 0.667]
+            pass
+        else:
+            quantized_dataframe = dataframe.copy()
+            for target in omic[omic.str.startswith(target_omic)].index:
+                quantiles = [quantiles_df.loc[target.split('_')[0], 'low'], quantiles_df.loc[target.split('_')[0], 'high']]
+                print(quantiles)
+                q = np.quantile(dataframe[target].dropna(), quantiles)
+                quantized_dataframe[target] = 0.5 #start assigning 'intermediate' to all samples
+                quantized_dataframe[target].mask(dataframe[target] < q[0], 0, inplace=True) #samples below the first quantile get 0
+                quantized_dataframe[target].mask(dataframe[target] >= q[1], 1, inplace=True) #samples above get 1
+        
         return Dataset(dataframe=quantized_dataframe, omic=omic, database=database)
+        
+    def data_threshold_quantize(self, target_omic: str, IC50s, thresholds):
+        omic = self.omic
+        database = self.database
+        dataframe = self.dataframe
+        binarized_IC50s = IC50s.copy()
+        t_dataframe = self.to_pandas(omic = 'DRUGS')
+        final_dataframe = t_dataframe.copy()
+        
+        for target in IC50s.columns:
+            print(target)
+            this_threshold = thresholds[target.split('_')[0]]
+            if not pd.isna(this_threshold):
+                binarized_IC50s[target] = 0.5
+                # if -log(IC50) is higher than threshold, then the IC50 is low (sensitive) :
+                binarized_IC50s[target].mask(IC50s[target] > this_threshold, 1, inplace=True)
+                # if -log(IC50) is lower than threshold (resistant) :
+                binarized_IC50s[target].mask(IC50s[target] < this_threshold, 0, inplace=True)
+        
+
+        
+        for target in t_dataframe.columns:
+            if not pd.isna(thresholds[target.split('_')[0]]):
+                final_dataframe.loc[:,target] = 0.5
+                drug_name = target.split('_')[0]
+                IC50_name = drug_name + '_IC50'
+                print(f'target: {target}')
+                
+                for sample in t_dataframe.index:
+                    print('***'*20)
+                    print(f'sample: {sample}, ', end='')
+                    if sample in binarized_IC50s.index:
+                        print('sample found in IC50s, ', end='')
+                        print(f'quantized: {t_dataframe.loc[sample, target]}, IC50: {IC50s.loc[sample, IC50_name]}, binarized_IC50: {binarized_IC50s.loc[sample, IC50_name]}, ', end='')
+                        if t_dataframe.loc[sample, target] == binarized_IC50s.loc[sample, IC50_name]:
+                            final_dataframe.loc[sample, target] = t_dataframe.loc[sample, target]
+                            print(f'decision: {final_dataframe.loc[sample, target]}')
+                    else:
+                        print('sample not found in IC50s')
+            
+            # t_dataframe[target] == binarized_IC50s[drug_name + '_IC50']
+            
+            # final_dataframe[target] = t_dataframe[target] * binarized_IC50s
+        
+        chosen_omics = [x for x in omic.unique() if x != target_omic]
+        left_dataframe = self.extract(omics_list=chosen_omics).dataframe
+        
+        dataframe = pd.merge(left_dataframe, final_dataframe, left_index=True, right_index=True)
+        
+        return Dataset(dataframe=dataframe, omic=omic, database=database)
 
     def optimize_formats(self):
         logging.info("Optimizing formats")
