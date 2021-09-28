@@ -17,8 +17,8 @@ config = Config()
 logging.info("Reading data")
 data = config.read_data()
 
-logging.info("Creating visualizations")
-config.visualize_dataset(data, mode='pre')
+# logging.info("Creating visualizations")
+# config.visualize_dataset(data, mode='pre')
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
@@ -48,6 +48,10 @@ config.visualize_dataset(engineered_data, mode='post')
 logging.info("Getting optimized models")
 optimal_algos = config.get_models(dataset=engineered_data)
 config.save(to_save=optimal_algos, name='optimal_algos_complete')
+
+logging.info("Getting standard models")
+optimal_algos = config.get_models(dataset=final_data)
+config.save(to_save=optimal_algos, name='standard_algos_complete')
 
 algos_dict, results_prim = config.get_best_algos(optimal_algos)
 
