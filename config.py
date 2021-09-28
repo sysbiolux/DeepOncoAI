@@ -331,7 +331,7 @@ class Config:
 
     def get_models(self, dataset: dataset_class.Dataset, method: str=None):
         '''
-        Optimizes a set of models by retrieving omics and targets from the comfig files
+        Optimizes a set of models by retrieving omics and targets from the config files
         Bayesian hyperparameter optimization is performed for each model, predicting each target with each omic.
         Returns the a dictionary of optimized models and their performances 
         '''
@@ -369,36 +369,54 @@ class Config:
             if method == 'optimize':
                 logging.info(f"*** Optimizing models for {this_target_name} with the complete set of predictors")
                 print('Optimizing models for '+ this_target_name + ' with the complete set of predictors')
-#                 data = complete_dataframe
-#                 targets = this_dataset.dataframe[this_target_name]
-#                 
-#                 index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
-#                 index2 = data.index[data.apply(np.isnan).any(axis=1)]  ## SOLVED?
-#                 indices_to_drop = index1.union(index2)
-#                 
-#                 data = dataset_class.Dataset(dataframe=data.drop(indices_to_drop), omic=complete_dataframe.omic, database=complete_dataframe.database)
-#                 targets = targets.drop(indices_to_drop)
-#                 print(data.dataframe)
-#                 print(targets)
-#                 this_result = optimized_models.bayes_optimize_models(data=data, 
-#                                                                     targets=targets, 
-#                                                                     n_trials=depth, 
-#                                                                     algos=algos, 
-#                                                                     metric=metric)
-#                 results[this_target_name]['complete'] = this_result
-#                 
-#                 for this_omic in omics_list:
-#                     this_dataframe = this_dataset.to_pandas(omic=this_omic)
-#                     logging.info(f"*** Optimizing models for {this_target_name} with {this_omic}")
-#                     print('Optimizing models for ' + this_target_name + ' with ' + this_omic)
-#                     this_result = optimized_models.bayes_optimize_models(data=this_dataframe, 
-#                                                                         targets=this_dataset.dataframe[this_target_name], 
-#                                                                         n_trials=depth, 
-#                                                                         algos=algos, 
-#                                                                         metric=metric)
-#                     
-#                     if this_omic not in results[this_target_name]:
-#                         results[this_target_name][this_omic] = this_result
+                this_dataframe = complete_dataframe
+                print(this_dataframe)
+                targets = this_dataset.dataframe[this_target_name]
+                
+                index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+                index2 = this_dataframe.index[this_dataframe.apply(np.isnan).any(axis=1)]  ## SOLVED?
+                indices_to_drop = index1.union(index2)
+                # TODO: log number of dropped here
+                print(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
+                print(f"y: {targets.size} samples")
+                
+                this_dataframe = this_dataframe.drop(indices_to_drop)
+                targets = targets.drop(indices_to_drop)
+                # TODO: log nr of positive vs negative
+
+                this_result = optimized_models.bayes_optimize_models(data=this_dataframe, 
+                                                                    targets=targets, 
+                                                                    n_trials=depth, 
+                                                                    algos=algos, 
+                                                                    metric=metric)
+                results[this_target_name]['complete'] = this_result
+                
+                for this_omic in omics_list:
+                    this_dataframe = this_dataset.to_pandas(omic=this_omic)
+                    targets = this_dataset.dataframe[this_target_name]
+                    logging.info(f"*** Optimizing models for {this_target_name} with {this_omic}")
+                    print('Optimizing models for ' + this_target_name + ' with ' + this_omic)
+                    
+                    index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+                    index2 = this_dataframe.index[this_dataframe.apply(np.isnan).any(axis=1)]  ## SOLVED?
+                    indices_to_drop = index1.union(index2)
+                    
+                    this_dataframe = this_dataframe.drop(indices_to_drop)
+                    targets = targets.drop(indices_to_drop)
+                    print(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
+                    print(f"y: {targets.size} samples")
+                    logging.info(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
+                    logging.info(f"y: {targets.size} samples")
+                    
+                    this_result = optimized_models.bayes_optimize_models(data=this_dataframe, 
+                                                                        targets=targets, 
+                                                                        n_trials=depth, 
+                                                                        algos=algos, 
+                                                                        metric=metric)
+                    
+                    
+                    if this_omic not in results[this_target_name]:
+                        results[this_target_name][this_omic] = this_result
             elif method == 'standard':
                 logging.info(f"*** Computing standard models for {this_target_name} with the complete set of predictors")
                 print('Computing standard models for '+ this_target_name + ' with the complete set of predictors')
@@ -409,9 +427,11 @@ class Config:
                 index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
                 index2 = this_dataframe.index[this_dataframe.apply(np.isnan).any(axis=1)]  ## SOLVED?
                 indices_to_drop = index1.union(index2)
+                # TODO: log number of dropped here
                 
                 this_dataframe = this_dataframe.drop(indices_to_drop)
                 targets = targets.drop(indices_to_drop)
+                # TODO: log nr of positive vs negative
                 print(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
                 print(f"y: {targets.size} samples")
                 
