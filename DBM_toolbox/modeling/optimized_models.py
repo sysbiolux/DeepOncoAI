@@ -225,12 +225,14 @@ def bayes_optimize_models(data, targets, n_trials:str=None, algos:list=None, met
                                                                 data,
                                                                 targets,
                                                                 n_trials, metric)
+            num = data.shape[0]
         except:
             logging.info(f"Could not optimize {model['name']}")
             maximum_value = np.nan
             optimal_model = np.nan
+            num = data.shape[0]
             
-        optimal_models[model['name']] = {'estimator': optimal_model, 'result': maximum_value}
+        optimal_models[model['name']] = {'estimator': optimal_model, 'result': maximum_value, 'N': num}
     return optimal_models
 
 def get_standard_models(data, targets, algos:list=None, metric:str=None):

@@ -306,7 +306,8 @@ class Config:
         algos = self.raw_dict['modeling']['general']['algorithms']
         print('Computing models')
         targets_list = []
-        method = self.raw_dict['modeling']['general']['first_level_models']
+        if method is None:
+            method = self.raw_dict['modeling']['general']['first_level_models']
         metric = self.raw_dict['modeling']['general']['metric']
         for item in self.raw_dict['data']['targets']:
             targets_list.append(item['name'].split('_')[0])
@@ -463,6 +464,8 @@ class Config:
                     num = i['N']
                     try:
                         result = i['result']
+                        if type(result) is dict:
+                            result = result['target']
                     except:
                         result = np.nan
                     results_df = results_df.append(pd.Series([target, omic, algo, result, estimator, num],
