@@ -358,5 +358,5 @@ def extract_IC50s(dataset):
     dataframe = dataset.dataframe
     
     dataframe = dataframe.loc[:, dataframe.columns.str.contains('IC50')]
-
+    
     return dataframe
