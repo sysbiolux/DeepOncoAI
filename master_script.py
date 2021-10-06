@@ -15,10 +15,10 @@ config = Config()
 ###################################
 
 logging.info("Reading data")
-data = config.read_data()
+data, IC50s = config.read_data()
 
-logging.info("Creating visualizations")
-config.visualize_dataset(data, mode='pre')
+# logging.info("Creating visualizations")
+# config.visualize_dataset(data, mode='pre')
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
@@ -39,7 +39,9 @@ else:
     engineered_data = filtered_data.normalize()
 
 logging.info("Quantizing targets")
-final_data = engineered_data.quantize(target_omic="DRUGS").optimize_formats()
+quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
+
+final_data = quantized_data.normalize().optimize_formats()
 
 # logging.info("Visualizing distributions")
 # config.visualize_dataset(final_data, mode='post')
