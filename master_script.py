@@ -17,8 +17,8 @@ config = Config()
 logging.info("Reading data")
 data = config.read_data()
 
-# logging.info("Creating visualizations")
-# config.visualize_dataset(data, mode='pre')
+logging.info("Creating visualizations")
+config.visualize_dataset(data, mode='pre')
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
@@ -183,68 +183,80 @@ all_omic.remove('DRUGS')
 for target in algos_dict.keys():
     for omic in algos_dict[target].keys():
         xx = algos_dict[target][omic][0]
+        fig, ax = plt.subplots(1, 3, figsize=(40,12))
+        axid = 0
+        
+        if omic == 'complete':
+            X = final_data.extract(omics_list=all_omic).to_pandas()
+        else:
+            X = final_data.to_pandas(omic=omic)
+        
+        y = final_data.to_pandas(omic='DRUGS').loc[:, target]
+        to_keep = y[y != 0.5].index
+        X = X.loc[to_keep, :]
+        y = y[to_keep]
+        
+        all_importances = pd.DataFrame(index=X.columns)
+        
         for idx in xx.index:
+            isSVC = False
+            isMLP = False
             model = xx[idx]
-            if omic == 'complete':
-                X = final_data.extract(omics_list=all_omic).to_pandas()
-            else:
-                X = final_data.to_pandas(omic=omic)
-            
-            y = final_data.to_pandas(omic='DRUGS').loc[:, target]
-            to_keep = y[y != 0.5].index
-            X = X.loc[to_keep, :]
-            y = y[to_keep]
+            print(f'{target} : {omic}: ')
+            print(model)
+        
             trained = model.fit(X, y)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            model_name = type(model).__name__
+            print('model trained')
+            try:
+                importances = trained.coef_ #linear
+                fi = pd.Series(data=importances[0], index=X.columns, name=model_name)
+            except:
+                try:
+                    importances = trained.feature_importances_ #trees
+                    fi = pd.Series(data=importances, index=X.columns, name=model_name)
+                except:
+                    try:
+                        importances = trained._dual_coef_ #SVC?
+                        isSVC = True
+                        fi = pd.Series(data=importances[0], index=X.columns, name=model_name)
+                    except:
+                        try:
+                            if not isSVC:
+                                coeffs = trained.coefs_ #MLP
+                                isMLP = True
+                                # fi = pd.Series(data=importances, index=X.columns, name=model_name)
+                        except:
+                            raise ValueError(f"Did not recognize this model: {model}")
+            if not (isSVC or isMLP) :
+                fi = fi.abs().sort_values(ascending=False)
+                fir = fi[:9]
+                print('plotting')
+                sns.barplot(fir.index, fir.values, ax=ax[axid], palette='GnBu_d')
+                ax[axid].set_xticklabels(fir.index, rotation=90, ha='right')
+                ax[axid].set_title(model_name)
+                all_importances[model_name] = fi
+                axid = axid + 1
+            else:
+                ax[axid].set_title(model_name)
+                
+                # plt.xticks(rotation=90)
+                # plt.title(model_name)
+        fig.suptitle(target.split('_')[0] + ' - ' + omic)
+        
+        # figx, axx = plt.subplots(figsize=(12,12))
+        n_imp = (all_importances - all_importances.min()) / (all_importances.max() - all_importances.min())
+        s = n_imp.sum(axis=1)
+        n_imp = n_imp.loc[s.sort_values(ascending=False).index, :]
+        toplot = n_imp.iloc[:50, :]
+        sns.lineplot(data=toplot, dashes=False, sort=False, ax=ax[-1])
+        ax[-1].set_xticklabels(toplot.index, rotation=90, ha='right')
+        if n_imp.shape[1] > 1:
+            c = n_imp.iloc[:,0].corr(n_imp.iloc[:,1], method='spearman')
+        else:
+            c = 0
+        ax[-1].set_title('normalized importances - rho= ' + str(round(c, 2)))
+        
 
 
 
