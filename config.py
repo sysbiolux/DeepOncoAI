@@ -338,7 +338,8 @@ class Config:
         algos = self.raw_dict['modeling']['general']['algorithms']
         print('Computing models')
         targets_list = []
-        method = self.raw_dict['modeling']['general']['first_level_models']
+        if method is None:
+            method = self.raw_dict['modeling']['general']['first_level_models']
         metric = self.raw_dict['modeling']['general']['metric']
         for item in self.raw_dict['data']['targets']:
             targets_list.append(item['name'].split('_')[0])
@@ -372,14 +373,14 @@ class Config:
                 this_dataframe = complete_dataframe
                 print(this_dataframe)
                 targets = this_dataset.dataframe[this_target_name]
-                
+
                 index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
                 index2 = this_dataframe.index[this_dataframe.apply(np.isnan).any(axis=1)]  ## SOLVED?
                 indices_to_drop = index1.union(index2)
                 # TODO: log number of dropped here
                 print(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
                 print(f"y: {targets.size} samples")
-                
+
                 this_dataframe = this_dataframe.drop(indices_to_drop)
                 targets = targets.drop(indices_to_drop)
                 # TODO: log nr of positive vs negative
@@ -390,31 +391,30 @@ class Config:
                                                                     algos=algos, 
                                                                     metric=metric)
                 results[this_target_name]['complete'] = this_result
-                
+
                 for this_omic in omics_list:
                     this_dataframe = this_dataset.to_pandas(omic=this_omic)
                     targets = this_dataset.dataframe[this_target_name]
                     logging.info(f"*** Optimizing models for {this_target_name} with {this_omic}")
                     print('Optimizing models for ' + this_target_name + ' with ' + this_omic)
-                    
+
                     index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
                     index2 = this_dataframe.index[this_dataframe.apply(np.isnan).any(axis=1)]  ## SOLVED?
                     indices_to_drop = index1.union(index2)
-                    
+
                     this_dataframe = this_dataframe.drop(indices_to_drop)
                     targets = targets.drop(indices_to_drop)
                     print(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
                     print(f"y: {targets.size} samples")
                     logging.info(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
                     logging.info(f"y: {targets.size} samples")
-                    
+
                     this_result = optimized_models.bayes_optimize_models(data=this_dataframe, 
                                                                         targets=targets, 
                                                                         n_trials=depth, 
                                                                         algos=algos, 
                                                                         metric=metric)
-                    
-                    
+
                     if this_omic not in results[this_target_name]:
                         results[this_target_name][this_omic] = this_result
             elif method == 'standard':
@@ -499,6 +499,8 @@ class Config:
                     num = i['N']
                     try:
                         result = i['result']
+                        if type(result) is dict:
+                            result = result['target']
                     except:
                         result = np.nan
                     results_df = results_df.append(pd.Series([target, omic, algo, result, estimator, num],
