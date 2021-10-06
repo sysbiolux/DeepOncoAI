@@ -27,8 +27,8 @@ def reformat_drugs(dataset):
         
             for thisDrug in drugNames:
                 dataframe_spec = dataframe.loc[dataframe['Compound'] == thisDrug]
-                dataframe_spec_clean = dataframe_spec.drop(columns =['Primary Cell Line Name', 'Compound', 'Target', 'Doses (uM)', 'Activity Data (median)', 'Activity SD', 'Num Data', 'FitType'])
-                dataframe_spec_clean.columns=['CCLE Cell Line Name', thisDrug+'_EC50', thisDrug+'_IC50', thisDrug+'_Amax', thisDrug+'_ActArea']
+                dataframe_spec_clean = dataframe_spec.drop(columns =['Primary Cell Line Name', 'Compound', 'Target', 'Activity SD', 'Num Data', 'FitType'])
+                dataframe_spec_clean.columns=['CCLE Cell Line Name', thisDrug+'_dr_doses', thisDrug+'_dr_responses', thisDrug+'_EC50', thisDrug+'_IC50', thisDrug+'_Amax', thisDrug+'_ActArea']
         
                 if merged.empty:
                     merged = dataframe_spec_clean.copy()
@@ -361,3 +361,12 @@ def extract_IC50s(dataset):
     
     return dataframe
 
+def extract_dr(dataset):
+    dataframe = dataset.dataframe
+    
+    dataframe = dataframe.loc[:, dataframe.columns.str.contains('_dr_')]
+    
+    return dataframe
+    
+    
+    

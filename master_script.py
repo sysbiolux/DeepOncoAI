@@ -15,7 +15,7 @@ config = Config()
 ###################################
 
 logging.info("Reading data")
-data, IC50s = config.read_data()
+data, IC50s, dose_responses = config.read_data()
 
 # logging.info("Creating visualizations")
 # config.visualize_dataset(data, mode='pre')
