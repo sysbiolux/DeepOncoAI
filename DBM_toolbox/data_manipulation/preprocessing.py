@@ -360,3 +360,4 @@ def extract_IC50s(dataset):
     dataframe = dataframe.loc[:, dataframe.columns.str.contains('IC50')]
     
     return dataframe
+

@@ -331,7 +331,7 @@ class Config:
 
     def get_models(self, dataset: dataset_class.Dataset, method: str=None):
         '''
-        Optimizes a set of models by retrieving omics and targets from the comfig files
+        Optimizes a set of models by retrieving omics and targets from the config files
         Bayesian hyperparameter optimization is performed for each model, predicting each target with each omic.
         Returns the a dictionary of optimized models and their performances 
         '''
@@ -414,6 +414,7 @@ class Config:
                                                                         n_trials=depth, 
                                                                         algos=algos, 
                                                                         metric=metric)
+
                     if this_omic not in results[this_target_name]:
                         results[this_target_name][this_omic] = this_result
             elif method == 'standard':
@@ -426,9 +427,11 @@ class Config:
                 index1 = targets.index[targets.apply(np.isnan)]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
                 index2 = this_dataframe.index[this_dataframe.apply(np.isnan).any(axis=1)]  ## SOLVED?
                 indices_to_drop = index1.union(index2)
+                # TODO: log number of dropped here
                 
                 this_dataframe = this_dataframe.drop(indices_to_drop)
                 targets = targets.drop(indices_to_drop)
+                # TODO: log nr of positive vs negative
                 print(f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features")
                 print(f"y: {targets.size} samples")
                 

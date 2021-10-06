@@ -7,7 +7,7 @@ import logging
 # @numba.jit
 logging.basicConfig(filename='run.log', level=logging.INFO, filemode='w', format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%H:%M:%S')
 from config import Config
-from DBM_toolbox.data_manipulation import dataset_class
+# from DBM_toolbox.data_manipulation import dataset_class
 config = Config()
 
 ###################################
@@ -34,9 +34,10 @@ logging.info("Engineering features")
 if selected_subset is not None:
     engineered_features = config.engineer_features(selected_subset)
     logging.info("Merging engineered features")
-    engineered_data = filtered_data.merge_with(engineered_features).normalize()
+    engineered_data = filtered_data.merge_with(engineered_features)
 else:
-    engineered_data = filtered_data.normalize()
+    engineered_data = filtered_data
+
 
 logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
@@ -51,6 +52,7 @@ final_data = quantized_data.normalize().optimize_formats()
 # config.save(to_save=optimal_algos_30, name='optimal_algos_3omics6drugs_30')
 
 logging.info("Getting optimized models")
+
 optimal_algos_30 = config.get_models(dataset=final_data, method='optimize')
 config.save(to_save=optimal_algos_30, name='optimal_algos_3omics6drugs_30')
 
@@ -61,6 +63,11 @@ config.save(to_save=optimal_algos_30, name='optimal_algos_3omics6drugs_30')
 algos_dict, results_prim = config.get_best_algos(optimal_algos_30)
 
 # config.show_results(results_prim)
+
+
+
+
+
 
 
 #%%
