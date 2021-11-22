@@ -15,7 +15,7 @@ import pandas as pd
 import datetime
 import random
 
-from DBM_toolbox.data_manipulation import preprocessing
+from DBM_toolbox.data_manipulation import preprocessing, dataset_class
 # import missingno as msno
 
 def doublesort(dataframe, ascending=True):
@@ -50,8 +50,29 @@ def plot_eda_all(dataframe, title=None):
     
     
     
-def plot_overlaps(dataframe, title):
-    pass ##TODO: overlaps of datasets
+def plot_overlaps(dataset, title):
+    omics = list(set(dataset.omic))
+    databases = list(set(dataset.database))
+    dataframe = dataset.dataframe
+    
+    res = dict()
+    
+    for database in databases:
+        for omic in omics:
+            dataframe = dataset.to_pandas(omic=omic, database=database)
+            if dataframe.shape[1] > 0:
+                dataframe = dataframe.dropna()
+                data_name = omic + '/' + database
+                res[data_name] = list(dataframe.index)
+                pass
+                
+                
+                
+            # except:
+            #     pass
+            
+
+    
 
 
 def plot_eda_PCA(dataframe, title, ts):
@@ -221,23 +242,30 @@ def plot_eda_missingcorrel(dataframe, title, ts):
         print('no missing data correlation plot')
     
 
-def plot_target(dataframe, bounds):
+def plot_target(dataframe, ActAreas, IC50s, dr, bounds):
     title = dataframe.name
     ts = str(round(datetime.datetime.now().timestamp()))
     fig, ax = plt.subplots(2, 1, figsize=(15, 15))
     sns.distplot(dataframe, bins=50, rug=True, ax=ax[0])
-    dataframe = preprocessing.rescale_data(dataframe)
-    points = sns.kdeplot(dataframe, shade=True, ax=ax[1]).get_lines()[0].get_data()
+    df = preprocessing.rescale_data(dataframe)
+    points = sns.kdeplot(df, shade=True, ax=ax[1]).get_lines()[0].get_data()
     x = points[0]
     y = points[1]
     
-    q = np.quantile(dataframe.dropna(), bounds)
+    q = np.quantile(df.dropna(), bounds)
     
     ax[1].fill_between(x,y, where = x >= q[1], color = 'g')
     ax[1].fill_between(x,y, where = x <= q[0], color = 'r')
     ax[1].fill_between(x,y, where = (x <= q[1]) & (x >= q[0]), color = 'y')
     fig.suptitle(title)
     plt.savefig(ts + '_' + title + '_distr.svg')
+    
+    labels = dataset_class.Dataset(dataframe=dataframe.to_frame(), omic='DRUGS', database='mod')
+    labels = labels.data_pop_quantize(target_omic= 'DRUGS', quantiles_df=bounds)
+    plot_dose_response(dr, target=title.split('_')[0], labels=labels.dataframe)
+    
+    ##
+    plot_scatter_dr(dataframe, ActAreas, IC50s, dr, bounds, labels)
 
 def plot_results(dataframe):
     ts = str(round(datetime.datetime.now().timestamp()))
@@ -295,8 +323,64 @@ def plot_results(dataframe):
     sns.scatterplot(x='perf', y='N', hue='target', style='algo', data=dataframe, ax=ax)
     plt.savefig(ts + '_' + '_overall_.svg')
 
+def plot_dose_response(dose_responses, idxs = None, target = None, labels = None):
 
+    if idxs is None:
+        idxs = dose_responses.index
+    if target is None:
+        target = dose_responses.columns
+    if labels is None:
+        labels = dose_responses
+        labels.loc[:, :] = 0.5
+    if type(idxs) is str:
+        idxs = [idxs]
 
+    
+    cols = [x for x in dose_responses.columns if x.startswith(target.split('_')[0])]
+    df = dose_responses.loc[:, cols]
+    df = df.reindex(idxs)
+    
+    cols = [x for x in labels.columns if x.startswith(target.split('_')[0])]
+    labels = labels.loc[:, cols]
+    labels = labels.reindex(idxs)
+
+    fig, ax = plt.subplots(figsize=(15,15))
+    dfx = df #.loc[:, cols]
+    labelx = labels #.loc[:, col]
+    
+    for n_idx, idx in enumerate(idxs):
+        col = [x for x in labelx if x.startswith(target)]
+        this_val = labelx.loc[idx, col].values[0]
+        
+        print(idx)
+        if not np.isnan(this_val):
+            if this_val == 1:
+                color = 'green'
+            elif this_val == 0:
+                color = 'red'
+            else:
+                color = 'grey'
+            try:
+                sns.lineplot(x = np.log(dfx.iloc[n_idx, 0]), y =dfx.iloc[n_idx, 1], color = color)
+                plt.title(target)
+            except:
+                print('could not display curve')
+
+def plot_scatter_dr(dataframe, ActAreas, IC50s, dr, bounds, labels):
+    
+    fig, ax = plt.subplots(figsize=(10,10))
+    if isinstance(dataframe, pd.Series):
+        dataframe = dataframe.to_frame()
+    for col in dataframe.columns:
+        target = col.split('_')[0]
+        xval = ActAreas.loc[:, [x for x in ActAreas.columns.tolist() if x.startswith(target)]]
+        yval = IC50s.loc[:, [y for y in IC50s.columns.tolist() if y.startswith(target)]]
+        xs = (xval > bounds[0]) & (xval < bounds[1])
+        xs = xs.rename(columns={xs.columns[0]: 'id'})
+        df = pd.merge(xval, yval, left_index=True, right_index=True)
+        df = pd.merge(df, xs, left_index=True, right_index=True)
+        sns.scatterplot(data = df, x=df.columns[0], y=df.columns[1], hue=df.columns[2], ax=ax)
+        plt.title(target)
 
 
 

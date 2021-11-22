@@ -9,16 +9,17 @@ logging.basicConfig(filename='run.log', level=logging.INFO, filemode='w', format
 from config import Config
 # from DBM_toolbox.data_manipulation import dataset_class
 config = Config()
+import pandas as pd
 
 ###################################
 ### READING AND PROCESSING DATA ###
 ###################################
 
 logging.info("Reading data")
-data, IC50s, dose_responses = config.read_data()
+data, ActAreas, IC50s, dose_responses = config.read_data()
 
 # logging.info("Creating visualizations")
-# config.visualize_dataset(data, mode='pre')
+# config.visualize_dataset(data, ActAreas, IC50s, dose_responses, mode='pre')
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
@@ -53,22 +54,16 @@ final_data = quantized_data.normalize().optimize_formats()
 
 logging.info("Getting optimized models")
 
-optimal_algos_30 = config.get_models(dataset=final_data, method='optimize')
-config.save(to_save=optimal_algos_30, name='optimal_algos_3omics6drugs_30')
+trainedmodels = config.get_models(dataset=final_data, method='standard')
+config.save(to_save=trainedmodels, name='full_fr')
 
 # logging.info("Getting standard models")
 # standard_algos = config.get_models(dataset=final_data, method='standard')
 # config.save(to_save=standard_algos, name='standard_algos_3omics6drugs')
 
-algos_dict, results_prim = config.get_best_algos(optimal_algos_30)
+algos_dict, results_prim = config.get_best_algos(trainedmodels)
 
-# config.show_results(results_prim)
-
-
-
-
-
-
+config.show_results(results_prim)
 
 #%%
 
@@ -82,6 +77,8 @@ config.save(to_save=best_stacks, name='stack_results')
 print('DONE')
 
 #%%
+
+# compare optimized versus standard
 
 import pandas as pd
 import numpy as np
@@ -141,6 +138,9 @@ plt.tight_layout()
 
 
 #%%
+
+# Calculating improvements
+
 targets = t['target'].unique()
 for target in targets:
     for omic in omics:
@@ -186,6 +186,9 @@ sns.swarmplot(x='target', y='improvement', data=t.loc[t['method']=='optimized_15
 plt.xticks(rotation=90)
 
 #%%
+
+# retrieve important features
+
 all_omic = final_data.omic.unique().tolist()
 all_omic.remove('DRUGS')
 
@@ -266,6 +269,16 @@ for target in algos_dict.keys():
             c = 0
         ax[-1].set_title('normalized importances - rho= ' + str(round(c, 2)))
         
+
+#%%
+
+# for each target
+
+# show ActArea vs IC50
+
+# find extremes
+
+# show doseresponses
 
 
 
