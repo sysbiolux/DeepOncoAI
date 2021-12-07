@@ -248,7 +248,7 @@ def plot_target(dataframe, ActAreas, IC50s, dr, bounds):
     fig, ax = plt.subplots(2, 1, figsize=(15, 15))
     sns.distplot(dataframe, bins=50, rug=True, ax=ax[0])
     df = preprocessing.rescale_data(dataframe)
-    points = sns.kdeplot(df, shade=True, ax=ax[1]).get_lines()[0].get_data()
+    points = sns.distplot(df, hist=False, ax=ax[1]).get_lines()[0].get_data()
     x = points[0]
     y = points[1]
     

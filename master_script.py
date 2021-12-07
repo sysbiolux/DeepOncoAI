@@ -55,7 +55,7 @@ final_data = quantized_data.normalize().optimize_formats()
 logging.info("Getting optimized models")
 
 trainedmodels = config.get_models(dataset=final_data, method='standard')
-config.save(to_save=trainedmodels, name='full_fr')
+config.save(to_save=trainedmodels, name='f_test')
 
 # logging.info("Getting standard models")
 # standard_algos = config.get_models(dataset=final_data, method='standard')
