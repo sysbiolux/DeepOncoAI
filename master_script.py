@@ -8,6 +8,7 @@ import logging
 logging.basicConfig(filename='run.log', level=logging.INFO, filemode='w', format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%H:%M:%S')
 from config import Config
 # from DBM_toolbox.data_manipulation import dataset_class
+from DBM_toolbox.interpretation import gsea
 config = Config()
 import pandas as pd
 
@@ -192,6 +193,8 @@ plt.xticks(rotation=90)
 all_omic = final_data.omic.unique().tolist()
 all_omic.remove('DRUGS')
 
+global_importances = {}
+
 for target in algos_dict.keys():
     for omic in algos_dict[target].keys():
         xx = algos_dict[target][omic][0]
@@ -268,10 +271,23 @@ for target in algos_dict.keys():
         else:
             c = 0
         ax[-1].set_title('normalized importances - rho= ' + str(round(c, 2)))
+        if target not in global_importances.keys():
+            global_importances[target] = {}
+            
+        global_importances[target][omic] = n_imp
         
 
 #%%
 
+
+genelist = ['IGKV4-1', 'CD55', 'IGKC', 'PPFIBP1', 'ABHD4', 'PCSK6', 'PGD', 'ARHGDIB', 'ITGB2', 'CARD6', 'MDM2', 'TP53']
+
+genesets = ['KEGG_2019_Human','KEGG_2021_Human']
+genesets = ['KEGG_2013', 'KEGG_2016']
+
+enr = gsea.get_enrichr(genelist, genesets, cutoff = 0.01)
+
+#%%
 # for each target
 
 # show ActArea vs IC50
