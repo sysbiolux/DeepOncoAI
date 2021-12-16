@@ -282,10 +282,10 @@ for target in algos_dict.keys():
 
 genelist = ['IGKV4-1', 'CD55', 'IGKC', 'PPFIBP1', 'ABHD4', 'PCSK6', 'PGD', 'ARHGDIB', 'ITGB2', 'CARD6', 'MDM2', 'TP53']
 
-genesets = ['KEGG_2019_Human','KEGG_2021_Human']
-genesets = ['KEGG_2013', 'KEGG_2016']
+genesets = ['KEGG_2019_Human','KEGG_2021_Human', 'KEGG_2013', 'KEGG_2016']
 
-enr = gsea.get_enrichr(genelist, genesets, cutoff = 0.01)
+enr = gsea.get_enrichr(genelist, genesets, cutoff = 0.1, tag = 'test')
+
 
 #%%
 # for each target
