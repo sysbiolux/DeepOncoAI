@@ -19,8 +19,8 @@ import pandas as pd
 logging.info("Reading data")
 data, ActAreas, IC50s, dose_responses = config.read_data()
 
-# logging.info("Creating visualizations")
-# config.visualize_dataset(data, ActAreas, IC50s, dose_responses, mode='pre')
+logging.info("Creating visualizations")
+config.visualize_dataset(data, ActAreas, IC50s, dose_responses, mode='pre')
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)

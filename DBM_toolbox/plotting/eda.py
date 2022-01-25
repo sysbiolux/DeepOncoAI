@@ -50,7 +50,7 @@ def plot_eda_all(dataframe, title=None):
     
     
     
-def plot_overlaps(dataset, title):
+def plot_overlaps(dataset, title): #TODO: complete function to display venn diagrams of database samples
     omics = list(set(dataset.omic))
     databases = list(set(dataset.database))
     dataframe = dataset.dataframe
@@ -375,12 +375,27 @@ def plot_scatter_dr(dataframe, ActAreas, IC50s, dr, bounds, labels):
         target = col.split('_')[0]
         xval = ActAreas.loc[:, [x for x in ActAreas.columns.tolist() if x.startswith(target)]]
         yval = IC50s.loc[:, [y for y in IC50s.columns.tolist() if y.startswith(target)]]
-        xs = (xval > bounds[0]) & (xval < bounds[1])
+        
+        max_val = xval.max()
+        min_val = xval.min()
+        bound0 = bounds[0] * (max_val - min_val) + min_val
+        bound1 = bounds[1] * (max_val - min_val) + min_val
+        xs_mid = xval > bound0
+        xs_high = xval > bound1 
+        xs = xs_mid.astype(int) + xs_high.astype(int)
+        for _ in xs.index:
+            print(xs.loc[_, :])
         xs = xs.rename(columns={xs.columns[0]: 'id'})
+        xs[xs == 0] = 'R'
+        xs[xs == 1] = 'I'
+        xs[xs == 2] = 'S'
         df = pd.merge(xval, yval, left_index=True, right_index=True)
         df = pd.merge(df, xs, left_index=True, right_index=True)
-        sns.scatterplot(data = df, x=df.columns[0], y=df.columns[1], hue=df.columns[2], ax=ax)
+        df = df.sort_values(by = 'id', ascending = False)
+        sns.scatterplot(data = df, x=df.columns[0], y=df.columns[1], hue=df.columns[2], palette=['red', 'yellow', 'green'], ax=ax)
+        # 
         plt.title(target)
+        print(df)
 
 
 
