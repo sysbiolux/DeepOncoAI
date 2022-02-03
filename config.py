@@ -74,8 +74,9 @@ def parse_transformations(dataframe, transformation: dict, omic: str, database: 
 
 
 class Config:
-    def __init__(self):
-        with open('config.yaml') as f:
+    def __init__(self,config):
+        #TODO: specify location of config
+        with open(config) as f:
             self.raw_dict = yaml.load(f, Loader=yaml.FullLoader)
 
     def read_data(self):
@@ -116,6 +117,7 @@ class Config:
                                                         keywords=[target_name,
                                                         target_metric])
                 # print(additional_dataset.dataframe)
+                #TODO: IC50s,ActAreas and dose_responses are computed for all additional datasets, is this not redundant?
                 IC50s = preprocessing.extract_IC50s(additional_dataset)
                 ActAreas = preprocessing.extract_ActAreas(additional_dataset)
                 dose_responses = preprocessing.extract_dr(additional_dataset)
@@ -573,15 +575,17 @@ class Config:
         
         pass
 
-    def show_results(self, dataset):
-        eda.plot_results(dataset)
+    def show_results(self,config, dataset):
+        eda.plot_results(config, dataset)
     
-    def visualize_dataset(self, dataset, ActAreas, IC50s, dr, mode: str='unspecified'):
+    def visualize_dataset(self, dataset, ActAreas, IC50s, dr, mode: str='unspecified',
+                          outputdir=None):
         # TODO: get visualization options from the config file?
         omics = dataset.omic
         databases = dataset.database
         targets = self.raw_dict['data']['targets']
-        eda.plot_overlaps(dataset, title=mode)
+        #TODO: review function, does nothing at the moment
+        eda.plot_overlaps(dataset, title=mode,outputdir=outputdir)
         
         # for database in pd.unique(databases):
         #     for omic in pd.unique(omics):
@@ -592,7 +596,8 @@ class Config:
         for target in targets:
             this_target = target['target_drug_name'] + '_' + target['responses']
             bounds = target['target_engineering'][0]['upper_bound_resistant'], target['target_engineering'][0]['lower_bound_sensitive']
-            eda.plot_target(dataset.dataframe[this_target], ActAreas=ActAreas, IC50s=IC50s, dr=dr, bounds=bounds)
+            eda.plot_target(dataset.dataframe[this_target], ActAreas=ActAreas,
+                            IC50s=IC50s, dr=dr, bounds=bounds,outputdir=outputdir)
 
     def evaluate_stacks(best_stacks):
         pass
