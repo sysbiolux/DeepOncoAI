@@ -124,17 +124,23 @@ class Dataset:
         database = self.database
         dataframe = self.to_pandas()
         if quantiles_df is None:
-            # quantiles = [0.333, 0.667]
-            pass
-        else:
-            quantized_dataframe = dataframe.copy()
-            for target in omic[omic.str.startswith(target_omic)].index:
+            quantiles_df = pd.DataFrame(index=['idx'], columns=['low', 'high'])
+            quantiles_df.loc['idx', :] = [0.333, 0.667]
+        elif type(quantiles_df) is tuple:
+            quantiles = quantiles_df
+            quantiles_df = pd.DataFrame(index=['idx'], columns=['low', 'high'])
+            quantiles_df.loc['idx',:] = quantiles
+        quantized_dataframe = dataframe.copy()
+        for target in omic[omic.str.startswith(target_omic)].index:
+            if quantiles_df.shape[0] > 1:
                 quantiles = [quantiles_df.loc[target.split('_')[0], 'low'], quantiles_df.loc[target.split('_')[0], 'high']]
-                print(quantiles)
-                q = np.quantile(dataframe[target].dropna(), quantiles)
-                quantized_dataframe[target] = 0.5 #start assigning 'intermediate' to all samples
-                quantized_dataframe[target].mask(dataframe[target] < q[0], 0, inplace=True) #samples below the first quantile get 0
-                quantized_dataframe[target].mask(dataframe[target] >= q[1], 1, inplace=True) #samples above get 1
+            else:
+                quantiles = [quantiles_df.loc['idx', 'low'], quantiles_df.loc['idx', 'high']]
+            print(quantiles)
+            q = np.quantile(dataframe[target].dropna(), quantiles)
+            quantized_dataframe[target] = 0.5 #start assigning 'intermediate' to all samples
+            quantized_dataframe[target].mask(dataframe[target] < q[0], 0, inplace=True) #samples below the first quantile get 0
+            quantized_dataframe[target].mask(dataframe[target] >= q[1], 1, inplace=True) #samples above get 1
         
         return Dataset(dataframe=quantized_dataframe, omic=omic, database=database)
         

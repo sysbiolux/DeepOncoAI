@@ -15,7 +15,7 @@ def read_data(folder:str, omic:str, database:str, nrows:int=None, keywords:str=N
             'RPPA' : 'CCLE_RPPA_20181003.csv',
             'META' : 'CCLE_metabolomics_20190502.csv',
             'CNV' : 'placeholder', #TODO: import file
-            'DNA' : 'placeholder', #TODO: import file
+            'DNA' : 'CCLE_MUT_CNA_AMP_DEL_binary_Revealer.csv', #TODO: import file
             'DRUGS': 'CCLE_NP24.2009_Drug_data_2015.02.24.csv',
             }[omic_root]
         
@@ -50,6 +50,7 @@ def read_data(folder:str, omic:str, database:str, nrows:int=None, keywords:str=N
         pass ## TODO: implement here
     
     dataset = Dataset(dataframe=dataframe, omic=omic, database=database)
+    
     
     if omic_root == 'DRUGS':
         dataset = preprocessing.reformat_drugs(dataset)

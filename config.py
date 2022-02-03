@@ -100,27 +100,38 @@ class Config:
 #         print(full_dataset.dataframe)
         targets = self.raw_dict['data']['targets']
         print(targets)
-        list_target_names = []
+        list_target_names_IC50 = []
+        list_target_names_dr = []
         if targets is not None:
             for target in targets:
                 target_metric = target['responses']
                 target_name = target['target_drug_name']
-                list_target_names.append(target_name + '_IC50')
+                list_target_names_IC50.append(target_name + '_IC50')
+                list_target_names_dr.append(target_name + '_dr_doses')
+                list_target_names_dr.append(target_name + '_dr_responses')
                 print('Loading ' + target['name'] + ' from ' + target['database'])
                 additional_dataset = load_data.read_data('data',
                                                         omic=target['name'],
                                                         database=target['database'],
                                                         keywords=[target_name,
                                                         target_metric])
+                # print(additional_dataset.dataframe)
                 IC50s = preprocessing.extract_IC50s(additional_dataset)
-                
+                ActAreas = preprocessing.extract_ActAreas(additional_dataset)
+                dose_responses = preprocessing.extract_dr(additional_dataset)
                 additional_dataset = preprocessing.select_drug_metric(additional_dataset, target_name + '_' + target_metric)
                 print(f'{additional_dataset.dataframe.shape[0]} samples and {additional_dataset.dataframe.shape[1]} features')
 #                 print(additional_dataset.dataframe)
                 full_dataset = full_dataset.merge_with(additional_dataset)
-            cols = [x for x in IC50s.columns if x in list_target_names]
+            cols = [x for x in IC50s.columns if x in list_target_names_IC50]
+            # print(cols)
             IC50s = IC50s[cols]
-        return full_dataset, IC50s
+            # print(dose_responses.columns)
+            cols = [x for x in dose_responses.columns if x in list_target_names_dr]
+            # print(dose_responses)
+            # print(cols)
+            dose_responses = dose_responses[cols]
+        return full_dataset, ActAreas, IC50s, dose_responses
     
     def quantize(self, dataset, target_omic: str, quantiles = None, IC50s = None):
         
@@ -565,24 +576,23 @@ class Config:
     def show_results(self, dataset):
         eda.plot_results(dataset)
     
-    def visualize_dataset(self, dataset, mode: str='unspecified'):
+    def visualize_dataset(self, dataset, ActAreas, IC50s, dr, mode: str='unspecified'):
         # TODO: get visualization options from the config file?
         omics = dataset.omic
         databases = dataset.database
         targets = self.raw_dict['data']['targets']
-        eda.plot_overlaps(dataset.dataframe, title=mode)
+        eda.plot_overlaps(dataset, title=mode)
         
-        for database in pd.unique(databases):
-            for omic in pd.unique(omics):
-                dataframe = dataset.to_pandas(omic=omic, database=database)
-                if dataframe.shape[1] > 0:
-                    logging.info(f"plotting info for {omic} in {database}")
-                    eda.plot_eda_all(dataframe, title=mode + '_' + database + '_' + omic)
+        # for database in pd.unique(databases):
+        #     for omic in pd.unique(omics):
+        #         dataframe = dataset.to_pandas(omic=omic, database=database)
+        #         if dataframe.shape[1] > 0:
+        #             logging.info(f"plotting info for {omic} in {database}")
+        #             eda.plot_eda_all(dataframe, title=mode + '_' + database + '_' + omic)
         for target in targets:
             this_target = target['target_drug_name'] + '_' + target['responses']
-            print(target)
             bounds = target['target_engineering'][0]['upper_bound_resistant'], target['target_engineering'][0]['lower_bound_sensitive']
-            eda.plot_target(dataset.dataframe[this_target], bounds=bounds)
+            eda.plot_target(dataset.dataframe[this_target], ActAreas=ActAreas, IC50s=IC50s, dr=dr, bounds=bounds)
 
     def evaluate_stacks(best_stacks):
         pass

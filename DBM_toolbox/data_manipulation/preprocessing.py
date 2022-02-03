@@ -24,12 +24,11 @@ def reformat_drugs(dataset):
             dataframe['Compound'].value_counts()
             # concatenate the drug info with one line per cell line
             merged = pd.DataFrame()
-        
             for thisDrug in drugNames:
                 dataframe_spec = dataframe.loc[dataframe['Compound'] == thisDrug]
-                dataframe_spec_clean = dataframe_spec.drop(columns =['Primary Cell Line Name', 'Compound', 'Target', 'Doses (uM)', 'Activity Data (median)', 'Activity SD', 'Num Data', 'FitType'])
-                dataframe_spec_clean.columns=['CCLE Cell Line Name', thisDrug+'_EC50', thisDrug+'_IC50', thisDrug+'_Amax', thisDrug+'_ActArea']
-        
+                dataframe_spec_clean = dataframe_spec.drop(columns =['Primary Cell Line Name', 'Compound', 'Target', 'Activity SD', 'Num Data', 'FitType'])
+                dataframe_spec_clean.columns=['CCLE Cell Line Name', thisDrug+'_dr_doses', thisDrug+'_dr_responses', thisDrug+'_EC50', thisDrug+'_IC50', thisDrug+'_Amax', thisDrug+'_ActArea']
+                
                 if merged.empty:
                     merged = dataframe_spec_clean.copy()
                 else:
@@ -41,7 +40,6 @@ def reformat_drugs(dataset):
         
         elif database[0] == 'GDSC':
             pass
-    
     return dataset_class.Dataset(merged_dataframe, omic=omic, database=database)
     
     
@@ -91,6 +89,7 @@ def preprocess_data(dataset, flag: str=None):
 
 def preprocess_ccle_rppa(dataset, flag: str=None):
     if flag == None:
+        print('hdgdtdferete')
         df = dataset.dataframe
         df = df.set_index('Unnamed: 0')
         df = rescale_data(df)
@@ -134,8 +133,13 @@ def preprocess_ccle_meta(dataset, flag: str=None):
     return dataset_class.Dataset(df, omic='META', database='CCLE')
 
 def preprocess_ccle_dna(dataset, flag: str=None):
-    ## TODO: preprocessing steps here
-    pass
+    df = dataset.dataframe
+    if flag == None:
+        df = df.drop('Description', axis=1)
+        df = df.set_index('Name')
+        df = df.transpose()
+    return dataset_class.Dataset(df, omic='DNA', database='CCLE')
+
 
 def preprocess_gdsc_rna(dataset, flag: str=None):
     df = dataset.dataframe
@@ -354,10 +358,36 @@ def reduce_mem_usage(df):
     
     return df
 
-def extract_IC50s(dataset):
+def extract_ActAreas(dataset):
     dataframe = dataset.dataframe
+    cols = dataframe.columns.str.contains('ActArea')
     
-    dataframe = dataframe.loc[:, dataframe.columns.str.contains('IC50')]
+    dataframe = dataframe.loc[:, cols]
     
     return dataframe
 
+def extract_IC50s(dataset):
+    dataframe = dataset.dataframe
+    cols = dataframe.columns.str.contains('IC50')
+    
+    dataframe = dataframe.loc[:, cols]
+    
+    return dataframe
+
+def extract_dr(dataset):
+    dataframe = dataset.dataframe
+    cols = dataframe.columns.str.contains('_dr_')
+    dataframe = dataframe.loc[:, cols]
+    
+    # split the strings of values into numpy arrays
+    for j, col in enumerate(dataframe.columns):
+        for i, idx in enumerate(dataframe.index):
+            this_item = dataframe.iloc[i, j]
+            if type(this_item) is str:
+                this_array = [float(x) for x in this_item.split(',')]
+                dataframe.iloc[i, j] = this_array
+        
+    return dataframe
+    
+    
+    
