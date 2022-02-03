@@ -4,6 +4,7 @@ Created on Sat Nov 21 10:52:06 2020
 
 @author: sebde
 """
+import os
 
 from matplotlib import pyplot as plt
 import matplotlib.colors as c
@@ -50,7 +51,7 @@ def plot_eda_all(dataframe, title=None):
     
     
     
-def plot_overlaps(dataset, title): #TODO: complete function to display venn diagrams of database samples
+def plot_overlaps(dataset, title,outputdir=None): #TODO: complete function to display venn diagrams of database samples
     omics = list(set(dataset.omic))
     databases = list(set(dataset.database))
     dataframe = dataset.dataframe
@@ -242,7 +243,7 @@ def plot_eda_missingcorrel(dataframe, title, ts):
         print('no missing data correlation plot')
     
 
-def plot_target(dataframe, ActAreas, IC50s, dr, bounds):
+def plot_target(dataframe, ActAreas, IC50s, dr, bounds,outputdir=None):
     title = dataframe.name
     ts = str(round(datetime.datetime.now().timestamp()))
     fig, ax = plt.subplots(2, 1, figsize=(15, 15))
@@ -258,13 +259,19 @@ def plot_target(dataframe, ActAreas, IC50s, dr, bounds):
     ax[1].fill_between(x,y, where = x <= q[0], color = 'r')
     ax[1].fill_between(x,y, where = (x <= q[1]) & (x >= q[0]), color = 'y')
     fig.suptitle(title)
-    plt.savefig(ts + '_' + title + '_distr.svg')
+    if outputdir:
+        out_path = os.path.join(outputdir,ts + '_' + title + '_distr.svg')
+    else:
+        out_path =  ts + '_' + title + '_distr.svg'
+    plt.savefig(out_path)
     
     labels = dataset_class.Dataset(dataframe=dataframe.to_frame(), omic='DRUGS', database='mod')
     labels = labels.data_pop_quantize(target_omic= 'DRUGS', quantiles_df=bounds)
+    #TODO: check location of plot
     plot_dose_response(dr, target=title.split('_')[0], labels=labels.dataframe)
     
     ##
+    # TODO: check location of plot
     plot_scatter_dr(dataframe, ActAreas, IC50s, dr, bounds, labels)
 
 def plot_results(dataframe):
@@ -319,7 +326,10 @@ def plot_results(dataframe):
         plt.xticks(rotation=90)
         plt.savefig(ts + '_' + this_algo + '_.svg')
     
-    fig, ax = plt.figure(figsize=(15,15))
+    try:
+        fig, ax = plt.figure(figsize=(15,15))
+    except TypeError:
+        pass
     sns.scatterplot(x='perf', y='N', hue='target', style='algo', data=dataframe, ax=ax)
     plt.savefig(ts + '_' + '_overall_.svg')
 
