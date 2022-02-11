@@ -575,8 +575,8 @@ class Config:
         
         pass
 
-    def show_results(self,config, dataset):
-        eda.plot_results(config, dataset)
+    def show_results(self, dataset, outputdir=None):
+        eda.plot_modeling_results(dataset, outputdir=outputdir)
     
     def visualize_dataset(self, dataset, ActAreas, IC50s, dr, mode: str='unspecified',
                           outputdir=None):
