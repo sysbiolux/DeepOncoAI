@@ -54,12 +54,8 @@ def read_data(folder:str, omic:str, database:str, nrows:int=None, keywords:str=N
     
     if omic_root == 'DRUGS':
         dataset = preprocessing.reformat_drugs(dataset)
-        
-        
-        # if keywords is not None:
-        #     for this_keyword in keywords:
-        #         dataset = preprocessing.select_drug_metric(dataset, this_keyword)
     else:
+        #TODO: Warning, datasets were not preprocessed previously! now preprocessing is enabled again
         dataset = preprocessing.preprocess_data(dataset)
         
     return dataset

@@ -4,6 +4,7 @@ Created on Sat Nov 21 10:52:06 2020
 
 @author: sebde
 """
+import os
 
 from matplotlib import pyplot as plt
 import matplotlib.colors as c
@@ -50,7 +51,7 @@ def plot_eda_all(dataframe, title=None):
     
     
     
-def plot_overlaps(dataset, title): #TODO: complete function to display venn diagrams of database samples
+def plot_overlaps(dataset, title,outputdir=None): #TODO: complete function to display venn diagrams of database samples
     omics = list(set(dataset.omic))
     databases = list(set(dataset.database))
     dataframe = dataset.dataframe
@@ -242,7 +243,7 @@ def plot_eda_missingcorrel(dataframe, title, ts):
         print('no missing data correlation plot')
     
 
-def plot_target(dataframe, ActAreas, IC50s, dr, bounds):
+def plot_target(dataframe, ActAreas, IC50s, dr, bounds,outputdir=None):
     title = dataframe.name
     ts = str(round(datetime.datetime.now().timestamp()))
     fig, ax = plt.subplots(2, 1, figsize=(15, 15))
@@ -258,16 +259,22 @@ def plot_target(dataframe, ActAreas, IC50s, dr, bounds):
     ax[1].fill_between(x,y, where = x <= q[0], color = 'r')
     ax[1].fill_between(x,y, where = (x <= q[1]) & (x >= q[0]), color = 'y')
     fig.suptitle(title)
-    plt.savefig(ts + '_' + title + '_distr.svg')
+    if outputdir:
+        out_path = os.path.join(outputdir,ts + '_' + title + '_distr.svg')
+    else:
+        out_path =  ts + '_' + title + '_distr.svg'
+    plt.savefig(out_path)
     
     labels = dataset_class.Dataset(dataframe=dataframe.to_frame(), omic='DRUGS', database='mod')
     labels = labels.data_pop_quantize(target_omic= 'DRUGS', quantiles_df=bounds)
+    #TODO: check location of plot
     plot_dose_response(dr, target=title.split('_')[0], labels=labels.dataframe)
     
     ##
+    # TODO: check location of plot
     plot_scatter_dr(dataframe, ActAreas, IC50s, dr, bounds, labels)
 
-def plot_results(dataframe):
+def plot_modeling_results(dataframe, outputdir=None):
     ts = str(round(datetime.datetime.now().timestamp()))
     targets = list(set(dataframe['target']))
     omics = list(set(dataframe['omic']))
@@ -282,46 +289,80 @@ def plot_results(dataframe):
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
                    data=dataframe[dataframe['target']==this_target]).set_title(this_target)
         plt.xticks(rotation=90)
-        plt.savefig(ts + '_' + this_target + '_.svg')
+        if outputdir:
+            out_path = os.path.join(outputdir, ts + '_' + this_target + '_.svg')
+        else:
+            out_path = ts + '_' + this_target + '_.svg'
+        plt.savefig(out_path)
     for this_omic in omics:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='target', y='perf', hue='algo', 
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
                    data=dataframe[dataframe['omic']==this_omic]).set_title(this_omic)
         plt.xticks(rotation=90)
-        plt.savefig(ts + '_' + this_omic + '_.svg')
+        if outputdir:
+            out_path = os.path.join(outputdir, ts + '_' + this_omic + '_.svg')
+        else:
+            out_path = ts + '_' + this_omic + '_.svg'
+        plt.savefig(out_path)
     for this_algo in algos:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='target', y='perf', hue='omic', 
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
                    data=dataframe[dataframe['algo']==this_algo]).set_title(this_algo)
         plt.xticks(rotation=90)
-        plt.savefig(ts + '_' + this_algo + '_.svg')
+        if outputdir:
+            out_path = os.path.join(outputdir, ts + '_' + this_algo + '_.svg')
+        else:
+            out_path = ts + '_' + this_algo + '_.svg'
+        plt.savefig(out_path)
     for this_target in targets:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='algo', y='perf', 
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
                    data=dataframe[dataframe['target']==this_target]).set_title(this_target)
         plt.xticks(rotation=90)
-        plt.savefig(ts + '_' + this_target + '_2.svg')
+        if outputdir:
+            out_path = os.path.join(outputdir, ts + '_' + this_target + '_2.svg')
+        else:
+            out_path = ts + '_' + this_target + '_2.svg'
+        plt.savefig(out_path)
     for this_omic in omics:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='target', y='perf', 
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
                    data=dataframe[dataframe['omic']==this_omic]).set_title(this_omic)
         plt.xticks(rotation=90)
-        plt.savefig(ts + '_' + this_omic + '_.svg')
+        if outputdir:
+            out_path = os.path.join(outputdir, ts + '_' + this_omic + '_2.svg')
+        else:
+            out_path = ts + '_' + this_omic + '_2.svg'
+        plt.savefig(out_path)
     for this_algo in algos:
         plt.figure(figsize=(15,15))
         ax = sns.barplot(x='omic', y='perf',  
                    palette=palette, linewidth=linewidth, capsize=capsize, edgecolor=edgecolor, ci=None, 
                    data=dataframe[dataframe['algo']==this_algo]).set_title(this_algo)
         plt.xticks(rotation=90)
-        plt.savefig(ts + '_' + this_algo + '_.svg')
+        if outputdir:
+            out_path = os.path.join(outputdir, ts + '_' + this_algo + '_2.svg')
+        else:
+            out_path = ts + '_' + this_algo + '_2.svg'
+        plt.savefig(out_path)
     
-    fig, ax = plt.figure(figsize=(15,15))
-    sns.scatterplot(x='perf', y='N', hue='target', style='algo', data=dataframe, ax=ax)
-    plt.savefig(ts + '_' + '_overall_.svg')
+    try:
+        fig, ax = plt.figure(figsize=(15,15))
+    except TypeError:
+        pass
+
+    #TODO: this part bugs, needs to produce the plts and save them without showing them as it comsumes too much memory...
+
+    # sns.scatterplot(x='perf', y='N', hue='target', style='algo', data=dataframe, ax=ax)
+    # if outputdir:
+    #     out_path = os.path.join(outputdir, ts + '_overall.svg')
+    # else:
+    #     out_path = ts + '_overall.svg'
+    # plt.savefig(out_path)
 
 def plot_dose_response(dose_responses, idxs = None, target = None, labels = None):
 
@@ -362,7 +403,7 @@ def plot_dose_response(dose_responses, idxs = None, target = None, labels = None
                 color = 'grey'
             try:
                 sns.lineplot(x = np.log(dfx.iloc[n_idx, 0]), y =dfx.iloc[n_idx, 1], color = color)
-                plt.title(target)
+                plt.title(target) #TODO: save plot in correct folder outputdir
             except:
                 print('could not display curve')
 
@@ -393,7 +434,7 @@ def plot_scatter_dr(dataframe, ActAreas, IC50s, dr, bounds, labels):
         df = pd.merge(df, xs, left_index=True, right_index=True)
         df = df.sort_values(by = 'id', ascending = False)
         sns.scatterplot(data = df, x=df.columns[0], y=df.columns[1], hue=df.columns[2], palette=['red', 'yellow', 'green'], ax=ax)
-        # 
+        #TODO: save plot in correct outputdir
         plt.title(target)
         print(df)
 

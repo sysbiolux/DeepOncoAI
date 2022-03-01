@@ -74,3 +74,4 @@ wincertstore==0.2
 wrapt==1.11.2
 xgboost==1.2.0
 zipp==3.1.0
+gseapy
