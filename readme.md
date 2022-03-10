@@ -42,7 +42,7 @@ Here are aexamples of run configurations
 
 * modeling_results: --overwrite -c input\config.yaml -i testdir\trained_models.pkl -o testdir
 
-* stacks:
+* stacks: tbc
 
 ## Getting Started
 
@@ -245,8 +245,6 @@ a brief list of things yet to implement:
 - Sébastien De Landtsheer sebdelandtsheer@gmail.com DeepBioModeling
   contact@deepbiomodeling.com https://www.deepbiomodeling.com
 - Prof. Thomas Sauter thomas.sauter@uni.lu
-- Thomas van Gurp thomas@deenabio.com Deena Bioinformatics
-
 
 
 ## Version History
