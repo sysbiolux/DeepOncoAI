@@ -4,7 +4,17 @@ This analysis pipeline is meant to allow the training of multiple machine-learni
 on various subsets of the data in the large cell line repositories like the CCLE and GDSC.
 Overall predictors can be designed by ensembling the most successful models for each drug.
 
-## Description
+The goal of the current pipeline is to : 
+* evaluate the predictivity of the different algorithms on the different subsets of the data, on the different drugs.
+* retrieve and compare the most important features for these, for each drug
+  * do similar algorithms pick up similar signals?
+  * which algorithms are better at which task?
+  * are the observations conserved across drugs?
+* build ensemble predictors:
+  * are ensembles of 2 predictors more performant than single algorithms? Which ones and in which case?
+  * what are the 'best' ensembles for each drug, can a biomarker signature of resistance/sensitivity be formed?
+
+## Description and rationale
 
 The prediction of individual patients' response to chemotherapy is a central problem in oncology.
 Cell lines can resume some of the characteristics of the patients original tumors and
@@ -19,12 +29,12 @@ data analysis and a dedication to professional software engineering.
 
 ## Towards a pipeline
 
-The pipeline was separated into logical chunks that can be run independently and 
+The pipeline was separated into primary logical chunks that can be run independently.
 
 Here are aexamples of run configurations
 * load: --overwrite -c input\config.yaml -o testdir -f testdir\raw.pkl
 
-*filter: --overwrite -c input\config.yaml -i testdir\raw.pkl -o testdir -f testdir\filtered.pkl
+* filter: --overwrite -c input\config.yaml -i testdir\raw.pkl -o testdir -f testdir\filtered.pkl
 
 * preprocess: --overwrite -c input\config.yaml -i testdir\filtered.pkl -r testdir\raw.pkl -o testdir -f testdir\preprocessed.pkl
 
@@ -32,16 +42,19 @@ Here are aexamples of run configurations
 
 * modeling_results: --overwrite -c input\config.yaml -i testdir\trained_models.pkl -o testdir
 
-* stacks: --overwrite -c input\config.yaml -i testdir\trained_models.pkl -o testdir
+* stacks:
 
 ## Getting Started
 
 ### Dependencies
 
 * Python3
-* To install all necessary modules use `pip3 install -r requirements.txt` in a fresh virtual environment
+* Conda
+* Snakemake [Snakemake getting started](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
+* All necessary modules will be automatically installed during the execution of the snakemake pipeline. Actually 
+  each 'chunk' has its own set of dependencies and environment.
 * Some data must be downloaded externally to the */data* folder:
-  CCLE_RNAseq_genes_rpkm_20180929
+  CCLE_RNAseq_genes_rpkm_20180929 can be found on the CCLE website
 
 ### Use
 
@@ -92,8 +105,9 @@ The following filters are available:
 * cross-correlation: removes cross-correlated features (experimental optimization
   for large datasets instead of exact solution)
 
-Furthermore, all filters are fitted on the original data and then applied
-in no particular order. In other words, the only features that are retained
+Furthermore, filters are divided into 'fast' and 'slow'. Fast filters are fitted and applied first to reduce 
+the size of the dataset. Slow filters (cross-correlation) are fitted on the result of the first pass and applied 
+subsequently. Filters are additive, i.e. the only features that are retained
 are the ones that pass all the filters in each of the two filtering steps.
 
 The following selections are available:
@@ -129,7 +143,7 @@ Under each target, the following info is allowed:
     - method1
     - method2
 
-The same filters are applicable to the 'omics' and 'targets'. Target normalization is only used
+The same filter types are applicable to the 'omics' and 'targets'. Target normalization is only used
 when the overall normalization is deactivated (in *master_script.py*). For target engineering,
 only the quantization method is currently implemented. Thresholding will be active in a future release.
 
@@ -143,14 +157,31 @@ configuration of the ensembling step.
 
 #### Step-by-step
 
-* modify the file *config.yaml*
-* run `python3 master_script.py`
-* the results of the stacking is written as a *pickle* object. Here is some info
+* create a new environment:
+```
+$ conda install -n base -c conda-forge mamba
+$ conda activate base
+$ mamba create -c conda-forge -c bioconda -n snakemake snakemake
+
+$ conda activate snakemake
+```
+* copy the file *config.yaml* in a new folder and modify it as needed
+* specify this folder name in `config_snake.yaml` as the input, and a path for the output
+* run the pipeline from the top-level folder:
+```
+snakemake --cores 1 --use-conda --configfile workflow\config_snake.yaml
+```
+(remember the slash is inverted in Unix systems)
+
+* the results of each of the steps is written as a *pickle* object. Here is some info
   about [pickle](https://docs.python.org/3/library/pickle.html)
-* the analysis is recored in *run.log*
+* the analysis is recorded in the snakemake run log.
 
 ### Structure
 
+Alright, you want to dig in the code. Here is some useful info: 
+
+* chunks: `load.py`, `filter.py`, `preprocess.py`, `model.py`, `stack.py`
 * the highest-level functions are located in `config.py`
 * data is organized with samples as lines and features as columns
 * the `Dataset` class is used throughout the project. It contains a Pandas Dataframe, and two
@@ -164,8 +195,9 @@ configuration of the ensembling step.
 * filters are separated into fast (applied first) and slow (applied second) to decrease computation time.
 * the pipeline can be run either in 'optimization' mode, where hyperparameters of each classifier is
   performed with Bayesian optimization, or in 'standard' mode where a predefined set of hyperparameters
-  is used for all trainings. At this point no increase in predictivity has been observed using hyperoptimized
-  models but this has not been investigated in full.
+  is used for all trainings. At this point small increases in predictivity have been observed using hyperoptimized
+  models, and minimum differences observed between hyper-optimized parameter values and default ones, but this 
+  has not been investigated in full.
 * ...
 
 ### Visualizations:
@@ -204,7 +236,9 @@ a brief list of things yet to implement:
 * more filters (outliers, ...)
 * grid-search or other to compare with bayesian search
 * add dunder methods for classes
-*
+* unit tests
+* include GDSC data
+
 
 ## Authors
 
