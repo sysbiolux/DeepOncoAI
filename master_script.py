@@ -1,10 +1,9 @@
 ####################
 ### HOUSEKEEPING ###
 ####################
+
 import logging
 
-# import numba #does not work?
-# @numba.jit
 logging.basicConfig(
     filename="run.log",
     level=logging.INFO,
@@ -12,49 +11,17 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
     datefmt="%H:%M:%S",
 )
-from scripts.config import Config
+from config import Config
 
-# from DBM_toolbox.data_manipulation import dataset_class
+from DBM_toolbox.data_manipulation import dataset_class
 from DBM_toolbox.interpretation import gsea
 
-# def parse_args():
-#     """Parse command line arguments"""
-#     parser = argparse.ArgumentParser(description='Call variants for bam files')
-#     # Optional arguments
-#     optional_arguments = parser.add_argument_group('optional arguments')
-#     optional_arguments.add_argument('-t', '--test', action='store_true', default=False,
-#                                     help='test with limited nr of sequences')
-#     # input arguments
-#     input_arguments = parser.add_argument_group('Input arguments or paths (all required)')
-#     input_arguments.add_argument('-i', '--input_dir', type=str, default=None, required=True,
-#                                  help='input directory with bam files')
-#     input_arguments.add_argument('-b', '--bam_file', type=str, default=None, required=True,
-#                                  help='input bam file')
-#     input_arguments.add_argument('--xlsx_path', type=str, default=None, required=True,
-#                                  help='input file with barcodes used in experiment')
-#     # Output arguments
-#     output_arguments = parser.add_argument_group('output parameters (all required)')
-#     output_arguments.add_argument('-o', '--output_dir', type=str, default=None, required=True,
-#                                   help='path where bam alignments will be written to')
-#     output_arguments.add_argument('-r', '--reference', type=str, default=None, required=True,
-#                                   help='path where to store the reference genome')
-#     args = parser.parse_args()
-#     return args
-#
-# def main():
-# #     args = parse_args()
-#
-# if __name__ == '__main__':
-#     main()
-
-config = Config()
+config = Config("config.yaml")
 
 ###################################
 ### READING AND PROCESSING DATA ###
 ###################################
-# TODO: start chunk 1
-# input data: config file
-# specifiy location of final_data
+
 logging.info("Reading data")
 data, ActAreas, IC50s, dose_responses = config.read_data()
 
@@ -82,16 +49,8 @@ else:
 
 logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
-
+engineered_data
 final_data = quantized_data.normalize().optimize_formats()
-# TODO: end chunk 1
-# store final_data pickle/json/datafile
-# logging.info("Visualizing distributions")
-# config.visualize_dataset(final_data, mode='post')
-
-# logging.info("Getting optimized models")
-# optimal_algos_150 = config.get_models(dataset=final_data, method='optimize')
-# config.save(to_save=optimal_algos_30, name='optimal_algos_3omics6drugs_30')
 
 logging.info("Getting optimized models")
 # TODO: start chunk 2

@@ -555,116 +555,116 @@ data:
         - name: thresholding
           threshold: 7
           enabled: false
-    - name: DRUGS_11
-      database: CCLE
-      responses: ActArea
-      target_drug_name: Panobinostat
-      filtering:
-        - name: sample_completeness
-          threshold: 0.95
-          enabled: true
-        - name: feature_completeness
-          threshold: 0.95
-          enabled: true
-      normalization:
-        - name: unit
-          enabled: true
-      target_engineering:
-        - name: quantization
-          upper_bound_resistant: 0.33
-          lower_bound_sensitive: 0.67
-          enabled: true
-        - name: thresholding
-          threshold: 7
-          enabled: false
-    - name: DRUGS_17
-      database: CCLE
-      responses: ActArea
-      target_drug_name: Paclitaxel
-      filtering:
-        - name: sample_completeness
-          threshold: 0.95
-          enabled: true
-        - name: feature_completeness
-          threshold: 0.95
-          enabled: true
-      normalization:
-        - name: unit
-          enabled: true
-      target_engineering:
-        - name: quantization
-          upper_bound_resistant: 0.33
-          lower_bound_sensitive: 0.67
-          enabled: true
-        - name: thresholding
-          threshold: 7
-          enabled: false
-    - name: DRUGS_13
-      database: CCLE
-      responses: ActArea
-      target_drug_name: Irinotecan
-      filtering:
-        - name: sample_completeness
-          threshold: 0.95
-          enabled: true
-        - name: feature_completeness
-          threshold: 0.95
-          enabled: true
-      normalization:
-        - name: unit
-          enabled: true
-      target_engineering:
-        - name: quantization
-          upper_bound_resistant: 0.33
-          lower_bound_sensitive: 0.67
-          enabled: true
-        - name: thresholding
-          threshold: 7
-          enabled: false
-    - name: DRUGS_15
-      database: CCLE
-      responses: ActArea
-      target_drug_name: PD-0325901
-      filtering:
-        - name: sample_completeness
-          threshold: 0.95
-          enabled: true
-        - name: feature_completeness
-          threshold: 0.95
-          enabled: true
-      normalization:
-        - name: unit
-          enabled: true
-      target_engineering:
-        - name: quantization
-          upper_bound_resistant: 0.33
-          lower_bound_sensitive: 0.67
-          enabled: true
-        - name: thresholding
-          threshold: 7
-          enabled: false
-    - name: DRUGS_18
-      database: CCLE
-      responses: ActArea
-      target_drug_name: AZD6244
-      filtering:
-        - name: sample_completeness
-          threshold: 0.95
-          enabled: true
-        - name: feature_completeness
-          threshold: 0.95
-          enabled: true
-      normalization:
-        - name: unit
-          enabled: true
-      target_engineering:
-        - name: quantization
-          upper_bound_resistant: 0.33
-          lower_bound_sensitive: 0.67
-          enabled: true
-        - name: thresholding
-          threshold: 7
-          enabled: false
+    #- name: DRUGS_11
+    #  database: CCLE
+    #  responses: ActArea
+    #  target_drug_name: Panobinostat
+    #  filtering:
+    #    - name: sample_completeness
+    #      threshold: 0.95
+    #      enabled: true
+    #    - name: feature_completeness
+    #      threshold: 0.95
+    #      enabled: true
+    #  normalization:
+    #    - name: unit
+    #      enabled: true
+    #  target_engineering:
+    #    - name: quantization
+    #      upper_bound_resistant: 0.33
+    #      lower_bound_sensitive: 0.67
+    #      enabled: true
+    #    - name: thresholding
+    #      threshold: 7
+    #      enabled: false
+    #- name: DRUGS_17
+    #  database: CCLE
+    #  responses: ActArea
+    #  target_drug_name: Paclitaxel
+    #  filtering:
+    #    - name: sample_completeness
+    #      threshold: 0.95
+    #      enabled: true
+    #    - name: feature_completeness
+    #      threshold: 0.95
+    #      enabled: true
+    #  normalization:
+    #    - name: unit
+    #      enabled: true
+    #  target_engineering:
+    #    - name: quantization
+    #      upper_bound_resistant: 0.33
+    #      lower_bound_sensitive: 0.67
+    #      enabled: true
+    #    - name: thresholding
+    #      threshold: 7
+    #      enabled: false
+    #- name: DRUGS_13
+    #  database: CCLE
+    #  responses: ActArea
+    #  target_drug_name: Irinotecan
+    #  filtering:
+    #    - name: sample_completeness
+    #      threshold: 0.95
+    #      enabled: true
+    #    - name: feature_completeness
+    #      threshold: 0.95
+    #      enabled: true
+    #  normalization:
+    #    - name: unit
+    #      enabled: true
+    #  target_engineering:
+    #    - name: quantization
+    #      upper_bound_resistant: 0.33
+    #      lower_bound_sensitive: 0.67
+    #      enabled: true
+    #    - name: thresholding
+    #      threshold: 7
+    #      enabled: false
+    # - name: DRUGS_15
+    #   database: CCLE
+    #   responses: ActArea
+    #   target_drug_name: PD-0325901
+    #   filtering:
+    #     - name: sample_completeness
+    #       threshold: 0.95
+    #       enabled: true
+    #     - name: feature_completeness
+    #       threshold: 0.95
+    #       enabled: true
+    #   normalization:
+    #     - name: unit
+    #       enabled: true
+    #   target_engineering:
+    #     - name: quantization
+    #       upper_bound_resistant: 0.33
+    #       lower_bound_sensitive: 0.67
+    #       enabled: true
+    #     - name: thresholding
+    #       threshold: 7
+    #       enabled: false
+    # - name: DRUGS_18
+    #   database: CCLE
+    #   responses: ActArea
+    #   target_drug_name: AZD6244
+    #   filtering:
+    #     - name: sample_completeness
+    #       threshold: 0.95
+    #       enabled: true
+    #     - name: feature_completeness
+    #       threshold: 0.95
+    #       enabled: true
+    #   normalization:
+    #     - name: unit
+    #       enabled: true
+    #   target_engineering:
+    #     - name: quantization
+    #       upper_bound_resistant: 0.33
+    #       lower_bound_sensitive: 0.67
+    #       enabled: true
+    #     - name: thresholding
+    #       threshold: 7
+    #       enabled: false
     # - name: DRUGS_2
     #   database: CCLE
     #   responses: ActArea

@@ -5,6 +5,7 @@ import numpy as np
 from DBM_toolbox.data_manipulation import preprocessing
 from typing import Union
 
+### user class used in this project. Bundles the actual data and traceback of the omic type and database of origin.
 
 class Dataset:
     def __init__(self, dataframe, omic: Union[list, str], database: Union[list, str]):
@@ -170,16 +171,17 @@ class Dataset:
             quantiles_df.loc["idx", :] = quantiles
         quantized_dataframe = dataframe.copy()
         for target in omic[omic.str.startswith(target_omic)].index:
-            if quantiles_df.shape[0] > 1:
-                quantiles = [
-                    quantiles_df.loc[target.split("_")[0], "low"],
-                    quantiles_df.loc[target.split("_")[0], "high"],
-                ]
-            else:
-                quantiles = [
-                    quantiles_df.loc["idx", "low"],
-                    quantiles_df.loc["idx", "high"],
-                ]
+#            if quantiles_df.shape[0] > 1:
+            quantiles = [
+                quantiles_df.loc[target.split("_")[0], "low"],
+                quantiles_df.loc[target.split("_")[0], "high"],
+            ]
+#            else:
+#                print(quantiles_df)
+#                quantiles = [
+#                    quantiles_df.loc[:, "low"].values,
+#                    quantiles_df.loc[:, "high"].values,
+#                ]
             print(quantiles)
             q = np.quantile(dataframe[target].dropna(), quantiles)
             quantized_dataframe[
