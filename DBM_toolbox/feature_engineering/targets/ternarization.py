@@ -13,7 +13,8 @@ from sklearn.preprocessing import binarize
 # from scipy.stats.kde import gaussian_kde
 # from astropy import modeling
 
-def get_drug_response(df, thresholdR = 0, thresholdS = 0, axis = 'columns'):
+
+def get_drug_response(df, thresholdR=0, thresholdS=0, axis="columns"):
     """replaces the data with indication of sensitivity based on quantiles:
         -1 = Resistant
         0 = Intermediate
@@ -21,20 +22,23 @@ def get_drug_response(df, thresholdR = 0, thresholdS = 0, axis = 'columns'):
         values in df indicate response to drug (like Act Area)
         """
     if isinstance(thresholdS, int):
-        dfSens = binarize(df, threshold = thresholdS) #Resistants will get 0, while Intermediates and Sensitives get 1
+        dfSens = binarize(
+            df, threshold=thresholdS
+        )  # Resistants will get 0, while Intermediates and Sensitives get 1
     else:
         dfSens = binarize(df.sub(thresholdS, axis=axis))
     if isinstance(thresholdR, int):
-        dfNotR = binarize(df, threshold = thresholdR) #Sensitives get 1 more, others get 0
+        dfNotR = binarize(
+            df, threshold=thresholdR
+        )  # Sensitives get 1 more, others get 0
     else:
         dfNotR = binarize(df.sub(thresholdR, axis=axis))
-    dfAll = dfSens + dfNotR -1
-    dfAll = pd.DataFrame(data = dfAll, index=df.index, columns=df.columns)
+    dfAll = dfSens + dfNotR - 1
+    dfAll = pd.DataFrame(data=dfAll, index=df.index, columns=df.columns)
     return dfAll
 
 
-
-def ternarize_targets_density(df, ):
+def ternarize_targets_density(df,):
     """replaces the data with indication of sensitivity based on density:
         -1 = Resistant
         0 = Intermediate
@@ -42,12 +46,12 @@ def ternarize_targets_density(df, ):
         values in df indicate response to drug (like Act Area)
         """
     ### TODO: Maria
-    
-    
+
+
 # def process_RNA_expressions(df):
 #     """performs discretization of the RNA expression levels into three levels
 #     old function not used at the moment """
-#     
+#
 #     dftrans = df
 #     dftrans_dropped=dftrans #.drop(columns=['Name', 'Description'])
 #     dftrans_dropped.fillna(0, inplace=True) # fill empty by 0
@@ -70,7 +74,7 @@ def ternarize_targets_density(df, ):
 #         type(indices)
 #         indices2=indices[0]
 #         my_pdf(x[indices2])
-#         
+#
 #         # find the maximum
 #         a=my_pdf(x[indices2])==max(my_pdf(x[indices2]))
 #         b=my_pdf(x[indices2])!=max(my_pdf(x[indices2]))
@@ -122,8 +126,3 @@ def ternarize_targets_density(df, ):
 #         df_z_trans.copy()
 #         di_dis.iloc[ind[0],i] =Dis_data
 #     return di_dis.transpose()
-
-
-
-
-

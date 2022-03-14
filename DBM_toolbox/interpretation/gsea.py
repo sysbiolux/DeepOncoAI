@@ -10,30 +10,31 @@ from gseapy.plot import barplot, dotplot
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
 def get_enrichr(genelist, genesets, cutoff=None, tag=None):
     if tag is None:
-        tag = ''
+        tag = ""
     if cutoff is None:
         cutoff = 0.5
-    
-    
 
     gene_list = genelist
 
     gene_sets = genesets
 
-    enr = gp.enrichr(gene_list = gene_list,
-                     gene_sets = gene_sets,
-                     organism = 'Human',
-                     description = tag,
-                     outdir = 'enrichr',
-                     # no_plot = True,
-                     cutoff = cutoff
-                    )
-    f, ax = plt.subplots(1, 1, figsize=(15,15))
+    enr = gp.enrichr(
+        gene_list=gene_list,
+        gene_sets=gene_sets,
+        organism="Human",
+        description=tag,
+        outdir="enrichr",
+        # no_plot = True,
+        cutoff=cutoff,
+    )
+    f, ax = plt.subplots(1, 1, figsize=(15, 15))
     title = tag
-    barplot(enr.res2d, title=title )
+    barplot(enr.res2d, title=title)
     return enr
+
 
 def get_gsea(genes, disease_genes, use_weights=False):
 
@@ -44,16 +45,16 @@ def get_gsea(genes, disease_genes, use_weights=False):
     if not use_weights:
         incList[disease_indices] = incP
     else:
-        incListData = -np.round( [len(genes)/(x+1) for x in range(len(genes))] , 0)
+        incListData = -np.round([len(genes) / (x + 1) for x in range(len(genes))], 0)
         temp = sum(incListData[disease_indices])
         incList[disease_indices] = incListData[disease_indices] / temp
-    
+
     score = np.cumsum(incList)
     es = max(score)
-    
+
     fig, ax = plt.subplots(2, 1, figsize=(10, 20))
-    sns.lineplot(x = range(len(score)), y = score, ax = ax[0])
-    
+    sns.lineplot(x=range(len(score)), y=score, ax=ax[0])
+
     randRuns = 20000
     esRand = []
     for counter in range(randRuns):
@@ -61,13 +62,13 @@ def get_gsea(genes, disease_genes, use_weights=False):
         incListRand = incList[temp]
         scoreListRand = np.cumsum(incListRand)
         esRand.append(max(scoreListRand))
-    
+
     nes = es / np.mean(esRand)
     is_lower = es <= esRand
     pval = np.mean(is_lower.astype(int))
-    print(pval)    
-    sns.histplot(esRand, ax = ax[1])
-    
-    result = {'enrichment score': es, 'normalized es': nes, 'p-value': pval}
-    
+    print(pval)
+    sns.histplot(esRand, ax=ax[1])
+
+    result = {"enrichment score": es, "normalized es": nes, "p-value": pval}
+
     return result
