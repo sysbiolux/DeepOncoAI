@@ -4,7 +4,7 @@ import os
 rule all:
     """final rule"""
     input:
-         expand("{outputdir}/trained_models.pkl",outputdir=config['outputdir']),
+         expand("{outputdir}/stacks.pkl",outputdir=config['outputdir']),
          expand("{outputdir}/figures",outputdir=config['outputdir'])
 
 rule load:
@@ -77,3 +77,18 @@ rule modeling_results:
          "environment.yaml",
     shell:
          "python modeling_results.py -c {input.config} -i {input.input_pickle} -o {params.outputdir}"
+
+rule stacking:
+    """stacking models"""
+    input:
+        config = expand("{inputdir}/config.yaml",inputdir=config['inputdir']),
+        input_models_pickle = expand("{outputdir}/trained_models.pkl",outputdir=config['outputdir']),
+        input_data_pickle = expand("{outputdir}/preprocessed.pkl", outputdir=config['outputdir']),
+    params:
+        outputdir = expand("{outputdir}",outputdir=config['outputdir']),
+    output:
+        final_data = expand("{outputdir}/stacks.pkl",outputdir=config['outputdir']),
+    conda:
+        "environment.yaml",
+    shell:
+        "python stack.py -c {input.config} -i {input.input_data_pickle} -m {input.input_models_pickle} -o {params.outputdir} -f {output.final_data}"

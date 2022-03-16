@@ -171,7 +171,7 @@ $ conda activate snakemake
 ```
 snakemake --cores 1 --use-conda --configfile workflow\config_snake.yaml
 ```
-(remember the slash is inverted in Unix systems)
+Remember the slash is inverted in Unix systems, and your default environment might not be called 'base' but 'root'.
 
 * the results of each of the steps is written as a *pickle* object. Here is some info
   about [pickle](https://docs.python.org/3/library/pickle.html)
