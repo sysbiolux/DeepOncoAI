@@ -102,17 +102,20 @@ def main():
     models_pickle = args.models
     data_pickle = args.input
 
-    [algos_dict, results_prim] = unpickle_objects(models_pickle)
+    models, algos_dict, results_prim = unpickle_objects(models_pickle)
     data = unpickle_objects(data_pickle)
 
     if not os.path.exists(trained_stacks_pickle) or args.overwrite:
-        best_stacks, results_sec = config.get_best_stacks(
-            models=algos_dict, dataset=data
+        results_sec = config.get_best_stacks(
+            models=models, dataset=data
         )
-        objects = [best_stacks, results_sec]
+        objects = results_sec
         pickle_objects(objects, trained_stacks_pickle)
+        for item in results_sec.item():
+            filename = item.key()
+        results_sec.to_csv(trained_stacks_pickle, encoding='utf-8', index=False)
     else:
-        [best_stacks, results_sec] = unpickle_objects(trained_stacks_pickle)
+        results_sec = unpickle_objects(trained_stacks_pickle)
 
     logging.info("Stacks constructed")
 

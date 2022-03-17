@@ -121,7 +121,6 @@ def preprocess_data(dataset, flag: str = None):
 
 def preprocess_ccle_rppa(dataset, flag: str = None):
     if flag == None:
-        print("hdgdtdferete")
         df = dataset.dataframe
         df = df.set_index("Unnamed: 0")
         df = rescale_data(df)
