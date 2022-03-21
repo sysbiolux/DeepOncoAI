@@ -97,11 +97,12 @@ def main():
     if not os.path.exists(trained_models_pickle) or args.overwrite:
         models = config.get_models(dataset=data)  # TODO: get rid of sklearn warnings
         algos_dict, results_prim = config.get_best_algos(models)
-        objects = [models, algos_dict, results_prim]
+        objects = [models, algos_dict]
         pickle_objects(objects, trained_models_pickle)
-        results_prim.to_csv(trained_models_pickle, encoding='utf-8', index=False)
+        filename = trained_models_pickle[:-4] + ".csv"
+        results_prim.to_csv(filename)
     else:
-        [models, algos_dict, results_prim] = unpickle_objects(trained_models_pickle)
+        [models, algos_dict] = unpickle_objects(trained_models_pickle)
 
     logging.info("Models trained")
 

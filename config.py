@@ -672,6 +672,7 @@ class Config:
         Compares the results of different algorithms for the same target with the same omic type, 
         looks for the highest performance and returns a dictionary of models
         """
+
         logging.info("Selecting best algorithms")
         options = self.raw_dict["modeling"]["ensembling"]
         models = dict()

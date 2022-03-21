@@ -208,10 +208,27 @@ def compute_systematic_stacks(
         for this_omic in omics_list:
             if this_omic == "complete":
                 X = this_dataset.to_pandas().drop(targets_list, axis=1)
+                print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
+                print(f"y: {y.size} samples")
+                X = X.dropna(how="all")
+                print("dropping")
+                print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
+                print(f"y: {y.size} samples")
+                index1 = y.index[
+                    y.apply(np.isnan)
+                ]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+                index2 = X.index[X.apply(np.isnan).any(axis=1)]  ## SOLVED?
+                indices_to_drop = index1 #.union(index2)
+                print(f"cross-dropping: idx1: {index1}, idx2: {index2}")
+                X = X.drop(indices_to_drop)
+                y = y.drop(indices_to_drop)
+                print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
+                print(f"y: {y.size} samples")
             else:
                 X = this_dataset.to_pandas(omic=this_omic)
             print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")
             models_dict = omics_dict[this_omic]
+            print(models_dict)
             models_list = list(models_dict.keys())
             print(f"models: {models_list}")
             for id, model in enumerate(models_list):
@@ -226,8 +243,11 @@ def compute_systematic_stacks(
         matrix = pd.DataFrame(index=predictions.columns, columns=predictions.columns)
         l = len(predictions.columns)
         for pred1 in range(l-1):
-            for pred2 in range(pred1+1, l):
-                merged_pred = predictions.iloc[:, [pred1, pred2]]
+            for pred2 in range(pred1, l):
+                if pred1 == pred2:
+                    merged_pred = predictions.iloc[:, [pred1]]
+                else:
+                    merged_pred = predictions.iloc[:, [pred1, pred2]]
                 print(merged_pred)
                 print(f"stacking{pred1} with {pred2}")
                 stack = final_model.fit(merged_pred, y, eval_metric="auc")
@@ -237,12 +257,9 @@ def compute_systematic_stacks(
                     )
                 )
                 print(f"perf: {perf}")
-                matrix[predictions.columns[pred1], predictions.columns[pred2]] = perf
-
-
-
-            res[target] = matrix
-
+                matrix.iloc[pred1, pred2] = perf
+        res[target] = matrix
+        print(matrix)
     return res
 
 
