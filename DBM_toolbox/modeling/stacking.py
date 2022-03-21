@@ -208,36 +208,66 @@ def compute_systematic_stacks(
         for this_omic in omics_list:
             if this_omic == "complete":
                 X = this_dataset.to_pandas().drop(targets_list, axis=1)
-                print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
-                print(f"y: {y.size} samples")
-                X = X.dropna(how="all")
-                print("dropping")
-                print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
-                print(f"y: {y.size} samples")
-                index1 = y.index[
-                    y.apply(np.isnan)
-                ]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
-                index2 = X.index[X.apply(np.isnan).any(axis=1)]  ## SOLVED?
-                indices_to_drop = index1 #.union(index2)
-                print(f"cross-dropping: idx1: {index1}, idx2: {index2}")
-                X = X.drop(indices_to_drop)
-                y = y.drop(indices_to_drop)
-                print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
-                print(f"y: {y.size} samples")
+                #print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
+                #print(f"y: {y.size} samples")
+                #X = X.dropna(how="all")
+                #print("dropping")
+             #   print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
+             #   print(f"y: {y.size} samples")
+             #   index1 = y.index[
+             #       y.apply(np.isnan)
+              #  ]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+             #   index2 = X.index[X.apply(np.isnan).any(axis=1)]  ## SOLVED?
+             #   indices_to_drop = index1.union(index2)
+            #    print(f"cross-dropping: idx1: {index1}, idx2: {index2}")
+            #    X = X.drop(indices_to_drop)
+            #    y = y.drop(indices_to_drop)
+            #    print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
+            #    print(f"y: {y.size} samples")
             else:
                 X = this_dataset.to_pandas(omic=this_omic)
+                #print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
+                #print(f"y: {y.size} samples")
+                #X = X.dropna(how="all")
+                #print("dropping")
             print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")
+            index1 = y.index[
+                y.apply(np.isnan)
+            ]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+            index2 = X.index[X.apply(np.isnan).any(axis=1)]  ## SOLVED?
+            indices_to_drop = index1.union(index2)
+            print(f"cross-dropping: idx1: {index1}, idx2: {index2}")
+            try:
+                X = X.drop(indices_to_drop)
+            except:
+                pass
+            try:
+                y = y.drop(indices_to_drop)
+            except:
+                pass
+            print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")
+            if X.shape[0] != y.size:
+                print("intersecting:...")
+                indexx = list(X.index)
+                indexy = list(y.index)
+                intersect = [value for value in indexx if value in indexy]
+                X = X.loc[intersect, :]
+                y = y.loc[intersect]
+                print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")
             models_dict = omics_dict[this_omic]
             print(models_dict)
             models_list = list(models_dict.keys())
             print(f"models: {models_list}")
             for id, model in enumerate(models_list):
                 this_model = models_dict[model]["estimator"]
+                print("++++++++++++++++")
                 print(this_model)
+                print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")
+                this_idx = y.index
                 xval = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
                 omic_predict = cross_val_predict(this_model, X, y, cv=xval, n_jobs=-1)
                 feature_name = this_omic + "_" + model
-                predictions[feature_name] = omic_predict
+                predictions.loc[this_idx, feature_name] = omic_predict
 
         #stacking:
         matrix = pd.DataFrame(index=predictions.columns, columns=predictions.columns)
@@ -249,7 +279,14 @@ def compute_systematic_stacks(
                 else:
                     merged_pred = predictions.iloc[:, [pred1, pred2]]
                 print(merged_pred)
-                print(f"stacking{pred1} with {pred2}")
+                print(f"stacking {pred1} with {pred2}")
+                print(f"omic: {this_omic}, X: {merged_pred.shape[0]} samples and {merged_pred.shape[1]} features, y: {y.size} samples")
+                indexx = list(merged_pred.index)
+                indexy = list(y.index)
+                intersect = [value for value in indexx if value in indexy]
+                merged_pred = merged_pred.loc[intersect, :]
+                y = y.loc[intersect]
+                print(f"omic: {this_omic}, X: {merged_pred.shape[0]} samples and {merged_pred.shape[1]} features, y: {y.size} samples")
                 stack = final_model.fit(merged_pred, y, eval_metric="auc")
                 perf = np.mean(
                     cross_val_score(
