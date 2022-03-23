@@ -672,21 +672,21 @@ class Config:
         Compares the results of different algorithms for the same target with the same omic type, 
         looks for the highest performance and returns a dictionary of models
         """
+
         logging.info("Selecting best algorithms")
         options = self.raw_dict["modeling"]["ensembling"]
-        n_models = options["n_models"]
-        # for each target
         models = dict()
         targets = optimal_algos.keys()
         results_df = pd.DataFrame(
             columns=["target", "omic", "algo", "perf", "estim", "N"]
         )
-        for target in targets:
+        for target in targets: # for each target
             print(target)
             models[target] = dict()
             # ranked list of algos
             if mode == "standard":
                 omics = optimal_algos[target].keys()
+                n_models = options["n_models"]
             elif mode == "over":
                 omics = ["complete"]
                 n_models = len(optimal_algos[target]["complete"].keys())
@@ -733,7 +733,7 @@ class Config:
         seed = self.raw_dict["modeling"]["general"]["inner_folds"]["random_seed"]
         n_models = options["n_models"]
         targets_list = list()
-        if tag == None:
+        if tag == None: ###tag not used at the moment
             tag = ""
         for item in self.raw_dict["data"]["targets"]:
             this_name = item["target_drug_name"] + "_" + item["responses"]
@@ -760,28 +760,10 @@ class Config:
             )
 
         folds = min(folds, len(dataset.dataframe.index))
-        best_stacks = stacking.compute_stacks(
+        results_stacks = stacking.compute_systematic_stacks(
             dataset, models, final_model, targets_list, metric, folds, seed
         )
-        results_df = pd.DataFrame(columns=["target", "omic", "algo", "perf", "estim"])
-        for target in best_stacks.keys():
-            scores = best_stacks[target]["scores"]
-            for stack_type in scores.index:
-                results_df = results_df.append(
-                    pd.Series(
-                        [
-                            target,
-                            ("stack" + tag),
-                            stack_type,
-                            scores[stack_type],
-                            final_model,
-                        ],
-                        index=results_df.columns,
-                    ),
-                    ignore_index=True,
-                )
-
-        return best_stacks, results_df
+        return results_stacks
 
     def get_over_stacks(self, models: dict, dataset: dataset_class.Dataset):
 

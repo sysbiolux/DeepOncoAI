@@ -121,7 +121,6 @@ def preprocess_data(dataset, flag: str = None):
 
 def preprocess_ccle_rppa(dataset, flag: str = None):
     if flag == None:
-        print("hdgdtdferete")
         df = dataset.dataframe
         df = df.set_index("Unnamed: 0")
         df = rescale_data(df)
@@ -378,7 +377,7 @@ def select_drug_metric(dataset, metric: str):
     return sparse_dataset
 
 
-def reduce_mem_usage(df):
+def reduce_mem_usage(df, check=False):
     """reduces memory usage for large pandas dataframes by changing datatypes per column into the ones
     that need the least number of bytes (int8 if possible, otherwise int16 etc...)"""
 
@@ -420,28 +419,28 @@ def reduce_mem_usage(df):
 
     end_mem = df.memory_usage().sum() / 1024 ** 2
     print("Memory usage after optimization is {:.2f} MB".format(end_mem))
+    if check:
+        df_test = pd.DataFrame()
 
-    df_test = pd.DataFrame()
+        print("checking consistency...")
 
-    print("checking consistency...")
+        for col in df:
+            col_type = df[col].dtype
+            #        print(col_type)
+            if col_type != object:
+                df_test[col] = df_orig[col] - df[col]
 
-    for col in df:
-        col_type = df[col].dtype
-        #        print(col_type)
-        if col_type != object:
-            df_test[col] = df_orig[col] - df[col]
+        # Mean, max and min for all columns should be 0
+        mean_test = df_test.describe().loc["mean"].mean()
+        max_test = df_test.describe().loc["max"].max()
+        min_test = df_test.describe().loc["min"].min()
 
-    # Mean, max and min for all columns should be 0
-    mean_test = df_test.describe().loc["mean"].mean()
-    max_test = df_test.describe().loc["max"].max()
-    min_test = df_test.describe().loc["min"].min()
-
-    print("Decreased by {:.1f}%".format(100 * (start_mem - end_mem) / start_mem))
-    print(
-        "Min, Max and Mean of pre/post differences: {:.2f}, {:.2f}, {:.2f}".format(
-            min_test, max_test, mean_test
+        print("Decreased by {:.1f}%".format(100 * (start_mem - end_mem) / start_mem))
+        print(
+            "Min, Max and Mean of pre/post differences: {:.2f}, {:.2f}, {:.2f}".format(
+                min_test, max_test, mean_test
+            )
         )
-    )
 
     return df
 

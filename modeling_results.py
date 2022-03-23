@@ -84,8 +84,8 @@ def main():
     logging.info("Analyzing modeling results...")
 
     data_pickle = args.input
-    [algos_dict, results_prim] = unpickle_objects(data_pickle)
-
+    [models, algos_dict] = unpickle_objects(data_pickle)
+    algos_dict, results_prim = config.get_best_algos(models)
     figures_output_dir = os.path.join(args.output_dir, "figures")
     if not os.path.exists(figures_output_dir) or args.overwrite:
         os.makedirs(figures_output_dir)

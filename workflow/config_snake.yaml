@@ -1,4 +1,4 @@
 
-inputdir: 'testb\first'
-outputdir: 'testb\first\out'
+inputdir: 'test_allomics_6targets'
+outputdir: 'test_allomics_6targets\out'
 
