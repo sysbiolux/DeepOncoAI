@@ -3,14 +3,11 @@ import logging
 import pickle
 import pandas as pd
 import numpy as np
-import random
 from datetime import datetime
-from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_predict
+from sklearn.model_selection import StratifiedKFold
 from sklearn.svm import SVC
-from sklearn.feature_selection import RFECV
 import xgboost as xgb
 from sklearn.linear_model import LogisticRegressionCV
-import matplotlib.pyplot as plt
 
 from DBM_toolbox.data_manipulation import load_data, rule, preprocessing
 from DBM_toolbox.data_manipulation import dataset_class, filter_class
@@ -113,7 +110,6 @@ def parse_transformations(dataframe, transformation: dict, omic: str, database: 
 
 class Config:
     def __init__(self, config):
-        # TODO: specify location of config
         with open(config) as f:
             self.raw_dict = yaml.load(f, Loader=yaml.FullLoader)
 
@@ -141,7 +137,6 @@ class Config:
             )
             full_dataset = full_dataset.merge_with(additional_dataset)
 
-        #         print(full_dataset.dataframe)
         targets = self.raw_dict["data"]["targets"]
         print(targets)
         list_target_names_IC50 = []
@@ -160,7 +155,6 @@ class Config:
                     database=target["database"],
                     keywords=[target_name, target_metric],
                 )
-                # print(additional_dataset.dataframe)
                 # TODO: IC50s,ActAreas and dose_responses are computed for all additional datasets, is this not redundant?
                 IC50s = preprocessing.extract_IC50s(additional_dataset)
                 ActAreas = preprocessing.extract_ActAreas(additional_dataset)
@@ -171,15 +165,10 @@ class Config:
                 print(
                     f"{additional_dataset.dataframe.shape[0]} samples and {additional_dataset.dataframe.shape[1]} features"
                 )
-                #                 print(additional_dataset.dataframe)
                 full_dataset = full_dataset.merge_with(additional_dataset)
             cols = [x for x in IC50s.columns if x in list_target_names_IC50]
-            # print(cols)
             IC50s = IC50s[cols]
-            # print(dose_responses.columns)
             cols = [x for x in dose_responses.columns if x in list_target_names_dr]
-            # print(dose_responses)
-            # print(cols)
             dose_responses = dose_responses[cols]
         return full_dataset, ActAreas, IC50s, dose_responses
 
@@ -187,11 +176,11 @@ class Config:
 
         names = dataset.to_pandas(omic=target_omic).columns
         names = [x.split("_")[0] for x in names]
-        quantiles = pd.DataFrame(index=names, columns=["low", "high"])
+        if quantiles is None:
+            quantiles = pd.DataFrame(index=names, columns=["low", "high"])
         thresholds = pd.Series(index=names)
         targets = self.raw_dict["data"]["targets"]
         for this_target in targets:
-            # print(this_target)
             for engineering in this_target["target_engineering"]:
                 if engineering["name"] == "quantization" and engineering["enabled"]:
                     quantiles.loc[this_target["target_drug_name"], "low"] = engineering[
@@ -269,7 +258,7 @@ class Config:
                         if new_rule is not None:
                             if (
                                 this_filter["name"] == "sample_completeness"
-                            ):  # TODO: this does not look pretty, the fact that sample completeness is a non-transferable filter makes it not have the same "create_filter" as the others so excetptions have to be created.
+                            ):  # this does not look pretty, the fact that sample completeness is a non-transferable filter makes it not have the same "create_filter" as the others so exceptions have to be created.
                                 new_filter = new_rule
                                 filters.insert(
                                     0, new_filter
@@ -307,7 +296,7 @@ class Config:
                         if new_rule is not None:
                             if (
                                 this_filter["name"] == "sample_completeness"
-                            ):  # TODO: this does not look pretty, the fact that sample completeness is a non-transferable filter makes it not have the same "create_filter" as the others so excetptions have to be created.
+                            ):  # this does not look pretty, the fact that sample completeness is a non-transferable filter makes it not have the same "create_filter" as the others so excetptions have to be created.
                                 new_filter = new_rule
                                 filters.insert(
                                     0, new_filter
@@ -333,10 +322,11 @@ class Config:
 
         return refiltered_data, [fast_filters, slow_filters]
 
-    def select_subsets(self, datasets: list):
+    def select_subsets(self, datasets):
         """
         Selects a subset of the features based on either predictivity or importance or both
         Returns a Dataset
+        'dataset' can be a single dataset or a list of datasets (after splitting)
         """
         print("Selecting subsets...")
         if isinstance(
@@ -461,7 +451,7 @@ class Config:
                             engineered_features = new_features
 
         use_type = self.raw_dict["modeling"]["general"]["use_tumor_type"]
-        if use_type["enabled"] == True:
+        if use_type["enabled"]:
             logging.info("Retrieving tumor types")
             dataframe_tumors = preprocessing.get_tumor_type(dataframe)
             tumor_dataset = dataset_class.Dataset(
@@ -475,8 +465,9 @@ class Config:
         """
         Optimizes a set of models by retrieving omics and targets from the config files
         Bayesian hyperparameter optimization is performed for each model, predicting each target with each omic.
-        Returns the a dictionary of optimized models and their performances 
+        Returns a dictionary of optimized models and their performances
         """
+        # TODO: this can be simplified as the code repeats between standard and optimized
         algos = self.raw_dict["modeling"]["general"]["algorithms"]
         print("Computing models")
         targets_list = []
@@ -503,7 +494,7 @@ class Config:
         results = dict()
 
         for this_target_name in targets_colnames:
-            # TODO: there should be a better way to do this, this depends on the exact order of the targets, should be ok but maybe names are better
+            # remark: there should be a better way to do this, this depends on the exact order of the targets, should be ok but maybe names are better
             results[this_target_name] = dict()
             this_dataset = dataset.to_binary(target=this_target_name)
 
@@ -526,10 +517,10 @@ class Config:
 
                 index1 = targets.index[
                     targets.apply(np.isnan)
-                ]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+                ]
                 index2 = this_dataframe.index[
                     this_dataframe.apply(np.isnan).any(axis=1)
-                ]  ## SOLVED?
+                ]
                 indices_to_drop = index1.union(index2)
                 # TODO: log number of dropped here
                 print(
@@ -565,10 +556,10 @@ class Config:
 
                     index1 = targets.index[
                         targets.apply(np.isnan)
-                    ]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+                    ]
                     index2 = this_dataframe.index[
                         this_dataframe.apply(np.isnan).any(axis=1)
-                    ]  ## SOLVED?
+                    ]
                     indices_to_drop = index1.union(index2)
 
                     this_dataframe = this_dataframe.drop(indices_to_drop)
@@ -607,10 +598,10 @@ class Config:
 
                 index1 = targets.index[
                     targets.apply(np.isnan)
-                ]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+                ]
                 index2 = this_dataframe.index[
                     this_dataframe.apply(np.isnan).any(axis=1)
-                ]  ## SOLVED?
+                ]
                 indices_to_drop = index1.union(index2)
                 # TODO: log number of dropped here
 
@@ -642,10 +633,10 @@ class Config:
 
                     index1 = targets.index[
                         targets.apply(np.isnan)
-                    ]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+                    ]
                     index2 = this_dataframe.index[
                         this_dataframe.apply(np.isnan).any(axis=1)
-                    ]  ## SOLVED?
+                    ]
                     indices_to_drop = index1.union(index2)
 
                     this_dataframe = this_dataframe.drop(indices_to_drop)

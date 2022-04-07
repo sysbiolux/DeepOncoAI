@@ -6,7 +6,7 @@ Created on Thu Dec  9 13:05:33 2021
 """
 import numpy as np
 import gseapy as gp
-from gseapy.plot import barplot, dotplot
+from gseapy.plot import barplot
 import matplotlib.pyplot as plt
 import seaborn as sns
 

@@ -17,7 +17,7 @@ def make_dataset(dataframe, omic: str = None, database: str = None):
 
 
 def get_polynomials(dataframe, degree: int = None):
-    if degree == None:
+    if degree is None:
         degree = 2
     """adds polynomial features to the dataset"""
     poly = PolynomialFeatures(degree)

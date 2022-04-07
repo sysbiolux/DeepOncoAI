@@ -50,7 +50,6 @@ def stack_models(
     y_proba = model.predict_proba(S_test)
     train_AUC = roc_auc_score(y_train, y_pred_train)
     finalAUC = roc_auc_score(y_test, y_pred)
-    #     print('Final AUC: [%.8f]' % finalAUC)
     return model, finalAUC, train_AUC, y_pred, y_proba
 
 
@@ -120,8 +119,8 @@ def compute_stacks(
                 print(f"y: {y.size} samples")
                 index1 = y.index[
                     y.apply(np.isnan)
-                ]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
-                index2 = X.index[X.apply(np.isnan).any(axis=1)]  ## SOLVED?
+                ]
+                index2 = X.index[X.apply(np.isnan).any(axis=1)]
                 indices_to_drop = index1.union(index2)
                 print(f"cross-dropping: idx1: {index1}, idx2: {index2}")
                 X = X.drop(indices_to_drop)
@@ -130,14 +129,14 @@ def compute_stacks(
                 print(f"y: {y.size} samples")
 
             models_list = omics[omic]
-            for id, model in enumerate(models_list):
+            for idx, model in enumerate(models_list):
 
                 this_model = model.iloc[0]
 
                 xval = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
                 print(X, y, xval)
                 omic_predict = cross_val_predict(this_model, X, y, cv=xval, n_jobs=-1)
-                feature_name = omic + str(id)
+                feature_name = omic + str(idx)
                 predictions[feature_name] = omic_predict
 
         data_with_predictions = (
@@ -174,11 +173,6 @@ def compute_stacks(
         predictions["lean_stack"] = lean_stack_predict
         predictions["truth"] = y.values
 
-        #             rfecv = RFECV(estimator=final_model, step=1, cv=xval, scoring=metric, min_features_to_select=min_models)
-        #             rfecv.fit(predictions, y)
-        #             print("Optimal number of features : %d" % rfecv.n_features_)
-        #             selected_features = rfecv.get_support()
-        #             score = rfecv.score(X, y)
         try:
             importances["full"] = pd.DataFrame(
                 full_stack.feature_importances_, index=full_stack.feature_names
