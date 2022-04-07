@@ -20,9 +20,9 @@ def make_dataset(dataframe, omic: str = None, database: str = None):
 
 def get_PCs(df, n_components: int = None, label: str = None):
     """returns the PCs columns corresponding to the PCA components of the dataframe"""
-    if label == None:
+    if label is None:
         label = (datetime.now()).strftime("%Y%m%d%H%M%S")
-    if n_components == None:
+    if n_components is None:
         n_components = 2
     pca = PCA(n_components=n_components)
     df = df.dropna()
@@ -41,9 +41,9 @@ def get_PCs(df, n_components: int = None, label: str = None):
 
 def get_ICs(df, n_components: int = None, label: str = None, random_state=42):
     """returns the PCs columns corresponding to the ICA components of the dataframe"""
-    if label == None:
+    if label is None:
         label = (datetime.now()).strftime("%Y%m%d%H%M%S")
-    if n_components == None:
+    if n_components is None:
         n_components = 2
     transformer = FastICA(n_components=n_components, random_state=random_state)
     X_transformed = transformer.fit_transform(df)
@@ -56,7 +56,7 @@ def get_ICs(df, n_components: int = None, label: str = None, random_state=42):
 
 def get_RPCs(df, n_components: int = 2, label: str = None, random_state=42):
     """returns the PCs columns corresponding to the ICA components of the dataframe"""
-    if label == None:
+    if label is None:
         label = (datetime.now()).strftime("%Y%m%d%H%M%S")
     transformer = GaussianRandomProjection(
         n_components=n_components, random_state=random_state
@@ -71,9 +71,9 @@ def get_RPCs(df, n_components: int = 2, label: str = None, random_state=42):
 
 def get_TSNEs(df, n_components: int = None, label: str = None, random_state=42):
     """returns the t-SNE components of the dataframe"""
-    if label == None:
+    if label is None:
         label = (datetime.now()).strftime("%Y%m%d%H%M%S")
-    if n_components == None:
+    if n_components is None:
         n_components = 2
     df = df.dropna()
     tsne = TSNE(n_components=n_components, verbose=1, random_state=random_state)

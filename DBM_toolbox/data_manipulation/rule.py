@@ -1,13 +1,9 @@
 import numpy as np
 import pandas as pd
-import random
-import logging
-from psutil import virtual_memory
 from DBM_toolbox.data_manipulation.filter_class import KeepFeaturesFilter
 from DBM_toolbox.data_manipulation import dataset_class
 import xgboost as xgb
 
-# from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import mean_squared_error
 
 

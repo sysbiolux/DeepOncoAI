@@ -13,12 +13,10 @@ def compare_train_test(
     training_data_filename, test_data_filename, test_id_string, target_string
 ):
     """returns plots for each variable to check the distributions in train and test sets and the 
-	distributions of targets in missing data (bias in missing samples)"""
+    distributions of targets in missing data (bias in missing samples)"""
     a = pd.read_csv(training_data_filename)
     b = pd.read_csv(test_data_filename)
-    # 	test_id = b[test_id_string]
     na = a.shape[0]
-    # 	nb = b.shape[0]
     c = pd.concat((a, b), sort=False).reset_index(drop=True)
     target = a[target_string].to_frame()
     c.drop([target_string], axis=1, inplace=True)

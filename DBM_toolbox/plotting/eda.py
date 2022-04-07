@@ -7,7 +7,6 @@ Created on Sat Nov 21 10:52:06 2020
 import os
 
 from matplotlib import pyplot as plt
-import matplotlib.colors as c
 from matplotlib.gridspec import GridSpec
 from sklearn.decomposition import PCA
 import seaborn as sns
@@ -17,8 +16,6 @@ import datetime
 import random
 
 from DBM_toolbox.data_manipulation import preprocessing, dataset_class
-
-# import missingno as msno
 
 
 def doublesort(dataframe, ascending=True):

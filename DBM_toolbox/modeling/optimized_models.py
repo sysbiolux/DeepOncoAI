@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.linear_model import LogisticRegression, RidgeClassifier
-from sklearn.neighbors import KNeighborsClassifier  # , NearestCentroid
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import (
     AdaBoostClassifier,
     ExtraTreesClassifier,
@@ -75,7 +75,6 @@ def create_EN(**kwargs):
     return LogisticRegression(
         penalty="elasticnet", solver="saga", l1_ratio=0.5, random_state=42, **kwargs
     )
-
 
 def create_ET(**kwargs):
     return ExtraTreesClassifier(random_state=42, n_jobs=-1, **kwargs)
@@ -235,7 +234,6 @@ def get_estimator_list():
 
 
 def cross_validate_evaluation(estimator, data, targets, metric):
-    #     print(estimator)
     cv = StratifiedKFold(n_splits=5)
     cval = cross_val_score(estimator, data, targets, scoring=metric, cv=cv, n_jobs=-1)
     return cval.mean()

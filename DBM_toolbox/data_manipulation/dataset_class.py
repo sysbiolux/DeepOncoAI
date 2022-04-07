@@ -5,7 +5,8 @@ import numpy as np
 from DBM_toolbox.data_manipulation import preprocessing
 from typing import Union
 
-### user class used in this project. Bundles the actual data and traceback of the omic type and database of origin.
+# user class used in this project. Bundles the actual data and traceback of the omic type and database of origin.
+
 
 class Dataset:
     def __init__(self, dataframe, omic: Union[list, str], database: Union[list, str]):
@@ -61,7 +62,6 @@ class Dataset:
     ):  # TODO: possibility to use lists of omics and databases?
         """
         returns the Pandas Dataframe of the dataset for columns matching BOTH the omic and database
-    
         """
 
         resulting_dataframe = self.dataframe
@@ -81,7 +81,7 @@ class Dataset:
 
     def extract(self, omics_list: list = [], databases_list: list = []):
         """
-        retuns the parts of the dataset matching EITHER ONE of the the elements of the omics_list and databases_list
+        returns the parts of the dataset matching EITHER ONE of the elements of the omics_list and databases_list
     
         """
         resulting_dataframe = self.dataframe
@@ -115,7 +115,6 @@ class Dataset:
 
         cols = dataframe.columns
 
-        #    merged_dataframe = pd.merge(dataframe, other_dataframe, left_index = True, right_index = True)
         merged_dataframe = pd.concat([dataframe, other_dataframe], axis=1)
         merged_omic = pd.concat([self.omic, other_dataset.omic])
         merged_database = pd.concat([self.database, other_dataset.database])
@@ -171,17 +170,10 @@ class Dataset:
             quantiles_df.loc["idx", :] = quantiles
         quantized_dataframe = dataframe.copy()
         for target in omic[omic.str.startswith(target_omic)].index:
-#            if quantiles_df.shape[0] > 1:
             quantiles = [
                 quantiles_df.loc[target.split("_")[0], "low"],
                 quantiles_df.loc[target.split("_")[0], "high"],
             ]
-#            else:
-#                print(quantiles_df)
-#                quantiles = [
-#                    quantiles_df.loc[:, "low"].values,
-#                    quantiles_df.loc[:, "high"].values,
-#                ]
             print(quantiles)
             q = np.quantile(dataframe[target].dropna(), quantiles)
             quantized_dataframe[
@@ -245,10 +237,6 @@ class Dataset:
                     else:
                         print("sample not found in IC50s")
 
-            # t_dataframe[target] == binarized_IC50s[drug_name + '_IC50']
-
-            # final_dataframe[target] = t_dataframe[target] * binarized_IC50s
-
         chosen_omics = [x for x in omic.unique() if x != target_omic]
         left_dataframe = self.extract(omics_list=chosen_omics).dataframe
 
@@ -261,7 +249,6 @@ class Dataset:
     def optimize_formats(self):
         logging.info("Optimizing formats")
         dataframe = self.dataframe
-        # optimal_dataframe = preprocessing.reduce_mem_usage(dataframe)
         dataframe_copy = dataframe.copy()  # EDIT_AHB
         optimal_dataframe = preprocessing.reduce_mem_usage(dataframe_copy)
         return Dataset(
