@@ -64,7 +64,7 @@ def main():
         level=logging.INFO,
         filemode="a",
         format="%(asctime)s %(levelname)-8s %(message)s",
-        datefmt="%H:%M:%S",
+        datefmt="%m/%d/%Y %H:%M:%S",
     )
     # import Config Class instance
     from config import Config

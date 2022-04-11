@@ -110,35 +110,36 @@ def parse_transformations(dataframe, transformation: dict, omic: str, database: 
 
 class Config:
     def __init__(self, config):
+        logging.info(f"accessing the config file: {config}")
         with open(config) as f:
             self.raw_dict = yaml.load(f, Loader=yaml.FullLoader)
 
     def read_data(self):
         """
         Reads the data (omics and targets) according to the config file and assembles a Dataset
+        This method is called by 'load.py' which is called by the snakefile
         """
-        print("Reading data...")
         nrows = self.raw_dict["data"].get("maximum_rows", None)
         omic = self.raw_dict["data"]["omics"][0]
-        print("Loading " + omic["name"] + " from " + omic["database"])
+        logging.info(f"Loading {omic['name']} from {omic['database']}:")
         full_dataset = load_data.read_data(
             "data", omic=omic["name"], database=omic["database"]
         )
-        print(
+        logging.info(
             f"{full_dataset.dataframe.shape[0]} samples and {full_dataset.dataframe.shape[1]} features"
         )
         for omic in self.raw_dict["data"]["omics"][1:]:
-            print("Loading " + omic["name"] + " from " + omic["database"])
+            logging.info(f"Loading {omic['name']} from {omic['database']}:")
             additional_dataset = load_data.read_data(
                 "data", omic=omic["name"], database=omic["database"], nrows=nrows
             )
-            print(
+            logging.info(
                 f"{additional_dataset.dataframe.shape[0]} samples and {additional_dataset.dataframe.shape[1]} features"
             )
             full_dataset = full_dataset.merge_with(additional_dataset)
 
         targets = self.raw_dict["data"]["targets"]
-        print(targets)
+        # logging.info(targets)
         list_target_names_IC50 = []
         list_target_names_dr = []
         if targets is not None:
@@ -148,7 +149,7 @@ class Config:
                 list_target_names_IC50.append(target_name + "_IC50")
                 list_target_names_dr.append(target_name + "_dr_doses")
                 list_target_names_dr.append(target_name + "_dr_responses")
-                print("Loading " + target["name"] + " from " + target["database"])
+                logging.info(f"Loading {target['name']} from {target['database']}:")
                 additional_dataset = load_data.read_data(
                     "data",
                     omic=target["name"],
@@ -162,7 +163,7 @@ class Config:
                 additional_dataset = preprocessing.select_drug_metric(
                     additional_dataset, target_name + "_" + target_metric
                 )
-                print(
+                logging.info(
                     f"{additional_dataset.dataframe.shape[0]} samples and {additional_dataset.dataframe.shape[1]} features"
                 )
                 full_dataset = full_dataset.merge_with(additional_dataset)
@@ -170,6 +171,7 @@ class Config:
             IC50s = IC50s[cols]
             cols = [x for x in dose_responses.columns if x in list_target_names_dr]
             dose_responses = dose_responses[cols]
+            logging.info("Data fully loaded!")
         return full_dataset, ActAreas, IC50s, dose_responses
 
     def quantize(self, dataset, target_omic: str, quantiles=None, IC50s=None):
@@ -193,9 +195,8 @@ class Config:
                     thresholds[this_target["target_drug_name"]] = engineering[
                         "threshold"
                     ]
-
-        print(f"Thresholds: {thresholds}")
-        print(f"Quantiles: {quantiles}")
+        logging.info(f"Thresholds: {thresholds}")
+        logging.info(f"Quantiles: {quantiles}")
         dataset = dataset.data_pop_quantize(
             target_omic=target_omic, quantiles_df=quantiles
         )
@@ -216,13 +217,18 @@ class Config:
         Splits the Dataset according to the split type indicated in the config file
         and returns the list of training and testing indices
         """
+        logging.info("Splitting dataset...")
         if split_type == "outer":
             split_txt = "outer_folds"
         elif split_type == "inner":
             split_txt = "inner"
         else:
             raise ValueError('split type should be either "outer" or "inner"')
-        n_splits = self.raw_dict["modeling"]["general"][split_txt]["value"]
+        try:
+            n_splits = self.raw_dict["modeling"]["general"][split_txt]["value"]
+        except:
+            logging.info("split not recognized")
+            raise ValueError("split type not recognized")
         dataframe = dataset.to_pandas()
         target = dataframe[target_name]
         dataframe.drop(target_name)
@@ -237,17 +243,19 @@ class Config:
             Computes a filter for each omic based on the config file specifications
             Returns the list of filters
             """
-            logging.info("Creating filters...")
+
+            logging.info("Creating fast filters...")
+
             omics = self.raw_dict["data"]["omics"]
             filters = []
             for omic in omics:
                 for this_filter in omic["filtering"]:
                     if this_filter["name"] in fast_filters_list:
-                        logging.info(f"Creating filter {this_filter['name']} for {omic['database']}/{omic['name']}")
+                        logging.info(f"Creating filter {this_filter['name']} for {omic['database']} / {omic['name']}")
                         new_rule = parse_filter(
                             this_filter, omic["name"], omic["database"]
                         )
-                        logging.info(new_rule)
+                        logging.info(f"new rule: {new_rule}")
                         if new_rule is not None:
                             if (
                                 this_filter["name"] == "sample_completeness"
@@ -268,7 +276,7 @@ class Config:
             Computes a filter for each omic based on the config file specifications
             Returns the list of filters
             """
-            print("Creating filters...")
+            logging.info("Creating slow filters...")
             omics = self.raw_dict["data"]["omics"]
             filters = []
             for omic in omics:

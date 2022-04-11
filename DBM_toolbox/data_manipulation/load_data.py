@@ -1,13 +1,14 @@
 import os
 
 import pandas as pd
+import logging
 
 from DBM_toolbox.data_manipulation.dataset_class import Dataset
 from DBM_toolbox.data_manipulation import preprocessing
 
 
 def read_data(
-    folder: str, omic: str, database: str, nrows: int = None, keywords: str = None
+    folder: str, omic: str, database: str, nrows: int = None, keywords: list[str] = None
 ):
     omic_root = omic.split("_")[0]
     if database == "CCLE":
@@ -40,6 +41,8 @@ def read_data(
             "AVNEIGHBOUR": "LungColonSkin_Av_neighbour.csv",
             #             insert more here
         }[omic_root]
+    else:
+        logging.info(f"Database not recognized: {database}")
     file_string, file_extension = os.path.splitext(filename)
 
     print(f"file: {filename}")
@@ -57,7 +60,7 @@ def read_data(
     if omic_root == "DRUGS":
         dataset = preprocessing.reformat_drugs(dataset)
     else:
-        # TODO: Warning, datasets were not preprocessed previously! now preprocessing is enabled again
+        logging.info(f"Dataset loaded, pre-processing...")
         dataset = preprocessing.preprocess_data(dataset)
-
+        logging.info(f"Dataset pre-processed")
     return dataset

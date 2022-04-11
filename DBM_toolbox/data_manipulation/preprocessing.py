@@ -20,7 +20,7 @@ def reformat_drugs(dataset):
     database = dataset.database
     omic = dataset.omic
     if all(x == database[0] for x in database) and all(
-        x.split("_")[0] == "DRUGS" for x in omic
+            x.split("_")[0] == "DRUGS" for x in omic
     ):
         if database[0] == "CCLE":
             drugNames = dataframe["Compound"].unique()
@@ -120,7 +120,7 @@ def preprocess_data(dataset, flag: str = None):
 
 
 def preprocess_ccle_rppa(dataset, flag: str = None):
-    if flag == None:
+    if flag is None:
         df = dataset.dataframe
         df = df.set_index("Unnamed: 0")
         df = rescale_data(df)
@@ -131,7 +131,7 @@ def preprocess_ccle_rppa(dataset, flag: str = None):
 
 def preprocess_ccle_rna(dataset, flag: str = None):
     df = dataset.dataframe
-    if flag == None:
+    if flag is None:
         df["GeneTrans"] = df["Description"] + "_" + df["Name"]
         df = df.set_index(["GeneTrans"])
         df = df.drop(["Description", "Name"], axis=1)
@@ -142,7 +142,7 @@ def preprocess_ccle_rna(dataset, flag: str = None):
 
 
 def preprocess_ccle_rna_filtered(dataset, flag: str = None):
-    if flag == None:
+    if flag is None:
         df = dataset.dataframe
         df = df.set_index("Unnamed: 0")
         return dataset_class.Dataset(df, omic="RNA-FILTERED", database="CCLE")
@@ -150,7 +150,7 @@ def preprocess_ccle_rna_filtered(dataset, flag: str = None):
 
 def preprocess_ccle_mirna(dataset, flag: str = None):
     df = dataset.dataframe
-    if flag == None:
+    if flag is None:
         df["GeneTrans"] = df["Description"] + "_" + df["Name"]
         df = df.set_index(["GeneTrans"])
         df = df.drop(["Description", "Name"], axis=1)
@@ -162,7 +162,7 @@ def preprocess_ccle_mirna(dataset, flag: str = None):
 
 def preprocess_ccle_meta(dataset, flag: str = None):
     df = dataset.dataframe
-    if flag == None:
+    if flag is None:
         df = df.drop("DepMap_ID", axis=1).set_index(["CCLE_ID"])
 
     return dataset_class.Dataset(df, omic="META", database="CCLE")
@@ -170,7 +170,7 @@ def preprocess_ccle_meta(dataset, flag: str = None):
 
 def preprocess_ccle_dna(dataset, flag: str = None):
     df = dataset.dataframe
-    if flag == None:
+    if flag is None:
         df = df.drop("Description", axis=1)
         df = df.set_index("Name")
         df = df.transpose()
@@ -179,7 +179,7 @@ def preprocess_ccle_dna(dataset, flag: str = None):
 
 def preprocess_gdsc_rna(dataset, flag: str = None):
     df = dataset.dataframe
-    if flag == None:
+    if flag is None:
         #         df['GeneTrans'] = df['Description'] + '_' + df['Name']
         #         df = df.set_index(['GeneTrans'])
         #         df = df.drop(['Description', 'Name'], axis=1)
@@ -190,18 +190,18 @@ def preprocess_gdsc_rna(dataset, flag: str = None):
 
 
 def preprocess_gdsc_mirna(dataset, flag: str = None):
-    ## TODO: preprocessing steps here
+    # TODO: preprocessing steps here
     pass
 
 
 def preprocess_gdsc_dna(dataset, flag: str = None):
-    ## TODO: preprocessing steps here
+    # TODO: preprocessing steps here
     pass
 
 
 def preprocess_features_pathway(dataset, flag: str = None):
     df = dataset.dataframe
-    if flag == None:
+    if flag is None:
         df = df.set_index(["Cell_line"])
     return dataset_class.Dataset(df, omic="PATHWAYS", database="OWN")
 
@@ -277,11 +277,9 @@ def rescale_data(dataframe):
 
 
 def impute_missing_data(
-    dataframe, method: str = "average", threshold: float = None
-):  ##add threshold
+        dataframe, method: str = "average", threshold: float = None
+):
     """imputes computed values for missing data according to the specified method"""
-    ##TODO: implement other methods of imputation
-
     if threshold is not None:
         df_copy = dataframe.copy()
         df_sum_missing = df_copy.isna().sum(axis=1)
@@ -298,10 +296,8 @@ def impute_missing_data(
     elif method == "null":
         dataframe = dataframe.fillna(0)
     elif method == "median":
-        raise ValueError("Function not configured for this use")
         dataframe = dataframe.fillna(dataframe.median())
     elif method == "neighbor":
-        raise ValueError("Function not configured for this use")
         imputer = KNNImputer()
         imputer.fit(dataframe)
         dataframe = imputer.transform(dataframe)
@@ -403,13 +399,13 @@ def reduce_mem_usage(df, check=False):
                     df[col] = df[col].astype(np.int64)
             else:
                 if (
-                    c_min > np.finfo(np.float16).min
-                    and c_max < np.finfo(np.float16).max
+                        c_min > np.finfo(np.float16).min
+                        and c_max < np.finfo(np.float16).max
                 ):
                     df[col] = df[col].astype(np.float16)
                 elif (
-                    c_min > np.finfo(np.float32).min
-                    and c_max < np.finfo(np.float32).max
+                        c_min > np.finfo(np.float32).min
+                        and c_max < np.finfo(np.float32).max
                 ):
                     df[col] = df[col].astype(np.float32)
                 else:
@@ -474,6 +470,6 @@ def extract_dr(dataset):
             this_item = dataframe.iloc[i, j]
             if type(this_item) is str:
                 this_array = [float(x) for x in this_item.split(",")]
-                dataframe.iloc[i, j] = this_array
+                dataframe.iloc[i, j] = this_array  # TODO: remove this warning
 
     return dataframe

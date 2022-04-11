@@ -66,7 +66,7 @@ def main():
         level=logging.INFO,
         filemode="a",
         format="%(asctime)s %(levelname)-8s %(message)s",
-        datefmt="%H:%M:%S",
+        datefmt="%m/%d/%Y %H:%M:%S",
     )
     # import Config Class instance
     from config import Config
@@ -74,7 +74,8 @@ def main():
     # instantiate config Class instance with configuration file
     config = Config(args.config)
 
-    logging.info("Reading data...")
+    logging.info("*** DeepOncoAI *** commencing analysis...")
+    logging.info("Loading datasets...")
     # set location read_data_pickle where pickled read data will be stored.
     raw_data_pickle = args.final_data
     if not os.path.exists(raw_data_pickle) or args.overwrite:
