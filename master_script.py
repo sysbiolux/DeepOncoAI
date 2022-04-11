@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(
     filename="run.log",
     level=logging.INFO,
-    filemode="w",
+    filemode="a",
     format="%(asctime)s %(levelname)-8s %(message)s",
     datefmt="%H:%M:%S",
 )

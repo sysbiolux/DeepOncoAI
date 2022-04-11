@@ -78,7 +78,7 @@ def main():
     logging.basicConfig(
         filename=os.path.join(args.output_dir, "run.log"),
         level=logging.INFO,
-        filemode="w",
+        filemode="a",
         format="%(asctime)s %(levelname)-8s %(message)s",
         datefmt="%H:%M:%S",
     )
