@@ -28,7 +28,10 @@ class HighestVarianceRule(Rule):
         features_to_keep = variances.iloc[:number_of_features_to_keep].index
         print(f"Keeping {len(features_to_keep)} features out of {dataframe.shape[1]}")
         return KeepFeaturesFilter(
-            features=features_to_keep, omic=self.omic, database=self.database
+            type="HighestVariance",
+            features=features_to_keep,
+            omic=self.omic,
+            database=self.database,
         )
 
 
@@ -53,7 +56,10 @@ class ColumnDensityRule(Rule):
         ].index
         print(f"Keeping {len(features_to_keep)} features out of {dataframe.shape[1]}")
         return KeepFeaturesFilter(
-            features=features_to_keep, omic=self.omic, database=self.database
+            type="ColumnDensity",
+            features=features_to_keep,
+            omic=self.omic,
+            database=self.database,
         )
 
 
@@ -104,7 +110,10 @@ class CrossCorrelationRule(Rule):
             except:
                 print("Feature not present")
         return KeepFeaturesFilter(
-            features=dataframe.columns, omic=self.omic, database=self.database
+            type="CrossCorrelation",
+            features=dataframe.columns,
+            omic=self.omic,
+            database=self.database,
         )
 
 
@@ -144,7 +153,10 @@ class FeatureImportanceRule(Rule):
         number_of_features_to_keep = int(round(len(importances) * self.fraction))
         features_to_keep = importances.iloc[:number_of_features_to_keep].index
         return KeepFeaturesFilter(
-            features=features_to_keep, omic=self.omic, database=self.database
+            type="FeatureImportance",
+            features=features_to_keep,
+            omic=self.omic,
+            database=self.database,
         )
 
 
@@ -198,5 +210,8 @@ class FeaturePredictivityRule(Rule):
         number_of_features_to_keep = int(round(len(predictivities) * self.fraction))
         features_to_keep = predictivities.iloc[:number_of_features_to_keep].index
         return KeepFeaturesFilter(
-            features=features_to_keep, omic=self.omic, database=self.database
+            type="FeaturePredictivity",
+            features=features_to_keep,
+            omic=self.omic,
+            database=self.database,
         )

@@ -17,15 +17,25 @@ from DBM_toolbox.plotting import eda
 
 parse_filter_dict = {
     "sample_completeness": lambda this_filter, omic, database: filter_class.KeepDenseRowsFilter(
-        completeness_threshold=this_filter["threshold"], omic=omic, database=database
+        type="DenseRows",
+        completeness_threshold=this_filter["threshold"],
+        omic=omic,
+        database=database,
     ),
     "feature_completeness": lambda this_filter, omic, database: rule.ColumnDensityRule(
-        completeness_threshold=this_filter["threshold"], omic=omic, database=database
+        type="ColumnsDensity",
+        completeness_threshold=this_filter["threshold"],
+        omic=omic,
+        database=database,
     ),
     "feature_variance": lambda this_filter, omic, database: rule.HighestVarianceRule(
-        fraction=this_filter["fraction_retained"], omic=omic, database=database
+        type="HighestVariance",
+        fraction=this_filter["fraction_retained"],
+        omic=omic,
+        database=database,
     ),
     "cross-correlation": lambda this_filter, omic, database: rule.CrossCorrelationRule(
+        type="CrossCorrelation",
         correlation_threshold=this_filter["correlation_threshold"],
         omic=omic,
         database=database,
@@ -251,7 +261,9 @@ class Config:
             for omic in omics:
                 for this_filter in omic["filtering"]:
                     if this_filter["name"] in fast_filters_list:
-                        logging.info(f"Creating filter {this_filter['name']} for {omic['database']} / {omic['name']}")
+                        logging.info(
+                            f"Creating filter {this_filter['name']} for {omic['database']} / {omic['name']}"
+                        )
                         new_rule = parse_filter(
                             this_filter, omic["name"], omic["database"]
                         )
@@ -282,7 +294,9 @@ class Config:
             for omic in omics:
                 for this_filter in omic["filtering"]:
                     if this_filter["name"] in slow_filters_list:
-                        logging.info(f"Creating filter {this_filter['name']} for {omic['database']}/{omic['name']}")
+                        logging.info(
+                            f"Creating filter {this_filter['name']} for {omic['database']}/{omic['name']}"
+                        )
                         new_rule = parse_filter(
                             this_filter, omic["name"], omic["database"]
                         )
@@ -494,9 +508,7 @@ class Config:
                 this_dataframe = complete_dataframe
                 targets = this_dataset.dataframe[this_target_name]
 
-                index1 = targets.index[
-                    targets.apply(np.isnan)
-                ]
+                index1 = targets.index[targets.apply(np.isnan)]
                 index2 = this_dataframe.index[
                     this_dataframe.apply(np.isnan).any(axis=1)
                 ]
@@ -507,7 +519,9 @@ class Config:
                 logging.info(
                     f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
                 )
-                logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
+                logging.info(
+                    f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)"
+                )
 
                 this_dataframe = this_dataframe.drop(indices_to_drop)
                 targets = targets.drop(indices_to_drop)
@@ -527,9 +541,7 @@ class Config:
                     logging.info(
                         f"*** Optimizing models for {this_target_name} with {this_omic}"
                     )
-                    index1 = targets.index[
-                        targets.apply(np.isnan)
-                    ]
+                    index1 = targets.index[targets.apply(np.isnan)]
                     index2 = this_dataframe.index[
                         this_dataframe.apply(np.isnan).any(axis=1)
                     ]
@@ -543,7 +555,9 @@ class Config:
                     logging.info(
                         f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
                     )
-                    logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
+                    logging.info(
+                        f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)"
+                    )
                     this_result = optimized_models.bayes_optimize_models(
                         data=this_dataframe,
                         targets=targets,
@@ -560,9 +574,7 @@ class Config:
                 )
                 this_dataframe = complete_dataframe
                 targets = this_dataset.dataframe[this_target_name]
-                index1 = targets.index[
-                    targets.apply(np.isnan)
-                ]
+                index1 = targets.index[targets.apply(np.isnan)]
                 index2 = this_dataframe.index[
                     this_dataframe.apply(np.isnan).any(axis=1)
                 ]
@@ -578,7 +590,9 @@ class Config:
                 logging.info(
                     f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
                 )
-                logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
+                logging.info(
+                    f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)"
+                )
                 this_result = optimized_models.get_standard_models(
                     data=this_dataframe, targets=targets, algos=algos, metric=metric
                 )
@@ -590,9 +604,7 @@ class Config:
                     logging.info(
                         f"*** Computing standard models for {this_target_name} with {this_omic}"
                     )
-                    index1 = targets.index[
-                        targets.apply(np.isnan)
-                    ]
+                    index1 = targets.index[targets.apply(np.isnan)]
                     index2 = this_dataframe.index[
                         this_dataframe.apply(np.isnan).any(axis=1)
                     ]
@@ -605,7 +617,9 @@ class Config:
                     logging.info(
                         f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
                     )
-                    logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
+                    logging.info(
+                        f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)"
+                    )
 
                     this_result = optimized_models.get_standard_models(
                         data=this_dataframe, targets=targets, algos=algos, metric=metric
@@ -663,7 +677,7 @@ class Config:
                     (results_df["target"] == target) & (results_df["omic"] == omic)
                 ]
                 best = omic_results.sort_values(by="perf", ascending=False).iloc[
-                    0: min(n_models, omic_results.shape[0]), :
+                    0 : min(n_models, omic_results.shape[0]), :
                 ]
                 models[target][omic].append(best["estim"])
 
@@ -727,14 +741,18 @@ class Config:
         databases = dataset.database
         targets = self.raw_dict["data"]["targets"]
 
-        eda.plot_overlaps(dataset, title=mode, outputdir=outputdir)  # TODO: review function, does nothing at the moment
+        eda.plot_overlaps(
+            dataset, title=mode, outputdir=outputdir
+        )  # TODO: review function, does nothing at the moment
 
         for database in pd.unique(databases):
             for omic in pd.unique(omics):
                 dataframe = dataset.to_pandas(omic=omic, database=database)
                 if dataframe.shape[1] > 0:
                     logging.info(f"plotting info for {omic} in {database}")
-                    eda.plot_eda_all(dataframe, title=mode + '_' + database + '_' + omic)
+                    eda.plot_eda_all(
+                        dataframe, title=mode + "_" + database + "_" + omic
+                    )
         for target in targets:
             this_target = target["target_drug_name"] + "_" + target["responses"]
             bounds = (

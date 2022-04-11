@@ -4,6 +4,7 @@ from DBM_toolbox.data_manipulation.dataset_class import Dataset
 
 class KeepFeaturesFilter:
     def __init__(self, features, omic, database):
+        self.type = None
         self.features = features
         self.omic = omic
         self.database = database
@@ -18,28 +19,29 @@ class KeepFeaturesFilter:
         selected["omic"] = (omic != self.omic).values
         selected["database"] = database != self.database
         selected["retained"] = selected.any(axis=1)
-        #         print('features retained:')
-        #         print(self.features)
         for this_feature in self.features:
             try:
                 selected.loc[this_feature, "retained"] = True
             except:
                 pass
 
-        filtered_dataframe = dataframe.loc[:, selected["retained"] == True]
-        retained_omic = omic.loc[selected["retained"] == True]
-        retained_database = database.loc[selected["retained"] == True]
+        filtered_dataframe = dataframe.loc[:, selected["retained"] is True]
+        retained_omic = omic.loc[selected["retained"] is True]
+        retained_database = database.loc[selected["retained"] is True]
 
         return Dataset(
             dataframe=filtered_dataframe, omic=retained_omic, database=retained_database
         )
 
     def __repr__(self):
-        return f"KeepFeaturesFilter({self.features}, {self.omic})"
+        return (
+            f"KeepFeaturesFilter with type {self.type}, ({self.features}, {self.omic})"
+        )
 
 
 class KeepDenseRowsFilter:
     def __init__(self, completeness_threshold, omic, database):
+        self.type = None
         self.completeness_threshold = completeness_threshold
         self.omic = omic
         self.database = database
@@ -50,8 +52,12 @@ class KeepDenseRowsFilter:
         samples_to_keep = completeness[
             completeness >= self.completeness_threshold
         ].index
-        print(f"Keeping {len(samples_to_keep)} samples out of {dataframe.shape[0]}")
         filtered_dataframe = dataset.dataframe.loc[samples_to_keep, :]
         return Dataset(
             dataframe=filtered_dataframe, omic=dataset.omic, database=dataset.database
+        )
+
+    def __repr__(self):
+        return (
+            f"KeepDenseRowsFilter with type {self.type}, ({self.features}, {self.omic})"
         )
