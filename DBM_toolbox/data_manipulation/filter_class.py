@@ -3,8 +3,8 @@ from DBM_toolbox.data_manipulation.dataset_class import Dataset
 
 
 class KeepFeaturesFilter:
-    def __init__(self, features, omic, database):
-        self.type = None
+    def __init__(self, ftype, features, omic, database):
+        self.ftype = ftype
         self.features = features
         self.omic = omic
         self.database = database
@@ -25,9 +25,9 @@ class KeepFeaturesFilter:
             except:
                 pass
 
-        filtered_dataframe = dataframe.loc[:, selected["retained"] is True]
-        retained_omic = omic.loc[selected["retained"] is True]
-        retained_database = database.loc[selected["retained"] is True]
+        filtered_dataframe = dataframe.loc[:, selected["retained"] == True]
+        retained_omic = omic.loc[selected["retained"] == True]
+        retained_database = database.loc[selected["retained"] == True]
 
         return Dataset(
             dataframe=filtered_dataframe, omic=retained_omic, database=retained_database
@@ -35,13 +35,13 @@ class KeepFeaturesFilter:
 
     def __repr__(self):
         return (
-            f"KeepFeaturesFilter with type {self.type}, ({self.features}, {self.omic})"
+            f"KeepFeaturesFilter with type {self.ftype}, ({self.features}, {self.omic}, {self.database})"
         )
 
 
 class KeepDenseRowsFilter:
-    def __init__(self, completeness_threshold, omic, database):
-        self.type = None
+    def __init__(self, ftype, completeness_threshold, omic, database):
+        self.ftype = ftype
         self.completeness_threshold = completeness_threshold
         self.omic = omic
         self.database = database
@@ -59,5 +59,5 @@ class KeepDenseRowsFilter:
 
     def __repr__(self):
         return (
-            f"KeepDenseRowsFilter with type {self.type}, ({self.features}, {self.omic})"
+            f"KeepDenseRowsFilter with type {self.ftype}, ({self.completeness_threshold}, {self.omic}, {self.database})"
         )

@@ -86,7 +86,7 @@ def create_KNN(**kwargs):
 
 
 def create_XGB(**kwargs):
-    return xgb.XGBClassifier(random_state=42, n_jobs=-1, **kwargs)
+    return xgb.XGBClassifier(random_state=42, n_jobs=-1, eval_metric='logloss', **kwargs)
 
 
 def create_Ada(**kwargs):

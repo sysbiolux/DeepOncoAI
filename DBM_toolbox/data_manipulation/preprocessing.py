@@ -384,7 +384,7 @@ def reduce_mem_usage(df, check=False):
 
     df_orig = df.copy()
     start_mem = df.memory_usage().sum() / 1024 ** 2
-    print("Memory usage is {:.2f} MB".format(start_mem))
+    logging.info("Memory usage is {:.2f} MB".format(start_mem))
 
     for col in df.columns:
         if is_datetime(df[col]) or is_categorical_dtype(df[col]):
@@ -419,11 +419,11 @@ def reduce_mem_usage(df, check=False):
             df[col] = df[col].astype("category")
 
     end_mem = df.memory_usage().sum() / 1024 ** 2
-    print("Memory usage after optimization is {:.2f} MB".format(end_mem))
+    logging.info("Memory usage after optimization is {:.2f} MB".format(end_mem))
     if check:
         df_test = pd.DataFrame()
 
-        print("checking consistency...")
+        logging.info("checking consistency...")
 
         for col in df:
             col_type = df[col].dtype
@@ -436,8 +436,8 @@ def reduce_mem_usage(df, check=False):
         max_test = df_test.describe().loc["max"].max()
         min_test = df_test.describe().loc["min"].min()
 
-        print("Decreased by {:.1f}%".format(100 * (start_mem - end_mem) / start_mem))
-        print(
+        logging.info("Decreased by {:.1f}%".format(100 * (start_mem - end_mem) / start_mem))
+        logging.info(
             "Min, Max and Mean of pre/post differences: {:.2f}, {:.2f}, {:.2f}".format(
                 min_test, max_test, mean_test
             )
