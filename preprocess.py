@@ -91,7 +91,9 @@ def main():
     data_pickle = args.input
     [filtered_data, filters] = unpickle_objects(data_pickle)
 
-    logging.info("(snake) Preprocessing 1/2: Selecting subsets and feature engineering...")
+    logging.info(
+        "(snake) Preprocessing 1/2: Selecting subsets and feature engineering..."
+    )
     selected_subset_pickle = os.path.join(args.output_dir, "selected_subset.pickle")
     if not os.path.exists(selected_subset_pickle) or args.overwrite:
         selected_subset = config.select_subsets(filtered_data)

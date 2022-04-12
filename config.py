@@ -23,14 +23,10 @@ parse_filter_dict = {
         database=database,
     ),
     "feature_completeness": lambda this_filter, omic, database: rule.ColumnDensityRule(
-        completeness_threshold=this_filter["threshold"],
-        omic=omic,
-        database=database,
+        completeness_threshold=this_filter["threshold"], omic=omic, database=database,
     ),
     "feature_variance": lambda this_filter, omic, database: rule.HighestVarianceRule(
-        fraction=this_filter["fraction_retained"],
-        omic=omic,
-        database=database,
+        fraction=this_filter["fraction_retained"], omic=omic, database=database,
     ),
     "cross-correlation": lambda this_filter, omic, database: rule.CrossCorrelationRule(
         correlation_threshold=this_filter["correlation_threshold"],
@@ -156,7 +152,9 @@ class Config:
                 list_target_names_IC50.append(target_name + "_IC50")
                 list_target_names_dr.append(target_name + "_dr_doses")
                 list_target_names_dr.append(target_name + "_dr_responses")
-                logging.info(f"(lvl0) Loading {target['name']} from {target['database']}:")
+                logging.info(
+                    f"(lvl0) Loading {target['name']} from {target['database']}:"
+                )
                 additional_dataset = load_data.read_data(
                     "data",
                     omic=target["name"],
@@ -373,7 +371,9 @@ class Config:
                     new_filter = new_selection.create_filter(
                         dataset=this_dataset, target_dataframe=target
                     )
-                    logging.info(f"(lvl0) Applying selection for {omic['name']}_{database}")
+                    logging.info(
+                        f"(lvl0) Applying selection for {omic['name']}_{database}"
+                    )
                     new_training_subset = this_dataset.apply_filters([new_filter])
                     if isinstance(datasets, list):
                         this_test_dataset = dataset_class.Dataset(
@@ -672,7 +672,7 @@ class Config:
                     (results_df["target"] == target) & (results_df["omic"] == omic)
                 ]
                 best = omic_results.sort_values(by="perf", ascending=False).iloc[
-                    0: min(n_models, omic_results.shape[0]), :
+                    0 : min(n_models, omic_results.shape[0]), :
                 ]
                 models[target][omic].append(best["estim"])
 

@@ -34,9 +34,7 @@ class KeepFeaturesFilter:
         )
 
     def __repr__(self):
-        return (
-            f"KeepFeaturesFilter with type {self.ftype}, ({self.features}, {self.omic}, {self.database})"
-        )
+        return f"KeepFeaturesFilter with type {self.ftype}, ({self.features}, {self.omic}, {self.database})"
 
 
 class KeepDenseRowsFilter:
@@ -58,6 +56,4 @@ class KeepDenseRowsFilter:
         )
 
     def __repr__(self):
-        return (
-            f"KeepDenseRowsFilter with type {self.ftype}, ({self.completeness_threshold}, {self.omic}, {self.database})"
-        )
+        return f"KeepDenseRowsFilter with type {self.ftype}, ({self.completeness_threshold}, {self.omic}, {self.database})"

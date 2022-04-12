@@ -204,12 +204,7 @@ def compute_systematic_stacks(
                 X = this_dataset.to_pandas().drop(targets_list, axis=1)
             else:
                 X = this_dataset.to_pandas(omic=this_omic)
-            logging.info(
-                f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples"
-            )
-            index1 = y.index[
-                y.apply(np.isnan)
-            ]
+            index1 = y.index[y.apply(np.isnan)]
             index2 = X.index[X.apply(np.isnan).any(axis=1)]
             indices_to_drop = index1.union(index2)
             # print(f"cross-dropping: idx1: {index1}, idx2: {index2}")
@@ -222,7 +217,7 @@ def compute_systematic_stacks(
             except:
                 pass
             logging.info(
-                f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples"
+                f"omic: {this_omic}, {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples"
             )
             if X.shape[0] != y.size:
                 logging.info("mismatch! intersecting...")
@@ -232,7 +227,7 @@ def compute_systematic_stacks(
                 X = X.loc[intersect, :]
                 y = y.loc[intersect]
                 logging.info(
-                    f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples"
+                    f"omic: {this_omic}, {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples"
                 )
             models_dict = omics_dict[this_omic]
             # print(models_dict)
@@ -243,7 +238,7 @@ def compute_systematic_stacks(
                 logging.info("++++++++++++++++")
                 logging.info(this_model)
                 logging.info(
-                    f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples"
+                    f"omic: {this_omic}, {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples"
                 )
                 this_idx = y.index
                 xval = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
@@ -261,17 +256,16 @@ def compute_systematic_stacks(
                 else:
                     merged_pred = predictions.iloc[:, [pred1, pred2]]
                 # print(merged_pred)
-                logging.info(f"stacking model {pred1} with model {pred2}")
-                # logging.info(
-                #     f"omic: {this_omic}, X: {merged_pred.shape[0]} samples and {merged_pred.shape[1]} features, y: {y.size} samples"
-                # )
+                logging.info(
+                    f"stacking model {predictions.columns[pred1]} with model {predictions.columns[pred2]}"
+                )
                 indexx = list(merged_pred.index)
                 indexy = list(y.index)
                 intersect = [value for value in indexx if value in indexy]
                 merged_pred = merged_pred.loc[intersect, :]
                 y = y.loc[intersect]
                 logging.info(
-                    f"omic: {this_omic}, X: {merged_pred.shape[0]} samples and {merged_pred.shape[1]} features, y: {y.size} samples"
+                    f"omic: {this_omic}, {merged_pred.shape[0]} samples and {merged_pred.shape[1]} features, y: {y.size} samples"
                 )
                 stack = final_model.fit(merged_pred, y, eval_metric="auc")
                 perf = np.mean(

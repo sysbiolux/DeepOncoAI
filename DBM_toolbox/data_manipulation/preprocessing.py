@@ -436,7 +436,9 @@ def reduce_mem_usage(df, check=False):
         max_test = df_test.describe().loc["max"].max()
         min_test = df_test.describe().loc["min"].min()
 
-        logging.info("Decreased by {:.1f}%".format(100 * (start_mem - end_mem) / start_mem))
+        logging.info(
+            "Decreased by {:.1f}%".format(100 * (start_mem - end_mem) / start_mem)
+        )
         logging.info(
             "Min, Max and Mean of pre/post differences: {:.2f}, {:.2f}, {:.2f}".format(
                 min_test, max_test, mean_test
