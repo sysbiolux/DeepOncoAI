@@ -21,10 +21,10 @@ data:
          feature_selection:
            - name: importance
              fraction_selected: 0.05
-             enabled: false
+             enabled: true
            - name: predictivity
              fraction_selected: 0.05
-             enabled: false
+             enabled: true
       transformations:
            - name: PCA
              n_components: 2
@@ -89,10 +89,10 @@ data:
       filtering:
         - name: sample_completeness
           threshold: 0.90
-          enabled: false
+          enabled: true
         - name: feature_completeness
           threshold: 0.90
-          enabled: false
+          enabled: true
         - name: feature_variance
           fraction_retained: 0.25
           enabled: true
@@ -103,7 +103,7 @@ data:
         feature_selection:
           - name: importance
             fraction_selected: 0.001
-            enabled: false
+            enabled: true
           - name: predictivity
             fraction_selected: 0.001
             enabled: false

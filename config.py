@@ -660,12 +660,20 @@ class Config:
                             result = result["target"]
                     except:
                         result = np.nan
-                    results_df = results_df.append(
-                        pd.Series(
+                    print(f"results_df: {results_df}")
+                    print(f"Series: {pd.Series([target, omic, algo, result, estimator, num], index=results_df.columns,)}")
+                    #results_df = results_df.append(
+                    #    pd.Series(
+                    #        [target, omic, algo, result, estimator, num],
+                    #        index=results_df.columns,
+                    #    ),
+                    #    ignore_index=True,
+                    #)
+                    results_df = pd.concat([results_df, pd.Series(
                             [target, omic, algo, result, estimator, num],
                             index=results_df.columns,
-                        ),
-                        ignore_index=True,
+                        )], ignore_index=True,
+                            axis=1,
                     )
                 # select the best one
                 omic_results = results_df[

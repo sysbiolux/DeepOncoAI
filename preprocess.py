@@ -96,10 +96,12 @@ def main():
     )
     selected_subset_pickle = os.path.join(args.output_dir, "selected_subset.pickle")
     if not os.path.exists(selected_subset_pickle) or args.overwrite:
+        logging.info("commencing selecting ****************************************************")
         selected_subset = config.select_subsets(filtered_data)
         if selected_subset is not None:
+            logging.info("selected_subset is not None... *********************************************")
             engineered_features = config.engineer_features(selected_subset)
-            logging.info("Merging engineered features")
+            logging.info("Merging engineered features ***********************************************")
             engineered_data = filtered_data.merge_with(engineered_features)
             pickle_objects(selected_subset, selected_subset_pickle)
         else:

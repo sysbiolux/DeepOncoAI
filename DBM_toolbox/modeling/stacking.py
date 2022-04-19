@@ -264,9 +264,6 @@ def compute_systematic_stacks(
                 intersect = [value for value in indexx if value in indexy]
                 merged_pred = merged_pred.loc[intersect, :]
                 y = y.loc[intersect]
-                logging.info(
-                    f"omic: {this_omic}, {merged_pred.shape[0]} samples and {merged_pred.shape[1]} features, y: {y.size} samples"
-                )
                 stack = final_model.fit(merged_pred, y, eval_metric="auc")
                 perf = np.mean(
                     cross_val_score(
