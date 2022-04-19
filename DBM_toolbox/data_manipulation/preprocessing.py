@@ -95,6 +95,8 @@ def preprocess_data(dataset, flag: str = None):
                 dataset = preprocess_ccle_meta(dataset, flag=flag)
             elif omic[0] == "DNA":
                 dataset = preprocess_ccle_dna(dataset, flag=flag)
+            elif omic[0] == "CHROMATIN":
+                dataset = preprocess_ccle_chromatin(dataset, flag=flag)
             else:
                 pass
         elif database[0] == "GDSC":
@@ -158,6 +160,7 @@ def preprocess_ccle_mirna(dataset, flag: str = None):
         df = df.set_index(["GeneTrans"])
         df = df.drop(["Description", "Name"], axis=1)
         df = df.transpose()
+        df = rescale_data(df)
         df = np.log2(df + 1)
 
     return dataset_class.Dataset(df, omic="MIRNA", database="CCLE")
@@ -167,7 +170,7 @@ def preprocess_ccle_meta(dataset, flag: str = None):
     df = dataset.dataframe
     if flag is None:
         df = df.drop("DepMap_ID", axis=1).set_index(["CCLE_ID"])
-
+    df = rescale_data(df)
     return dataset_class.Dataset(df, omic="META", database="CCLE")
 
 
@@ -177,18 +180,29 @@ def preprocess_ccle_dna(dataset, flag: str = None):
         df = df.drop("Description", axis=1)
         df = df.set_index("Name")
         df = df.transpose()
+        df = rescale_data(df)
     return dataset_class.Dataset(df, omic="DNA", database="CCLE")
+
+
+def preprocess_ccle_chromatin(dataset, flag: str = None):
+    df = dataset.dataframe
+    if flag is None:
+        df = df
+    df = rescale_data(df)
+    df = np.log2(df + 1)
+    return dataset_class.Dataset(df, omic="CHROMATIN", database="CCLE")
 
 
 def preprocess_gdsc_rna(dataset, flag: str = None):
     df = dataset.dataframe
     if flag is None:
-        #         df['GeneTrans'] = df['Description'] + '_' + df['Name']
-        #         df = df.set_index(['GeneTrans'])
-        #         df = df.drop(['Description', 'Name'], axis=1)
-        #         df = df.transpose()
-        df = np.log2(df + 1)
-
+        df = df
+        # df['GeneTrans'] = df['Description'] + '_' + df['Name']
+        # df = df.set_index(['GeneTrans'])
+        # df = df.drop(['Description', 'Name'], axis=1)
+        #  df = df.transpose()
+    df = np.log2(df + 1)
+    df = rescale_data(df)
     return dataset_class.Dataset(df, omic="RNA", database="GDSC")
 
 
