@@ -3,7 +3,8 @@ from DBM_toolbox.data_manipulation.dataset_class import Dataset
 
 
 class KeepFeaturesFilter:
-    def __init__(self, features, omic, database):
+    def __init__(self, ftype, features, omic, database):
+        self.ftype = ftype
         self.features = features
         self.omic = omic
         self.database = database
@@ -18,8 +19,6 @@ class KeepFeaturesFilter:
         selected["omic"] = (omic != self.omic).values
         selected["database"] = database != self.database
         selected["retained"] = selected.any(axis=1)
-        #         print('features retained:')
-        #         print(self.features)
         for this_feature in self.features:
             try:
                 selected.loc[this_feature, "retained"] = True
@@ -35,11 +34,12 @@ class KeepFeaturesFilter:
         )
 
     def __repr__(self):
-        return f"KeepFeaturesFilter({self.features}, {self.omic})"
+        return f"KeepFeaturesFilter with type {self.ftype}, ({self.features}, {self.omic}, {self.database})"
 
 
 class KeepDenseRowsFilter:
-    def __init__(self, completeness_threshold, omic, database):
+    def __init__(self, ftype, completeness_threshold, omic, database):
+        self.ftype = ftype
         self.completeness_threshold = completeness_threshold
         self.omic = omic
         self.database = database
@@ -50,8 +50,10 @@ class KeepDenseRowsFilter:
         samples_to_keep = completeness[
             completeness >= self.completeness_threshold
         ].index
-        print(f"Keeping {len(samples_to_keep)} samples out of {dataframe.shape[0]}")
         filtered_dataframe = dataset.dataframe.loc[samples_to_keep, :]
         return Dataset(
             dataframe=filtered_dataframe, omic=dataset.omic, database=dataset.database
         )
+
+    def __repr__(self):
+        return f"KeepDenseRowsFilter with type {self.ftype}, ({self.completeness_threshold}, {self.omic}, {self.database})"

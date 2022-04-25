@@ -5,10 +5,13 @@
 
 import pandas as pd
 import numpy as np
+import logging
 from DBM_toolbox.data_manipulation import dataset_class
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from pandas.api.types import is_categorical_dtype
 from sklearn.impute import KNNImputer
+
+pd.options.mode.chained_assignment = None
 
 
 def reformat_drugs(dataset):
@@ -20,7 +23,7 @@ def reformat_drugs(dataset):
     database = dataset.database
     omic = dataset.omic
     if all(x == database[0] for x in database) and all(
-            x.split("_")[0] == "DRUGS" for x in omic
+        x.split("_")[0] == "DRUGS" for x in omic
     ):
         if database[0] == "CCLE":
             drugNames = dataframe["Compound"].unique()
@@ -92,6 +95,8 @@ def preprocess_data(dataset, flag: str = None):
                 dataset = preprocess_ccle_meta(dataset, flag=flag)
             elif omic[0] == "DNA":
                 dataset = preprocess_ccle_dna(dataset, flag=flag)
+            elif omic[0] == "CHROMATIN":
+                dataset = preprocess_ccle_chromatin(dataset, flag=flag)
             else:
                 pass
         elif database[0] == "GDSC":
@@ -155,6 +160,7 @@ def preprocess_ccle_mirna(dataset, flag: str = None):
         df = df.set_index(["GeneTrans"])
         df = df.drop(["Description", "Name"], axis=1)
         df = df.transpose()
+        df = rescale_data(df)
         df = np.log2(df + 1)
 
     return dataset_class.Dataset(df, omic="MIRNA", database="CCLE")
@@ -164,7 +170,7 @@ def preprocess_ccle_meta(dataset, flag: str = None):
     df = dataset.dataframe
     if flag is None:
         df = df.drop("DepMap_ID", axis=1).set_index(["CCLE_ID"])
-
+    df = rescale_data(df)
     return dataset_class.Dataset(df, omic="META", database="CCLE")
 
 
@@ -174,18 +180,29 @@ def preprocess_ccle_dna(dataset, flag: str = None):
         df = df.drop("Description", axis=1)
         df = df.set_index("Name")
         df = df.transpose()
+        df = rescale_data(df)
     return dataset_class.Dataset(df, omic="DNA", database="CCLE")
+
+
+def preprocess_ccle_chromatin(dataset, flag: str = None):
+    df = dataset.dataframe
+    if flag is None:
+        df = df
+    df = rescale_data(df)
+    df = np.log2(df + 1)
+    return dataset_class.Dataset(df, omic="CHROMATIN", database="CCLE")
 
 
 def preprocess_gdsc_rna(dataset, flag: str = None):
     df = dataset.dataframe
     if flag is None:
-        #         df['GeneTrans'] = df['Description'] + '_' + df['Name']
-        #         df = df.set_index(['GeneTrans'])
-        #         df = df.drop(['Description', 'Name'], axis=1)
-        #         df = df.transpose()
-        df = np.log2(df + 1)
-
+        df = df
+        # df['GeneTrans'] = df['Description'] + '_' + df['Name']
+        # df = df.set_index(['GeneTrans'])
+        # df = df.drop(['Description', 'Name'], axis=1)
+        #  df = df.transpose()
+    df = np.log2(df + 1)
+    df = rescale_data(df)
     return dataset_class.Dataset(df, omic="RNA", database="GDSC")
 
 
@@ -276,37 +293,39 @@ def rescale_data(dataframe):
     return (dataframe - dataframe.min()) / (dataframe.max() - dataframe.min())
 
 
-def impute_missing_data(
-        dataframe, method: str = "average", threshold: float = None
-):
+def impute_missing_data(dataframe, method: str = "average", threshold: float = None):
     """imputes computed values for missing data according to the specified method"""
     if threshold is not None:
         df_copy = dataframe.copy()
         df_sum_missing = df_copy.isna().sum(axis=1)
-        # print(df_sum)
         df_shape = df_copy.shape[1]
         frac_data = 1 - (df_sum_missing / df_shape)
-        print(frac_data)
         df_copy["frac"] = frac_data
-        dataframe = df_copy[df_copy["frac"] > threshold].drop(columns=["frac"])
+        new_dataframe = df_copy[df_copy["frac"] > threshold].drop(columns=["frac"])
         df_unselected = df_copy[df_copy["frac"] <= threshold].drop(columns=["frac"])
-
+    else:
+        new_dataframe = dataframe
+        df_unselected = None
     if method == "average":
-        dataframe = dataframe.fillna(dataframe.mean())
+        new_dataframe = new_dataframe.fillna(new_dataframe.mean())
     elif method == "null":
-        dataframe = dataframe.fillna(0)
+        new_dataframe = new_dataframe.fillna(0)
     elif method == "median":
-        dataframe = dataframe.fillna(dataframe.median())
+        new_dataframe = new_dataframe.fillna(new_dataframe.median())
     elif method == "neighbor":
         imputer = KNNImputer()
-        imputer.fit(dataframe)
-        dataframe = imputer.transform(dataframe)
+        imputer.fit(new_dataframe)
+        new_dataframe = imputer.transform(new_dataframe)
     elif method == "zeros":
-        dataframe = dataframe.fillna(value=0)
+        new_dataframe = new_dataframe.fillna(value=0)
     if threshold is not None:
-        dataframe = pd.concat([dataframe, df_unselected])
+        new_dataframe = pd.concat([new_dataframe, df_unselected])
 
-    ## TODO: log how much was imputed and where
+    was_na = dataframe.isna().sum(axis=1).sum()
+    is_na = new_dataframe.isna().sum(axis=1).sum()
+    diff_na = was_na - is_na
+    logging.info(f"imputed {diff_na} samples")
+
     return dataframe
 
 
@@ -379,7 +398,7 @@ def reduce_mem_usage(df, check=False):
 
     df_orig = df.copy()
     start_mem = df.memory_usage().sum() / 1024 ** 2
-    print("Memory usage is {:.2f} MB".format(start_mem))
+    logging.info("Memory usage is {:.2f} MB".format(start_mem))
 
     for col in df.columns:
         if is_datetime(df[col]) or is_categorical_dtype(df[col]):
@@ -399,13 +418,13 @@ def reduce_mem_usage(df, check=False):
                     df[col] = df[col].astype(np.int64)
             else:
                 if (
-                        c_min > np.finfo(np.float16).min
-                        and c_max < np.finfo(np.float16).max
+                    c_min > np.finfo(np.float16).min
+                    and c_max < np.finfo(np.float16).max
                 ):
                     df[col] = df[col].astype(np.float16)
                 elif (
-                        c_min > np.finfo(np.float32).min
-                        and c_max < np.finfo(np.float32).max
+                    c_min > np.finfo(np.float32).min
+                    and c_max < np.finfo(np.float32).max
                 ):
                     df[col] = df[col].astype(np.float32)
                 else:
@@ -414,11 +433,11 @@ def reduce_mem_usage(df, check=False):
             df[col] = df[col].astype("category")
 
     end_mem = df.memory_usage().sum() / 1024 ** 2
-    print("Memory usage after optimization is {:.2f} MB".format(end_mem))
+    logging.info("Memory usage after optimization is {:.2f} MB".format(end_mem))
     if check:
         df_test = pd.DataFrame()
 
-        print("checking consistency...")
+        logging.info("checking consistency...")
 
         for col in df:
             col_type = df[col].dtype
@@ -431,8 +450,10 @@ def reduce_mem_usage(df, check=False):
         max_test = df_test.describe().loc["max"].max()
         min_test = df_test.describe().loc["min"].min()
 
-        print("Decreased by {:.1f}%".format(100 * (start_mem - end_mem) / start_mem))
-        print(
+        logging.info(
+            "Decreased by {:.1f}%".format(100 * (start_mem - end_mem) / start_mem)
+        )
+        logging.info(
             "Min, Max and Mean of pre/post differences: {:.2f}, {:.2f}, {:.2f}".format(
                 min_test, max_test, mean_test
             )

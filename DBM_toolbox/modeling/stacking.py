@@ -6,6 +6,7 @@ Created on Sat Nov 21 11:01:57 2020
 """
 import numpy as np
 import pandas as pd
+import logging
 from vecstack import stacking
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_predict
@@ -25,7 +26,7 @@ def stack_models(
     """Constructs, fits, predicts using XGBoost on a bag of models,
     using only the models' predictions as input
     """
-    print("stacking models...")
+    logging.info("stacking models...")
     S_train, S_test = stacking(
         models,
         X_train,
@@ -43,7 +44,7 @@ def stack_models(
         verbose=0,
     )
     model = final_model
-    print("fitting stack...")
+    logging.info("fitting stack...")
     model = model.fit(S_train, y_train)
     y_pred_train = model.predict(S_train)
     y_pred = model.predict(S_test)
@@ -90,7 +91,7 @@ def stack_extended_models(
     y_pred = model.predict(E_test)
     y_proba = model.predict_proba(E_test)
     finalAUC = roc_auc_score(y_test, y_pred)
-    print("Final AUC: [%.8f]" % finalAUC)
+    logging.info(f"Final AUC: [%.8f] {finalAUC}")
     return model, finalAUC, y_pred, y_proba
 
 
@@ -99,7 +100,7 @@ def compute_stacks(
 ):
     best_stacks = dict()
     for target in targets_list:
-        print(f"Computing stack for {target}")
+        logging.info(f"Computing stack for {target}")
         this_dataset = dataset.to_binary(target=target)
         y = this_dataset.to_pandas()[target]
         omics = models[target]
@@ -111,22 +112,20 @@ def compute_stacks(
                 X = this_dataset.to_pandas().drop(targets_list, axis=1)
             else:
                 X = this_dataset.to_pandas(omic=omic)
-                print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
-                print(f"y: {y.size} samples")
+                logging.info(f"X: {X.shape[0]} samples and {X.shape[1]} features")
+                logging.info(f"y: {y.size} samples")
                 X = X.dropna(how="all")
-                print("dropping")
-                print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
-                print(f"y: {y.size} samples")
-                index1 = y.index[
-                    y.apply(np.isnan)
-                ]
+                logging.info("dropping incomplete data")
+                # print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
+                # print(f"y: {y.size} samples")
+                index1 = y.index[y.apply(np.isnan)]
                 index2 = X.index[X.apply(np.isnan).any(axis=1)]
                 indices_to_drop = index1.union(index2)
-                print(f"cross-dropping: idx1: {index1}, idx2: {index2}")
+                # print(f"cross-dropping: idx1: {index1}, idx2: {index2}")
                 X = X.drop(indices_to_drop)
                 y = y.drop(indices_to_drop)
-                print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
-                print(f"y: {y.size} samples")
+                logging.info(f"X: {X.shape[0]} samples and {X.shape[1]} features")
+                logging.info(f"y: {y.size} samples")
 
             models_list = omics[omic]
             for idx, model in enumerate(models_list):
@@ -134,7 +133,7 @@ def compute_stacks(
                 this_model = model.iloc[0]
 
                 xval = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
-                print(X, y, xval)
+                # print(X, y, xval)
                 omic_predict = cross_val_predict(this_model, X, y, cv=xval, n_jobs=-1)
                 feature_name = omic + str(idx)
                 predictions[feature_name] = omic_predict
@@ -189,6 +188,7 @@ def compute_stacks(
         }
     return best_stacks
 
+
 def compute_systematic_stacks(
     dataset, models, final_model, targets_list, metric="roc_auc", folds=10, seed=42
 ):
@@ -202,35 +202,12 @@ def compute_systematic_stacks(
         for this_omic in omics_list:
             if this_omic == "complete":
                 X = this_dataset.to_pandas().drop(targets_list, axis=1)
-                #print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
-                #print(f"y: {y.size} samples")
-                #X = X.dropna(how="all")
-                #print("dropping")
-             #   print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
-             #   print(f"y: {y.size} samples")
-             #   index1 = y.index[
-             #       y.apply(np.isnan)
-              #  ]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
-             #   index2 = X.index[X.apply(np.isnan).any(axis=1)]  ## SOLVED?
-             #   indices_to_drop = index1.union(index2)
-            #    print(f"cross-dropping: idx1: {index1}, idx2: {index2}")
-            #    X = X.drop(indices_to_drop)
-            #    y = y.drop(indices_to_drop)
-            #    print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
-            #    print(f"y: {y.size} samples")
             else:
                 X = this_dataset.to_pandas(omic=this_omic)
-                #print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
-                #print(f"y: {y.size} samples")
-                #X = X.dropna(how="all")
-                #print("dropping")
-            print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")
-            index1 = y.index[
-                y.apply(np.isnan)
-            ]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
-            index2 = X.index[X.apply(np.isnan).any(axis=1)]  ## SOLVED?
+            index1 = y.index[y.apply(np.isnan)]
+            index2 = X.index[X.apply(np.isnan).any(axis=1)]
             indices_to_drop = index1.union(index2)
-            print(f"cross-dropping: idx1: {index1}, idx2: {index2}")
+            # print(f"cross-dropping: idx1: {index1}, idx2: {index2}")
             try:
                 X = X.drop(indices_to_drop)
             except:
@@ -239,62 +216,63 @@ def compute_systematic_stacks(
                 y = y.drop(indices_to_drop)
             except:
                 pass
-            print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")
+            logging.info(
+                f"omic: {this_omic}, {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples"
+            )
             if X.shape[0] != y.size:
-                print("intersecting:...")
+                logging.info("mismatch! intersecting...")
                 indexx = list(X.index)
                 indexy = list(y.index)
                 intersect = [value for value in indexx if value in indexy]
                 X = X.loc[intersect, :]
                 y = y.loc[intersect]
-                print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")
+                logging.info(
+                    f"omic: {this_omic}, {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples"
+                )
             models_dict = omics_dict[this_omic]
-            print(models_dict)
+            # print(models_dict)
             models_list = list(models_dict.keys())
-            print(f"models: {models_list}")
+            logging.info(f"models: {models_list}")
             for id, model in enumerate(models_list):
                 this_model = models_dict[model]["estimator"]
-                print("++++++++++++++++")
-                print(this_model)
-                print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")
+                logging.info("++++++++++++++++")
+                logging.info(this_model)
+                logging.info(
+                    f"omic: {this_omic}, {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples"
+                )
                 this_idx = y.index
                 xval = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
                 omic_predict = cross_val_predict(this_model, X, y, cv=xval, n_jobs=-1)
                 feature_name = this_omic + "_" + model
                 predictions.loc[this_idx, feature_name] = omic_predict
 
-        #stacking:
+        # stacking:
         matrix = pd.DataFrame(index=predictions.columns, columns=predictions.columns)
         l = len(predictions.columns)
-        for pred1 in range(l-1):
+        for pred1 in range(l - 1):
             for pred2 in range(pred1, l):
                 if pred1 == pred2:
                     merged_pred = predictions.iloc[:, [pred1]]
                 else:
                     merged_pred = predictions.iloc[:, [pred1, pred2]]
-                print(merged_pred)
-                print(f"stacking {pred1} with {pred2}")
-                print(f"omic: {this_omic}, X: {merged_pred.shape[0]} samples and {merged_pred.shape[1]} features, y: {y.size} samples")
+                # print(merged_pred)
+                logging.info(
+                    f"stacking model {predictions.columns[pred1]} with model {predictions.columns[pred2]}"
+                )
                 indexx = list(merged_pred.index)
                 indexy = list(y.index)
                 intersect = [value for value in indexx if value in indexy]
                 merged_pred = merged_pred.loc[intersect, :]
                 y = y.loc[intersect]
-                print(f"omic: {this_omic}, X: {merged_pred.shape[0]} samples and {merged_pred.shape[1]} features, y: {y.size} samples")
                 stack = final_model.fit(merged_pred, y, eval_metric="auc")
                 perf = np.mean(
                     cross_val_score(
                         final_model, merged_pred, y, scoring=metric, cv=xval, n_jobs=-1
                     )
                 )
-                print(f"perf: {perf}")
+                logging.info(f"perf: {perf}")
                 matrix.iloc[pred1, pred2] = perf
         res[target] = matrix
-        print(matrix)
+        logging.info("Predictions matrix:")
+        logging.info(matrix)
     return res
-
-
-
-
-
-

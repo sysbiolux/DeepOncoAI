@@ -95,7 +95,7 @@ def main():
     ### TRAINING STACKS ###
     #######################
 
-    logging.info("Constructing stacks...")
+    logging.info("(snake) Constructing stacks...")
 
     trained_stacks_pickle = args.final_data
 
@@ -106,9 +106,7 @@ def main():
     data = unpickle_objects(data_pickle)
 
     if not os.path.exists(trained_stacks_pickle) or args.overwrite:
-        results_sec = config.get_best_stacks(
-            models=models, dataset=data
-        )
+        results_sec = config.get_best_stacks(models=models, dataset=data)
         objects = results_sec
         pickle_objects(objects, trained_stacks_pickle)
         for item in results_sec.keys():
@@ -116,7 +114,7 @@ def main():
             results_sec[item].to_csv(os.path.join(args.output_dir, filename))
     else:
         results_sec = unpickle_objects(trained_stacks_pickle)
-    logging.info("Stacks constructed")
+    logging.info("(snake) Stacks constructed")
 
 
 if __name__ == "__main__":

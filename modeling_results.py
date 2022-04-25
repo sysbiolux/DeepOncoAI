@@ -81,7 +81,7 @@ def main():
     ### ANALYZING MODELS ###
     ########################
 
-    logging.info("Analyzing modeling results...")
+    logging.info("(snake) Analyzing modeling results...")
 
     data_pickle = args.input
     [models, algos_dict] = unpickle_objects(data_pickle)
@@ -91,7 +91,7 @@ def main():
         os.makedirs(figures_output_dir)
         config.show_results(results_prim, figures_output_dir)
 
-    logging.info("Modeling results analyzed")
+    logging.info("(snake) Modeling results analyzed")
 
 
 if __name__ == "__main__":

@@ -72,7 +72,7 @@ def main():
     # instantiate config Class instance with configuration file
     config = Config(args.config)
 
-    logging.info("Creating visualizations...")
+    logging.info("(snake) Creating visualizations...")
 
     data_pickle = args.input
     data = unpickle_objects(data_pickle)
@@ -89,7 +89,7 @@ def main():
             mode=mode,
             outputdir=figures_output_dir,
         )
-    logging.info("Visualizations created")
+    logging.info("(snake) Visualizations created")
 
 
 if __name__ == "__main__":

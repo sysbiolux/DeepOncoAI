@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import logging
 from DBM_toolbox.data_manipulation.filter_class import KeepFeaturesFilter
 from DBM_toolbox.data_manipulation import dataset_class
 import xgboost as xgb
@@ -28,7 +29,10 @@ class HighestVarianceRule(Rule):
         features_to_keep = variances.iloc[:number_of_features_to_keep].index
         print(f"Keeping {len(features_to_keep)} features out of {dataframe.shape[1]}")
         return KeepFeaturesFilter(
-            features=features_to_keep, omic=self.omic, database=self.database
+            ftype="HighestVariance",
+            features=features_to_keep,
+            omic=self.omic,
+            database=self.database,
         )
 
 
@@ -53,7 +57,10 @@ class ColumnDensityRule(Rule):
         ].index
         print(f"Keeping {len(features_to_keep)} features out of {dataframe.shape[1]}")
         return KeepFeaturesFilter(
-            features=features_to_keep, omic=self.omic, database=self.database
+            ftype="ColumnDensity",
+            features=features_to_keep,
+            omic=self.omic,
+            database=self.database,
         )
 
 
@@ -85,7 +92,7 @@ class CrossCorrelationRule(Rule):
                     high_corr = corr_single[
                         corr_single > self.correlation_threshold
                     ].index.union([this_feature])
-                    print(f"Found high-correlation features: {high_corr}")
+                    logging.info(f"Found high-correlation features: {high_corr}")
                     A = dataframe.drop(high_corr, axis=1)
                     B = dataframe[high_corr]
                     Az = A - A.mean()
@@ -104,12 +111,15 @@ class CrossCorrelationRule(Rule):
             except:
                 print("Feature not present")
         return KeepFeaturesFilter(
-            features=dataframe.columns, omic=self.omic, database=self.database
+            ftype="CrossCorrelation",
+            features=dataframe.columns,
+            omic=self.omic,
+            database=self.database,
         )
 
 
 class FeatureImportanceRule(Rule):
-    def __init__(self, fraction, omic, database):
+    def __init__(self, ftype, fraction, omic, database):
         # TODO: Add check on fraction allowed values
         self.fraction = fraction
         self.omic = omic
@@ -144,7 +154,10 @@ class FeatureImportanceRule(Rule):
         number_of_features_to_keep = int(round(len(importances) * self.fraction))
         features_to_keep = importances.iloc[:number_of_features_to_keep].index
         return KeepFeaturesFilter(
-            features=features_to_keep, omic=self.omic, database=self.database
+            ftype="FeatureImportance",
+            features=features_to_keep,
+            omic=self.omic,
+            database=self.database,
         )
 
 
@@ -198,5 +211,8 @@ class FeaturePredictivityRule(Rule):
         number_of_features_to_keep = int(round(len(predictivities) * self.fraction))
         features_to_keep = predictivities.iloc[:number_of_features_to_keep].index
         return KeepFeaturesFilter(
-            features=features_to_keep, omic=self.omic, database=self.database
+            ftype="FeaturePredictivity",
+            features=features_to_keep,
+            omic=self.omic,
+            database=self.database,
         )
