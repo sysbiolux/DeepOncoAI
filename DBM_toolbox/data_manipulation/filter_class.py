@@ -10,7 +10,7 @@ class KeepFeaturesFilter:
         self.database = database
 
     def apply(self, dataset):
-        # TODO: this takes too much time!
+        # TODO: profile this part to id the bottlenecks!
         dataframe = dataset.dataframe
         omic = dataset.omic
         database = dataset.database

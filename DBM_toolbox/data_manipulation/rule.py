@@ -119,9 +119,11 @@ class CrossCorrelationRule(Rule):
 
 
 class FeatureImportanceRule(Rule):
-    def __init__(self, ftype, fraction, omic, database):
-        # TODO: Add check on fraction allowed values
-        self.fraction = fraction
+    def __init__(self, fraction, omic, database):
+        if 0 < fraction < 1:
+            self.fraction = fraction
+        else:
+            raise ValueError("'fraction' should be a number between 0 and 1")
         self.omic = omic
         self.database = database
 
@@ -163,8 +165,10 @@ class FeatureImportanceRule(Rule):
 
 class FeaturePredictivityRule(Rule):
     def __init__(self, fraction, omic, database):
-        # TODO: Add check on fraction allowed values
-        self.fraction = fraction
+        if 0 < fraction < 1:
+            self.fraction = fraction
+        else:
+            raise ValueError("'fraction' should be a number between 0 and 1")
         self.omic = omic
         self.database = database
 

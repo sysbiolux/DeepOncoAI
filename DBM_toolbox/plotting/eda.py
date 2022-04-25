@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import datetime
 import random
+import logging
 
 from DBM_toolbox.data_manipulation import preprocessing, dataset_class
 
@@ -92,7 +93,7 @@ def plot_eda_PCA(dataframe, title, ts):
 
 def plot_eda_generaldistrib(dataframe, title, ts):
 
-    print(f"general distribution plot for {title}...")
+    logging.info(f"general distribution plot for {title}...")
 
     ncol = dataframe.shape[1]
     if ncol > 100:
@@ -120,8 +121,7 @@ def plot_eda_generaldistrib(dataframe, title, ts):
 
 def plot_eda_meanvariance(dataframe, title, ts):
 
-    print(f"mean-variance plot for {title}...")
-
+    logging.info(f"mean-variance plot for {title}...")
     try:
         fig, axes = plt.subplots(1, 2, figsize=(20, 10))
         sns.set_context("talk")
@@ -144,8 +144,7 @@ def plot_eda_meanvariance(dataframe, title, ts):
 
 def plot_eda_missingsummary(dataframe, title, ts):
 
-    print(f"missing data plot for {title}...")
-
+    logging.info(f"missing data plot for {title}...")
     try:
         bool_df = ~dataframe.isna()
 
@@ -175,8 +174,7 @@ def plot_eda_missingsummary(dataframe, title, ts):
 
 def plot_eda_correl(dataframe, title, ts):
 
-    print(f"correlation plot for {title}...")
-
+    logging.info(f"missing data plot for {title}...")
     ncol = dataframe.shape[1]
     if ncol > 5000:
         dataframe = dataframe.iloc[:, random.sample(range(dataframe.shape[1]), 5000)]
@@ -217,8 +215,7 @@ def plot_eda_correl(dataframe, title, ts):
 
 def plot_eda_missingcorrel(dataframe, title, ts):
 
-    print(f"missing data correlation plot for {title}...")
-
+    logging(f"missing data correlation plot for {title}...")
     ncol = dataframe.shape[1]
     if ncol > 5000:
         dataframe = dataframe.iloc[:, random.sample(range(dataframe.shape[1]), 5000)]
@@ -428,7 +425,7 @@ def plot_modeling_results(dataframe, outputdir=None):
     # plt.savefig(out_path)
 
 
-def plot_dose_response(dose_responses, idxs=None, target=None, labels=None):
+def plot_dose_response(dose_responses, idxs=None, target=None, labels=None, outputdir=None):
 
     if idxs is None:
         idxs = dose_responses.index
@@ -455,6 +452,7 @@ def plot_dose_response(dose_responses, idxs=None, target=None, labels=None):
     for n_idx, idx in enumerate(idxs):
         col = [x for x in labelx if x.startswith(target)]
         this_val = labelx.loc[idx, col].values[0]
+        ts = str(round(datetime.datetime.now().timestamp()))
 
         print(idx)
         if not np.isnan(this_val):
@@ -468,12 +466,16 @@ def plot_dose_response(dose_responses, idxs=None, target=None, labels=None):
                 sns.lineplot(
                     x=np.log(dfx.iloc[n_idx, 0]), y=dfx.iloc[n_idx, 1], color=color
                 )
-                plt.title(target)  # TODO: save plot in correct folder outputdir
+                plt.title(target)
+                if outputdir:
+                    out_path = os.path.join(outputdir, ts + "_" + target + "_.svg")
+                else:
+                    out_path = ts + "_" + target + "_.svg"
             except:
                 print("could not display curve")
 
 
-def plot_scatter_dr(dataframe, ActAreas, IC50s, dr, bounds, labels):
+def plot_scatter_dr(dataframe, ActAreas, IC50s, dr, bounds, labels, outputdir=None):
 
     fig, ax = plt.subplots(figsize=(10, 10))
     if isinstance(dataframe, pd.Series):
@@ -509,6 +511,11 @@ def plot_scatter_dr(dataframe, ActAreas, IC50s, dr, bounds, labels):
             palette=["red", "yellow", "green"],
             ax=ax,
         )
-        # TODO: save plot in correct outputdir
         plt.title(target)
+        ts = str(round(datetime.datetime.now().timestamp()))
+        if outputdir:
+            out_path = os.path.join(outputdir, ts + "_" + target + "_.svg")
+        else:
+            out_path = ts + "_" + target + "_.svg"
+
         print(df)

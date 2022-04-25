@@ -249,13 +249,12 @@ def compute_systematic_stacks(
         # stacking:
         matrix = pd.DataFrame(index=predictions.columns, columns=predictions.columns)
         l = len(predictions.columns)
-        for pred1 in range(l - 1):
+        for pred1 in range(l):
             for pred2 in range(pred1, l):
                 if pred1 == pred2:
                     merged_pred = predictions.iloc[:, [pred1]]
                 else:
                     merged_pred = predictions.iloc[:, [pred1, pred2]]
-                # print(merged_pred)
                 logging.info(
                     f"stacking model {predictions.columns[pred1]} with model {predictions.columns[pred2]}"
                 )
@@ -264,7 +263,7 @@ def compute_systematic_stacks(
                 intersect = [value for value in indexx if value in indexy]
                 merged_pred = merged_pred.loc[intersect, :]
                 y = y.loc[intersect]
-                stack = final_model.fit(merged_pred, y, eval_metric="auc")
+                # stack = final_model.fit(merged_pred, y, eval_metric="auc")
                 perf = np.mean(
                     cross_val_score(
                         final_model, merged_pred, y, scoring=metric, cv=xval, n_jobs=-1

@@ -105,8 +105,10 @@ class Dataset:
             for single_dataset in other_datasets:
                 self = self.merge_two_datasets(single_dataset)
         else:
-            # TODO: check if dataset class, else throw error?
-            self = self.merge_two_datasets(other_datasets)
+            if isinstance(other_datasets, Dataset):
+                self = self.merge_two_datasets(other_datasets)
+            else:
+                raise ValueError("Merging is only allowed between Datasets")
         return self
 
     def merge_two_datasets(self, other_dataset):
