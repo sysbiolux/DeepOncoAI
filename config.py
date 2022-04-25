@@ -426,7 +426,7 @@ class Config:
             engineered_features = None
             database = dataset.database
             for omic in omics:
-                transformations_dict = omic["feature_engineering"]["transformations"]
+                transformations_dict = omic["transformations"]
                 for transformation in transformations_dict:
                     logging.info(
                         f"(lvl0) Engineering {transformation['name']} for {omic['name']} in {omic['database']}"
@@ -445,16 +445,24 @@ class Config:
                             )
                         else:
                             engineered_features = new_features
+                        logging.info(
+                            f"(lvl0) Engineered {new_features.shape[1]} features"
+                        )
+                    else:
+                        logging.info("lvl0) ...inactive")
 
         use_type = self.raw_dict["modeling"]["general"]["use_tumor_type"]
         if use_type["enabled"]:
             logging.info("(lvl0) Retrieving tumor types")
             dataframe_tumors = preprocessing.get_tumor_type(dataframe)
+            print(f"Tumors: {dataframe_tumors}")
             tumor_dataset = dataset_class.Dataset(
                 dataframe=dataframe_tumors, omic="TYPE", database="OWN"
             ).remove_constants()
-            engineered_features = engineered_features.merge_with(tumor_dataset)
-
+            if engineered_features is not None:
+                engineered_features = engineered_features.merge_with(tumor_dataset)
+            else:
+                engineered_features = tumor_dataset
         return engineered_features
 
     def get_models(self, dataset: dataset_class.Dataset, method: str = None):
@@ -648,7 +656,9 @@ class Config:
                 omics = ["complete"]
                 n_models = len(optimal_algos[target]["complete"].keys())
             for omic in omics:
+                print(omic)
                 algos = optimal_algos[target][omic]
+                print(algos)
                 models[target][omic] = []
                 for algo in algos:
                     i = optimal_algos[target][omic][algo]
@@ -661,7 +671,8 @@ class Config:
                     except:
                         result = np.nan
                     print(f"results_df: {results_df}")
-                    print(f"Series: {pd.Series([target, omic, algo, result, estimator, num], index=results_df.columns,)}")
+                    new_df = pd.Series([target, omic, algo, result, estimator, num], index=results_df.columns,).to_frame().T
+                    print(f"New_df: {new_df}")
                     #results_df = results_df.append(
                     #    pd.Series(
                     #        [target, omic, algo, result, estimator, num],
@@ -669,12 +680,9 @@ class Config:
                     #    ),
                     #    ignore_index=True,
                     #)
-                    results_df = pd.concat([results_df, pd.Series(
-                            [target, omic, algo, result, estimator, num],
-                            index=results_df.columns,
-                        )], ignore_index=True,
-                            axis=1,
-                    )
+                    results_df = pd.concat([results_df, new_df],
+                                           ignore_index=True,
+                                           axis=0,)
                 # select the best one
                 omic_results = results_df[
                     (results_df["target"] == target) & (results_df["omic"] == omic)
