@@ -13,6 +13,7 @@ from DBM_toolbox.data_manipulation import load_data, rule, preprocessing
 from DBM_toolbox.data_manipulation import dataset_class, filter_class
 from DBM_toolbox.feature_engineering.predictors import combinations, components
 from DBM_toolbox.modeling import optimized_models, stacking
+from DBM_toolbox.interpretation import feature_retrieval
 from DBM_toolbox.plotting import eda
 
 parse_filter_dict = {
@@ -753,6 +754,19 @@ class Config:
 
     def evaluate_stacks(self, best_stacks):
         pass
+
+    def retrieve_features(self, models, dataset):
+        targets_list = []
+        for item in self.raw_dict["data"]["targets"]:
+            targets_list.append(item["name"].split("_")[0])
+        targets_list = list(set(targets_list))
+        omics_list = list(dict.fromkeys(dataset.omic.tolist()))
+        for target in targets_list:
+            omics_list.remove(target)
+        for target in targets_list:
+            for omic in omics_list:
+                explanation_dict = feature_retrieval.explain_all(models[target][omic], dataset)
+        return explanation_dict
 
     def save(self, to_save=[], name="file"):
         date = datetime.now()
