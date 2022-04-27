@@ -103,17 +103,17 @@ def main():
     data = unpickle_objects(data_pickle)
 
     if not os.path.exists(models_explanations_pickle) or args.overwrite:
-        results_sec = config.retrieve_features(
+        results = config.retrieve_features(
             models=models, dataset=data
         )
-        objects = results_sec
+        objects = results
         pickle_objects(objects, models_explanations_pickle)
-        for item in results_sec.keys():
-            filename = "stacks_" + item + ".csv"
-            results_sec[item].to_csv(os.path.join(args.output_dir, filename))
+        for item in results.keys():
+            filename = "explanations_" + item + ".csv"
+            results[item].to_csv(os.path.join(args.output_dir, filename))
     else:
-        results_sec = unpickle_objects(models_explanations_pickle)
-    logging.info("Stacks constructed")
+        results = unpickle_objects(models_explanations_pickle)
+    logging.info("Model explanations performed")
 
 
 if __name__ == "__main__":

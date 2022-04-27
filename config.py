@@ -764,8 +764,10 @@ class Config:
         for target in targets_list:
             omics_list.remove(target)
         for target in targets_list:
+            this_target = dataset.to_pandas(omic=target)
             for omic in omics_list:
-                explanation_dict = feature_retrieval.explain_all(models[target][omic], dataset)
+                this_predictors = dataset.to_pandas(omic=omic)
+                explanation_dict = feature_retrieval.explain_all(models[target][omic], this_predictors, this_target)
         return explanation_dict
 
     def save(self, to_save=[], name="file"):
