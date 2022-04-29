@@ -758,14 +758,17 @@ class Config:
     def retrieve_features(self, models, dataset):
         targets_list = []
         for item in self.raw_dict["data"]["targets"]:
-            targets_list.append(item["name"].split("_")[0])
+            this_name = item["target_drug_name"] + "_" + item["responses"]
+            targets_list.append(this_name)
         targets_list = list(set(targets_list))
-        omics_list = list(dict.fromkeys(dataset.omic.tolist()))
+        print(targets_list)
+        omics_list = list(set(dataset.omic.values.tolist()))
+        omics_list.remove("DRUGS")
+        print(omics_list)
         for target in targets_list:
-            omics_list.remove(target)
-        for target in targets_list:
-            this_target = dataset.to_pandas(omic=target)
+            this_target = dataset.to_pandas()[target]
             for omic in omics_list:
+                print(omic)
                 this_predictors = dataset.to_pandas(omic=omic)
                 explanation_dict = feature_retrieval.explain_all(models[target][omic], this_predictors, this_target)
         return explanation_dict

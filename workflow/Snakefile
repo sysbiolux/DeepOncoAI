@@ -5,6 +5,7 @@ rule all:
     """final rule"""
     input:
          expand("{outputdir}/stacks.pkl",outputdir=config['outputdir']),
+         expand("{outputdir}/explanations.pkl",outputdir=config['outputdir']),
          expand("{outputdir}/figures",outputdir=config['outputdir'])
 
 rule load:
@@ -100,9 +101,9 @@ rule explaining:
         input_models_pickle= expand("{outputdir}/trained_models.pkl",outputdir=config['outputdir']),
         input_data_pickle=expand("{outputdir}/preprocessed.pkl",outputdir=config['outputdir']),
     params:
-        outputdir=expand("{outputdir}",outputdir=config['outputdir']),
+        outputdir = expand("{outputdir}",outputdir=config['outputdir']),
     output:
-        final_data = expand("{outputdir}/stacks.pkl",outputdir=config['outputdir']),
+        final_data = expand("{outputdir}/explanations.pkl",outputdir=config['outputdir']),
     conda:
         "environment.yaml",
     shell:

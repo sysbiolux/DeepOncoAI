@@ -16,7 +16,7 @@ from config import Config
 from DBM_toolbox.data_manipulation import dataset_class
 from DBM_toolbox.interpretation import gsea
 
-config = Config("config.yaml")
+config = Config("testmin/first/config.yaml")
 
 ###################################
 ### READING AND PROCESSING DATA ###
@@ -53,8 +53,7 @@ engineered_data
 final_data = quantized_data.normalize().optimize_formats()
 
 logging.info("Getting optimized models")
-# TODO: start chunk 2
-# input data = output data of chunk 1
+
 trainedmodels = config.get_models(dataset=final_data, method="standard")
 config.save(to_save=trainedmodels, name="f_test")
 
@@ -62,24 +61,19 @@ config.save(to_save=trainedmodels, name="f_test")
 # standard_algos = config.get_models(dataset=final_data, method='standard')
 # config.save(to_save=standard_algos, name='standard_algos_3omics6drugs')
 
-algos_dict, results_prim = config.get_best_algos(trainedmodels)
+models, algos_dict = config.get_best_algos(trainedmodels)
 
-config.show_results(config, results_prim)
-# TODO: end chunk 2
-# TODO: start chunk 3
-#
-#%%
+config.show_results(config, algos_dict)
+
 
 logging.info("Creating best stacks")
-best_stacks, results_sec = config.get_best_stacks(models=algos_dict, dataset=final_data)
+results_sec = config.get_best_stacks(models=models, dataset=final_data)
 # algos_dict_over, _ = config.get_best_algos(optimal_algos, mode='over')
 # over_stacks, results_over = config.get_best_stacks(models=algos_dict_over, dataset=final_data, tag='_over')
 
 config.save(to_save=best_stacks, name="stack_results")
 
 print("DONE")
-# TODO: end chunk 3
-#%%
 
 # compare optimized versus standard
 
