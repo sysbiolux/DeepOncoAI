@@ -190,14 +190,14 @@ def compute_stacks(
     return best_stacks
 
 def compute_systematic_stacks(
-    dataset, models, final_model, targets_list, metric="roc_auc", folds=10, seed=42
+    dataset, models_dict, final_model, targets_list, metric="roc_auc", folds=10, seed=42
 ):
     res = {}
     for target in targets_list:
         this_dataset = dataset.to_binary(target=target)
         y = this_dataset.to_pandas()[target]
         predictions = pd.DataFrame(index=y.index)
-        omics_dict = models[target]
+        omics_dict = models_dict[target]
         omics_list = omics_dict.keys()
         for this_omic in omics_list:
             if this_omic == "complete":
@@ -248,11 +248,11 @@ def compute_systematic_stacks(
                 X = X.loc[intersect, :]
                 y = y.loc[intersect]
                 print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")
-            models_dict = omics_dict[this_omic]
-            print(models_dict)
-            models_list = list(models_dict.keys())
-            print(f"models: {models_list}")
-            for id, model in enumerate(models_list):
+            indiv_models_dict = omics_dict[this_omic]
+            print(indiv_models_dict)
+            indiv_models_list = list(indiv_models_dict.keys())
+            print(f"models: {indiv_models_list}")
+            for id, model in enumerate(indiv_models_list):
                 this_model = models_dict[model]["estimator"]
                 print("++++++++++++++++")
                 print(this_model)

@@ -264,6 +264,7 @@ class Dataset:
         n = max(dataframe[target])
 
         dataframe = dataframe[dataframe[target].isin([m, n])]
+        dataframe[target] = dataframe[target].astype(int)
 
         return Dataset(dataframe=dataframe, omic=omic, database=database)
 

@@ -25,8 +25,8 @@ config = Config("testmin/first/config.yaml")
 logging.info("Reading data")
 data, ActAreas, IC50s, dose_responses = config.read_data()
 
-logging.info("Creating visualizations")
-config.visualize_dataset(data, ActAreas, IC50s, dose_responses, mode="pre")
+# logging.info("Creating visualizations")
+# config.visualize_dataset(data, ActAreas, IC50s, dose_responses, mode="pre")
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
@@ -49,32 +49,35 @@ else:
 
 logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
-engineered_data
+
 final_data = quantized_data.normalize().optimize_formats()
 
 logging.info("Getting optimized models")
 
-trainedmodels = config.get_models(dataset=final_data, method="standard")
-config.save(to_save=trainedmodels, name="f_test")
+trained_models = config.get_models(dataset=final_data, method="standard")
+config.save(to_save=trained_models, name="f_test")
 
-# logging.info("Getting standard models")
-# standard_algos = config.get_models(dataset=final_data, method='standard')
-# config.save(to_save=standard_algos, name='standard_algos_3omics6drugs')
+# models, algos_dict = config.get_best_algos(trained_models)
 
-models, algos_dict = config.get_best_algos(trainedmodels)
-
-config.show_results(config, algos_dict)
-
+# config.show_results(config, algos_dict)
 
 logging.info("Creating best stacks")
-results_sec = config.get_best_stacks(models=models, dataset=final_data)
+results_sec = config.get_stacks(dataset=final_data, models=trained_models)
+
 # algos_dict_over, _ = config.get_best_algos(optimal_algos, mode='over')
 # over_stacks, results_over = config.get_best_stacks(models=algos_dict_over, dataset=final_data, tag='_over')
 
-config.save(to_save=best_stacks, name="stack_results")
+config.save(to_save=results_sec, name="stack_results")
+
+expl_dict = config.retrieve_features(models=trained_models, dataset=final_data)
+
+
+
 
 print("DONE")
 
+
+##################################################################################################################
 # compare optimized versus standard
 
 import pandas as pd

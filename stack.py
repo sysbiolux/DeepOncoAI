@@ -106,7 +106,7 @@ def main():
     data = unpickle_objects(data_pickle)
 
     if not os.path.exists(trained_stacks_pickle) or args.overwrite:
-        results_sec = config.get_best_stacks(
+        results_sec = config.get_stacks(
             models=models, dataset=data
         )
         objects = results_sec
