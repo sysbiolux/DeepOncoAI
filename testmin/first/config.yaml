@@ -21,28 +21,28 @@ data:
          feature_selection:
            - name: importance
              fraction_selected: 0.05
-             enabled: false
+             enabled: true # try if cell types comes back
            - name: predictivity
              fraction_selected: 0.05
              enabled: false
       transformations:
-           - name: PCA
-             n_components: 2
-             enabled: true
-           - name: ICA
-             n_components: 10
-             enabled: false
-           - name: RP
-             n_components: 10
-             enabled: false
-           - name: TSNE
-             n_components: 2
-             enabled: true
-           - name: Poly
-             degree: 2
-             enabled: false
-           - name: OR
-             enabled: false
+        - name: PCA
+          n_components: 2
+          enabled: false
+        - name: ICA
+          n_components: 10
+          enabled: false
+        - name: RP
+          n_components: 10
+          enabled: false
+        - name: TSNE
+          n_components: 2
+          enabled: false
+        - name: Poly
+          degree: 2
+          enabled: false
+        - name: OR
+          enabled: false
     #- name: RNA
     #  database: CCLE
     #  filtering:
@@ -66,24 +66,24 @@ data:
     #      - name: predictivity
     #        fraction_selected: 0.001
     #        enabled: false
-    #    transformations:
-    #      - name: PCA
-    #        n_components: 5
-    #        enabled: true
-    #      - name: ICA
-    #        n_components: 10
-    #        enabled: false
-    #      - name: RP
-    #        n_components: 10
-    #        enabled: false
-    #      - name: TSNE
-    #        n_components: 2
-    #        enabled: true
-    #      - name: Poly
-    #        degree: 2
-    #        enabled: false
-    #      - name: OR
-    #        enabled: false
+    #  transformations:
+    #    - name: PCA
+    #      n_components: 5
+    #      enabled: true
+    #    - name: ICA
+    #      n_components: 10
+    #      enabled: false
+    #    - name: RP
+    #      n_components: 10
+    #      enabled: false
+    #    - name: TSNE
+    #      n_components: 2
+    #      enabled: true
+    #    - name: Poly
+    #      degree: 2
+    #      enabled: false
+    #    - name: OR
+    #      enabled: false
     #- name: RNA-FILTERED
     #  database: CCLE
     #  filtering:
@@ -107,24 +107,24 @@ data:
     #      - name: predictivity
     #        fraction_selected: 0.001
     #        enabled: false
-    #    transformations:
-    #      - name: PCA
-    #        n_components: 5
-    #        enabled: false
-    #      - name: ICA
-    #        n_components: 10
-    #        enabled: false
-    #      - name: RP
-    #        n_components: 10
-    #        enabled: false
-    #      - name: TSNE
-    #        n_components: 2
-    #        enabled: false
-    #      - name: Poly
-    #        degree: 2
-    #        enabled: false
-    #      - name: OR
-    #        enabled: false
+    #  transformations:
+    #    - name: PCA
+    #      n_components: 5
+    #      enabled: false
+    #    - name: ICA
+    #      n_components: 10
+    #      enabled: false
+    #    - name: RP
+    #      n_components: 10
+    #      enabled: false
+    #    - name: TSNE
+    #      n_components: 2
+    #      enabled: false
+    #    - name: Poly
+    #      degree: 2
+    #      enabled: false
+    #    - name: OR
+    #      enabled: false
     - name: MIRNA
       database: CCLE
       filtering:
@@ -148,24 +148,24 @@ data:
           - name: predictivity
             fraction_selected: 0.02
             enabled: false
-        transformations:
-          - name: PCA
-            n_components: 5
-            enabled: false
-          - name: ICA
-            n_components: 10
-            enabled: false
-          - name: RP
-            n_components: 10
-            enabled: false
-          - name: TSNE
-            n_components: 2
-            enabled: false
-          - name: Poly
-            degree: 2
-            enabled: false
-          - name: OR
-            enabled: false
+      transformations:
+        - name: PCA
+          n_components: 5
+          enabled: false
+        - name: ICA
+          n_components: 10
+          enabled: false
+        - name: RP
+          n_components: 10
+          enabled: false
+        - name: TSNE
+          n_components: 2
+          enabled: false
+        - name: Poly
+          degree: 2
+          enabled: false
+        - name: OR
+          enabled: false
     #- name: META
     #  database: CCLE
     #  filtering:
@@ -189,24 +189,24 @@ data:
     #      - name: predictivity
     #        fraction_selected: 0.02
     #        enabled: false
-    #    transformations:
-    #      - name: PCA
-    #        n_components: 5
-    #        enabled: true
-    #      - name: ICA
-    #        n_components: 10
-    #        enabled: false
-    #      - name: RP
-    #        n_components: 10
-    #        enabled: false
-    #      - name: TSNE
-    #        n_components: 2
-    #        enabled: true
-    #      - name: Poly
-    #        degree: 2
-    #        enabled: false
-    #      - name: OR
-    #        enabled: false
+    #  transformations:
+    #    - name: PCA
+    #      n_components: 5
+    #      enabled: true
+    #    - name: ICA
+    #      n_components: 10
+    #      enabled: false
+    #    - name: RP
+    #      n_components: 10
+    #      enabled: false
+    #    - name: TSNE
+    #      n_components: 2
+    #      enabled: true
+    #    - name: Poly
+    #      degree: 2
+    #      enabled: false
+    #    - name: OR
+    #      enabled: false
     #- name: DNA
     #  database: CCLE
     #  filtering:
@@ -230,24 +230,24 @@ data:
     #      - name: predictivity
     #        fraction_selected: 0.02
     #        enabled: false
-    #    transformations:
-    #      - name: PCA
-    #        n_components: 5
-    #        enabled: true
-    #      - name: ICA
-    #        n_components: 10
-    #        enabled: false
-    #      - name: RP
-    #        n_components: 10
-    #        enabled: false
-    #      - name: TSNE
-    #        n_components: 2
-    #        enabled: true
-    #      - name: Poly
-    #        degree: 2
-    #        enabled: false
-    #      - name: OR
-    #        enabled: false
+    #  transformations:
+    #    - name: PCA
+    #      n_components: 5
+    #      enabled: true
+    #    - name: ICA
+    #      n_components: 10
+    #      enabled: false
+    #    - name: RP
+    #      n_components: 10
+    #      enabled: false
+    #    - name: TSNE
+    #      n_components: 2
+    #      enabled: true
+    #    - name: Poly
+    #      degree: 2
+    #      enabled: false
+    #    - name: OR
+    #      enabled: false
     #- name: PATHWAYS
     #  database: OWN
     #  filtering:
@@ -271,24 +271,24 @@ data:
     #      - name: predictivity
     #        fraction_selected: 0.5
     #        enabled: false
-    #    transformations:
-    #      - name: PCA
-    #        n_components: 5
-    #        enabled: false
-    #      - name: ICA
-    #        n_components: 10
-    #        enabled: false
-    #      - name: RP
-    #        n_components: 10
-    #        enabled: false
-    #      - name: TSNE
-    #        n_components: 2
-    #        enabled: false
-    #      - name: Poly
-    #        degree: 2
-    #        enabled: false
-    #      - name: OR
-    #        enabled: false
+    #  transformations:
+    #    - name: PCA
+    #      n_components: 5
+    #      enabled: false
+    #    - name: ICA
+    #      n_components: 10
+    #      enabled: false
+    #    - name: RP
+    #      n_components: 10
+    #      enabled: false
+    #    - name: TSNE
+    #      n_components: 2
+    #      enabled: false
+    #    - name: Poly
+    #      degree: 2
+    #      enabled: false
+    #    - name: OR
+    #      enabled: false
     # - name: EIGENVECTOR
     #   database: OWN
     #   filtering:
@@ -312,24 +312,24 @@ data:
     #       - name: predictivity
     #         fraction_selected: 0.5
     #         enabled: false
-    #     transformations:
-    #       - name: PCA
-    #         n_components: 5
-    #         enabled: false
-    #       - name: ICA
-    #         n_components: 10
-    #         enabled: false
-    #       - name: RP
-    #         n_components: 10
-    #         enabled: false
-    #       - name: TSNE
-    #         n_components: 2
-    #         enabled: false
-    #       - name: Poly
-    #         degree: 2
-    #         enabled: false
-    #       - name: OR
-    #         enabled: false
+    #   transformations:
+    #     - name: PCA
+    #       n_components: 5
+    #       enabled: false
+    #     - name: ICA
+    #       n_components: 10
+    #       enabled: false
+    #     - name: RP
+    #       n_components: 10
+    #       enabled: false
+    #     - name: TSNE
+    #       n_components: 2
+    #       enabled: false
+    #     - name: Poly
+    #       degree: 2
+    #       enabled: false
+    #     - name: OR
+    #       enabled: false
     # - name: BETWEENNESS
     #   database: OWN
     #   filtering:
@@ -353,24 +353,24 @@ data:
     #       - name: predictivity
     #         fraction_selected: 0.5
     #         enabled: false
-    #     transformations:
-    #       - name: PCA
-    #         n_components: 5
-    #         enabled: false
-    #       - name: ICA
-    #         n_components: 10
-    #         enabled: false
-    #       - name: RP
-    #         n_components: 10
-    #         enabled: false
-    #       - name: TSNE
-    #         n_components: 2
-    #         enabled: false
-    #       - name: Poly
-    #         degree: 2
-    #         enabled: false
-    #       - name: OR
-    #         enabled: false
+    #   transformations:
+    #     - name: PCA
+    #       n_components: 5
+    #       enabled: false
+    #     - name: ICA
+    #       n_components: 10
+    #       enabled: false
+    #     - name: RP
+    #       n_components: 10
+    #       enabled: false
+    #     - name: TSNE
+    #       n_components: 2
+    #       enabled: false
+    #     - name: Poly
+    #       degree: 2
+    #       enabled: false
+    #     - name: OR
+    #       enabled: false
     # - name: CLOSENESS
     #   database: OWN
     #   filtering:
@@ -394,24 +394,24 @@ data:
     #       - name: predictivity
     #         fraction_selected: 0.5
     #         enabled: false
-    #     transformations:
-    #       - name: PCA
-    #         n_components: 5
-    #         enabled: false
-    #       - name: ICA
-    #         n_components: 10
-    #         enabled: false
-    #       - name: RP
-    #         n_components: 10
-    #         enabled: false
-    #       - name: TSNE
-    #         n_components: 2
-    #         enabled: false
-    #       - name: Poly
-    #         degree: 2
-    #         enabled: false
-    #       - name: OR
-    #         enabled: false
+    #   transformations:
+    #     - name: PCA
+    #       n_components: 5
+    #       enabled: false
+    #     - name: ICA
+    #       n_components: 10
+    #       enabled: false
+    #     - name: RP
+    #       n_components: 10
+    #       enabled: false
+    #     - name: TSNE
+    #       n_components: 2
+    #       enabled: false
+    #     - name: Poly
+    #       degree: 2
+    #       enabled: false
+    #     - name: OR
+    #       enabled: false
     # - name: PAGERANK
     #   database: OWN
     #   filtering:
@@ -435,24 +435,24 @@ data:
     #       - name: predictivity
     #         fraction_selected: 0.5
     #         enabled: false
-    #     transformations:
-    #       - name: PCA
-    #         n_components: 5
-    #         enabled: false
-    #       - name: ICA
-    #         n_components: 10
-    #         enabled: false
-    #       - name: RP
-    #         n_components: 10
-    #         enabled: false
-    #       - name: TSNE
-    #         n_components: 2
-    #         enabled: false
-    #       - name: Poly
-    #         degree: 2
-    #         enabled: false
-    #       - name: OR
-    #         enabled: false
+    #   transformations:
+    #     - name: PCA
+    #       n_components: 5
+    #       enabled: false
+    #     - name: ICA
+    #       n_components: 10
+    #       enabled: false
+    #     - name: RP
+    #       n_components: 10
+    #       enabled: false
+    #     - name: TSNE
+    #       n_components: 2
+    #       enabled: false
+    #     - name: Poly
+    #       degree: 2
+    #       enabled: false
+    #     - name: OR
+    #       enabled: false
     # - name: AVNEIGHBOUR
     #   database: OWN
     #   filtering:
@@ -476,24 +476,24 @@ data:
     #       - name: predictivity
     #         fraction_selected: 0.5
     #         enabled: false
-    #     transformations:
-    #       - name: PCA
-    #         n_components: 5
-    #         enabled: false
-    #       - name: ICA
-    #         n_components: 10
-    #         enabled: false
-    #       - name: RP
-    #         n_components: 10
-    #         enabled: false
-    #       - name: TSNE
-    #         n_components: 2
-    #         enabled: false
-    #       - name: Poly
-    #         degree: 2
-    #         enabled: false
-    #       - name: OR
-    #         enabled: false
+    #   transformations:
+    #     - name: PCA
+    #       n_components: 5
+    #       enabled: false
+    #     - name: ICA
+    #       n_components: 10
+    #       enabled: false
+    #     - name: RP
+    #       n_components: 10
+    #       enabled: false
+    #     - name: TSNE
+    #       n_components: 2
+    #       enabled: false
+    #     - name: Poly
+    #       degree: 2
+    #       enabled: false
+    #     - name: OR
+    #       enabled: false
     # - name: RNA
     #   database: GDSC
     #   filtering:
@@ -514,24 +514,24 @@ data:
     #       - name: predictivity
     #         fraction_selected: 0.001
     #         enabled: true
-    #     transformations:
-    #       - name: PCA
-    #         n_components: 5
-    #         enabled: true
-    #       - name: ICA
-    #         n_components: 10
-    #         enabled: false
-    #       - name: RP
-    #         n_components: 10
-    #         enabled: false
-    #       - name: TSNE
-    #         n_components: 2
-    #         enabled: true
-    #       - name: Poly
-    #         degree: 2
-    #         enabled: false
-    #       - name: OR
-    #         enabled: false
+    #   transformations:
+    #     - name: PCA
+    #       n_components: 5
+    #       enabled: true
+    #     - name: ICA
+    #       n_components: 10
+    #       enabled: false
+    #     - name: RP
+    #       n_components: 10
+    #       enabled: false
+    #     - name: TSNE
+    #       n_components: 2
+    #       enabled: true
+    #     - name: Poly
+    #       degree: 2
+    #       enabled: false
+    #     - name: OR
+    #       enabled: false
   targets:
     - name: DRUGS_5
       database: CCLE
@@ -577,28 +577,28 @@ data:
         - name: thresholding
           threshold: 7
           enabled: false
-    - name: DRUGS_17
-      database: CCLE
-      responses: ActArea
-      target_drug_name: Paclitaxel
-      filtering:
-        - name: sample_completeness
-          threshold: 0.95
-          enabled: true
-        - name: feature_completeness
-          threshold: 0.95
-          enabled: true
-      normalization:
-        - name: unit
-          enabled: true
-      target_engineering:
-        - name: quantization
-          upper_bound_resistant: 0.33
-          lower_bound_sensitive: 0.67
-          enabled: true
-        - name: thresholding
-          threshold: 7
-          enabled: false
+#    - name: DRUGS_17
+#      database: CCLE
+#      responses: ActArea
+#      target_drug_name: Paclitaxel
+#      filtering:
+#        - name: sample_completeness
+#          threshold: 0.95
+#          enabled: true
+#        - name: feature_completeness
+#          threshold: 0.95
+#          enabled: true
+#      normalization:
+#        - name: unit
+#          enabled: true
+#      target_engineering:
+#        - name: quantization
+#          upper_bound_resistant: 0.33
+#          lower_bound_sensitive: 0.67
+#          enabled: true
+#        - name: thresholding
+#          threshold: 7
+#          enabled: false
     #- name: DRUGS_13
     #  database: CCLE
     #  responses: ActArea

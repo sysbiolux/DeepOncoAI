@@ -83,7 +83,7 @@ def main():
     data_pickle = args.input
     [data, ActAreas, IC50s, dose_responses] = unpickle_objects(data_pickle)
 
-    logging.info("Filtering data...")
+    logging.info("(snake) Filtering data...")
     # set location filtered_data_pickle where pickled filtered data will be stored.
     filtered_data_pickle = args.final_data
     if not os.path.exists(filtered_data_pickle) or args.overwrite:
@@ -92,7 +92,7 @@ def main():
         pickle_objects(objects, filtered_data_pickle)
     else:
         [filtered_data, filters] = unpickle_objects(filtered_data_pickle)
-    logging.info("Data filtering completed")
+    logging.info("(snake) Data filtering completed")
 
 
 if __name__ == "__main__":

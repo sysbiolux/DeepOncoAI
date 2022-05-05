@@ -74,8 +74,8 @@ def main():
     # instantiate config Class instance with configuration file
     config = Config(args.config)
 
-    logging.info("*** DeepOncoAI *** commencing analysis...")
-    logging.info("Loading datasets...")
+    logging.info("(snake) *** DeepOncoAI *** commencing analysis...")
+    logging.info("(snake) Loading datasets...")
     # set location read_data_pickle where pickled read data will be stored.
     raw_data_pickle = args.final_data
     if not os.path.exists(raw_data_pickle) or args.overwrite:
@@ -89,7 +89,7 @@ def main():
         pickle_objects(objects, raw_data_pickle)
     else:
         [data, ActAreas, IC50s, dose_responses] = unpickle_objects(raw_data_pickle)
-    logging.info("Data loading completed")
+    logging.info("(snake) Data loading completed")
 
 
 if __name__ == "__main__":

@@ -86,10 +86,10 @@ def main():
     #######################
     ### TRAINING MODELS ###
     #######################
-    logging.info("Training models...")
+    logging.info("(snake) Training models...")
 
     trained_models_pickle = args.final_data
-    logging.info("Getting optimized models")
+    logging.info("(snake) Getting optimized models")
 
     data_pickle = args.input
     data = unpickle_objects(data_pickle)
@@ -104,7 +104,7 @@ def main():
     else:
         [models, algos_dict] = unpickle_objects(trained_models_pickle)
 
-    logging.info("Models trained")
+    logging.info("(snake) Models trained")
 
     # config.show_results(config, results_prim)
 

@@ -148,7 +148,7 @@ def get_classification_models(models=dict(), depth=1): #TODO: here is mutable de
                 for n3 in n3_values:
                     models[
                         "mlp" + str(n1) + "-" + str(n2) + "-" + str(n3)
-                        ] = MLPClassifier(
+                    ] = MLPClassifier(
                         solver="sgd",
                         learning_rate="adaptive",
                         learning_rate_init=0.01,
@@ -255,7 +255,7 @@ def get_regression_models(models=dict(), depth=1):
                 for n3 in n3_values:
                     models[
                         "mlp" + str(n1) + "-" + str(n2) + "-" + str(n3)
-                        ] = MLPRegressor(
+                    ] = MLPRegressor(
                         solver="sgd",
                         learning_rate="adaptive",
                         learning_rate_init=0.01,
@@ -327,6 +327,7 @@ def evaluate_models(X, y, models, X_test, folds=10, metric="accuracy"):
 
 def summarize_results(
         results, predicted, y_test, this_col, maximize=True, top_n=0, graph=False
+
 ):
     """summarizes the results for the top-performing algorithms"""
     if top_n == 0:
