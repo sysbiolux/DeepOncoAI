@@ -62,7 +62,7 @@ config.save(to_save=trained_models, name="f_test")
 # config.show_results(config, algos_dict)
 
 logging.info("Creating best stacks")
-results_sec = config.get_stacks(dataset=final_data, models=trained_models)
+results_sec = config.get_stacks(dataset=final_data, models_dict=trained_models)
 
 # algos_dict_over, _ = config.get_best_algos(optimal_algos, mode='over')
 # over_stacks, results_over = config.get_best_stacks(models=algos_dict_over, dataset=final_data, tag='_over')

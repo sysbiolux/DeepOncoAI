@@ -1,38 +1,23 @@
-from eli5.sklearn import PermutationImportance
-import pandas as pd
+from sklearn.inspection import permutation_importance
 import logging
-from DBM_toolbox.data_manipulation import dataset_class
+import pandas as pd
 
 
-def explain_model(model, predictors, target, folds=5, seed=42):
-    logging.info("explaining models")
+def explain_model(model, predictors, target, folds=5, seed=42): #fold is for use with CV (ELI5)
+    logging.info(f"...explaining model {model}...")
     trained_model = model.fit(predictors, target)
-    explanation = PermutationImportance(estimator=trained_model, random_state=seed, cv=folds)
-    explanation.fit(predictors, target)
-    return explanation
+    importances = permutation_importance(trained_model, predictors, target, random_state=seed, n_jobs=-1)
+    importances_df = pd.Series(data=importances.importances_mean, index=predictors.columns).sort_values(ascending=False)
+    return importances_df
 
 
-def explain_prediction(model, predictors, target, test_sample):
-    logging.info("starting prediction explanations")
-    trained_model = model.fit(predictors, target)
-    explanation = eli5.explain_prediction(trained_model, test_sample)
-    return explanation
-
-
-def explain_all(models, predictors, target, folds=5, seed=42):
+def explain_all(models, predictors, target, folds=5, seed=42): #fold is for use with CV (ELI5)
     explanations = {}
-
-    logging.info("starting model explanations...")
-    print("*******************************")
-    print(models)
-    models_list = models.keys()
+    logging.info("...starting model explanations...")
+    models_list = list(models.keys())
     for this_model_name in models_list:
         model = models[this_model_name]['estimator']
         explained_model = explain_model(model, predictors, target, folds, seed)
-        explanations["model_explained"][model] = explained_model
-        samples_list = target.index
-        for sample in samples_list:
-            explained_prediction = explain_prediction(model, predictors, target, sample)
-            explanations["predictions_explained"][sample][model] = explained_prediction
+        explanations[this_model_name] = explained_model
 
     return explanations

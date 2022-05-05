@@ -107,7 +107,7 @@ def main():
 
     if not os.path.exists(trained_stacks_pickle) or args.overwrite:
         results_sec = config.get_stacks(
-            models=models, dataset=data
+            models_dict=models, dataset=data
         )
         objects = results_sec
         pickle_objects(objects, trained_stacks_pickle)

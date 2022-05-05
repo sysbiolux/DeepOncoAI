@@ -3,6 +3,7 @@ import pandas as pd
 from DBM_toolbox.data_manipulation.filter_class import KeepFeaturesFilter
 from DBM_toolbox.data_manipulation import dataset_class
 import xgboost as xgb
+import logging
 
 from sklearn.metrics import mean_squared_error
 
@@ -26,7 +27,7 @@ class HighestVarianceRule(Rule):
         variances = dataframe.var().sort_values(ascending=False)
         number_of_features_to_keep = int(round(len(variances) * self.fraction))
         features_to_keep = variances.iloc[:number_of_features_to_keep].index
-        print(f"Keeping {len(features_to_keep)} features out of {dataframe.shape[1]}")
+        logging.info(f"Keeping {len(features_to_keep)} features out of {dataframe.shape[1]}")
         return KeepFeaturesFilter(
             features=features_to_keep, omic=self.omic, database=self.database
         )
@@ -44,9 +45,7 @@ class ColumnDensityRule(Rule):
 
     def create_filter(self, dataset):
         dataframe = dataset.to_pandas(omic=self.omic, database=self.database)
-        # print(f"oooooooooooooooooooo {dataframe.shape[0]}")
         dataframe = dataframe.dropna(how="all")
-        # print(f"oooooooooooooooooooo {dataframe.shape[0]}")
         completeness = 1 - dataframe.isna().mean(axis=0)
         features_to_keep = completeness[
             completeness >= self.completeness_threshold

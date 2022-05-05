@@ -756,22 +756,23 @@ class Config:
         pass
 
     def retrieve_features(self, trained_models: dict, dataset: dataset_class.Dataset):
+        logging.info(f"Starting retrieval of important features...")
         targets_list = []
         explanation_dict = dict()
-        folds = self.raw_dict["modeling"]["inspection"]["value"]
+        folds = self.raw_dict["modeling"]["inspection"]["folds"]
         seed = self.raw_dict["modeling"]["inspection"]["random_seed"]
         for item in self.raw_dict["data"]["targets"]:
             this_name = item["target_drug_name"] + "_" + item["responses"]
             targets_list.append(this_name)
         targets_list = list(set(targets_list))
-        print(targets_list)
         omics_list = list(trained_models[targets_list[0]].keys())
         for target in targets_list:
+            logging.info(f"...extracting feature importance for {target}...")
             explanation_dict[target] = dict()
             this_dataset = dataset.to_binary(target=target)
             this_target = this_dataset.to_pandas()[target]
             for omic in omics_list:
-                print(omic)
+                logging.info(f"...with dataset {omic}...")
                 if omic == "complete":
                     this_predictors = this_dataset.to_pandas().drop(targets_list, axis=1)
                 else:
