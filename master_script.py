@@ -57,7 +57,7 @@ logging.info("Getting optimized models")
 trained_models = config.get_models(dataset=final_data, method="standard")
 config.save(to_save=trained_models, name="f_test")
 
-# models, algos_dict = config.get_best_algos(trained_models)
+models, algos_dict = config.get_best_algos(trained_models)
 
 # config.show_results(config, algos_dict)
 

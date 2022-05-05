@@ -7,6 +7,7 @@ Created on Sat Nov 21 11:01:57 2020
 import numpy as np
 import pandas as pd
 from vecstack import stacking
+import logging
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_predict
 
@@ -202,28 +203,8 @@ def compute_systematic_stacks(
         for this_omic in omics_list:
             if this_omic == "complete":
                 X = this_dataset.to_pandas().drop(targets_list, axis=1)
-                #print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
-                #print(f"y: {y.size} samples")
-                #X = X.dropna(how="all")
-                #print("dropping")
-             #   print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
-             #   print(f"y: {y.size} samples")
-             #   index1 = y.index[
-             #       y.apply(np.isnan)
-              #  ]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
-             #   index2 = X.index[X.apply(np.isnan).any(axis=1)]  ## SOLVED?
-             #   indices_to_drop = index1.union(index2)
-            #    print(f"cross-dropping: idx1: {index1}, idx2: {index2}")
-            #    X = X.drop(indices_to_drop)
-            #    y = y.drop(indices_to_drop)
-            #    print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
-            #    print(f"y: {y.size} samples")
             else:
                 X = this_dataset.to_pandas(omic=this_omic)
-                #print(f"X: {X.shape[0]} samples and {X.shape[1]} features")
-                #print(f"y: {y.size} samples")
-                #X = X.dropna(how="all")
-                #print("dropping")
             print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")
             index1 = y.index[
                 y.apply(np.isnan)
@@ -253,7 +234,7 @@ def compute_systematic_stacks(
             indiv_models_list = list(indiv_models_dict.keys())
             print(f"models: {indiv_models_list}")
             for id, model in enumerate(indiv_models_list):
-                this_model = models_dict[model]["estimator"]
+                this_model = models_dict[target][this_omic][model]["estimator"]
                 print("++++++++++++++++")
                 print(this_model)
                 print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")

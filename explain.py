@@ -104,13 +104,15 @@ def main():
 
     if not os.path.exists(models_explanations_pickle) or args.overwrite:
         explanations = config.retrieve_features(
-            models=models, dataset=data
+            trained_models=models, dataset=data
         )
         objects = explanations
         pickle_objects(objects, models_explanations_pickle)
-        for item in explanations.keys():
-            filename = "explanations_" + item + ".csv"
-            explanations[item].to_csv(os.path.join(args.output_dir, filename))
+        for target in explanations.keys():
+            for omic in explanations[target].keys():
+                for model in explanations[target][omic].keys():
+                    filename = "explanations_" + target + "_" + omic + "_" + model + ".csv"
+                    explanations[target][omic][model].to_csv(os.path.join(args.output_dir, filename))
     else:
         explanations = unpickle_objects(models_explanations_pickle)
     logging.info("Model explanations performed")

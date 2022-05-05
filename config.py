@@ -772,11 +772,11 @@ class Config:
             this_dataset = dataset.to_binary(target=target)
             this_target = this_dataset.to_pandas()[target]
             for omic in omics_list:
-                logging.info(f"...with dataset {omic}...")
+                logging.info(f"...with dataset: {omic}...")
                 if omic == "complete":
                     this_predictors = this_dataset.to_pandas().drop(targets_list, axis=1)
                 else:
-                    this_predictors = dataset.to_pandas(omic=omic)
+                    this_predictors = this_dataset.to_pandas(omic=omic)
                 this_models = trained_models[target][omic]
                 explanation_dict[target][omic] = feature_retrieval.explain_all(models=this_models, predictors=this_predictors, target=this_target, folds=folds, seed=seed)
 
