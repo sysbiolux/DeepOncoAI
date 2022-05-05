@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import logging
 from vecstack import stacking
+import logging
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_val_predict
 
@@ -190,22 +191,25 @@ def compute_stacks(
 
 
 def compute_systematic_stacks(
-    dataset, models, final_model, targets_list, metric="roc_auc", folds=10, seed=42
+    dataset, models_dict, final_model, targets_list, metric="roc_auc", folds=10, seed=42
 ):
     res = {}
     for target in targets_list:
         this_dataset = dataset.to_binary(target=target)
         y = this_dataset.to_pandas()[target]
         predictions = pd.DataFrame(index=y.index)
-        omics_dict = models[target]
+        omics_dict = models_dict[target]
         omics_list = omics_dict.keys()
         for this_omic in omics_list:
             if this_omic == "complete":
                 X = this_dataset.to_pandas().drop(targets_list, axis=1)
             else:
                 X = this_dataset.to_pandas(omic=this_omic)
-            index1 = y.index[y.apply(np.isnan)]
-            index2 = X.index[X.apply(np.isnan).any(axis=1)]
+            print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")
+            index1 = y.index[
+                y.apply(np.isnan)
+            ]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
+            index2 = X.index[X.apply(np.isnan).any(axis=1)]  ## SOLVED?
             indices_to_drop = index1.union(index2)
             # print(f"cross-dropping: idx1: {index1}, idx2: {index2}")
             try:
@@ -226,20 +230,17 @@ def compute_systematic_stacks(
                 intersect = [value for value in indexx if value in indexy]
                 X = X.loc[intersect, :]
                 y = y.loc[intersect]
-                logging.info(
-                    f"omic: {this_omic}, {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples"
-                )
-            models_dict = omics_dict[this_omic]
-            # print(models_dict)
-            models_list = list(models_dict.keys())
-            logging.info(f"models: {models_list}")
-            for id, model in enumerate(models_list):
-                this_model = models_dict[model]["estimator"]
-                logging.info("++++++++++++++++")
-                logging.info(this_model)
-                logging.info(
-                    f"omic: {this_omic}, {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples"
-                )
+
+                print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")
+            indiv_models_dict = omics_dict[this_omic]
+            print(indiv_models_dict)
+            indiv_models_list = list(indiv_models_dict.keys())
+            print(f"models: {indiv_models_list}")
+            for id, model in enumerate(indiv_models_list):
+                this_model = models_dict[target][this_omic][model]["estimator"]
+                print("++++++++++++++++")
+                print(this_model)
+                print(f"omic: {this_omic}, X: {X.shape[0]} samples and {X.shape[1]} features, y: {y.size} samples")
                 this_idx = y.index
                 xval = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
                 omic_predict = cross_val_predict(this_model, X, y, cv=xval, n_jobs=-1)

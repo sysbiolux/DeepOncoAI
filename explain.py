@@ -1,6 +1,3 @@
-#######################
-### TRAINING STACKS ###
-#######################
 
 import argparse
 import os
@@ -11,7 +8,7 @@ from functions import pickle_objects, unpickle_objects
 
 def parse_args():
     """Parse command line arguments"""
-    parser = argparse.ArgumentParser(description="stacking running script")
+    parser = argparse.ArgumentParser(description="explaining models running script")
     # # Optional arguments
     optional_arguments = parser.add_argument_group("optional arguments")
     optional_arguments.add_argument(
@@ -65,7 +62,7 @@ def parse_args():
         type=str,
         default=None,
         required=True,
-        help="path where trained_stacks are written to",
+        help="path where filtered data is written to",
     )
     args = parser.parse_args()
     return args
@@ -91,13 +88,13 @@ def main():
     # instantiate config Class instance with configuration file
     config = Config(args.config)
 
-    #######################
-    ### TRAINING STACKS ###
-    #######################
+    #########################
+    ### EXPLAINING MODELS ###
+    #########################
 
-    logging.info("(snake) Constructing stacks...")
+    logging.info("Retrieving features...")
 
-    trained_stacks_pickle = args.final_data
+    models_explanations_pickle = args.final_data
 
     models_pickle = args.models
     data_pickle = args.input
@@ -105,21 +102,20 @@ def main():
     models, algos_dict = unpickle_objects(models_pickle)
     data = unpickle_objects(data_pickle)
 
-    logging.info(models)
-    logging.info(algos_dict)
-
-    if not os.path.exists(trained_stacks_pickle) or args.overwrite:
-        results_sec = config.get_stacks(
-            models_dict=models, dataset=data
+    if not os.path.exists(models_explanations_pickle) or args.overwrite:
+        explanations = config.retrieve_features(
+            trained_models=models, dataset=data
         )
-        objects = results_sec
-        pickle_objects(objects, trained_stacks_pickle)
-        for item in results_sec.keys():
-            filename = "stacks_" + item + ".csv"
-            results_sec[item].to_csv(os.path.join(args.output_dir, filename))
+        objects = explanations
+        pickle_objects(objects, models_explanations_pickle)
+        for target in explanations.keys():
+            for omic in explanations[target].keys():
+                for model in explanations[target][omic].keys():
+                    filename = "explanations_" + target + "_" + omic + "_" + model + ".csv"
+                    explanations[target][omic][model].to_csv(os.path.join(args.output_dir, filename))
     else:
-        results_sec = unpickle_objects(trained_stacks_pickle)
-    logging.info("(snake) Stacks constructed")
+        explanations = unpickle_objects(models_explanations_pickle)
+    logging.info("Model explanations performed")
 
 
 if __name__ == "__main__":
