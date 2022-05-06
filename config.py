@@ -13,7 +13,6 @@ from DBM_toolbox.data_manipulation import load_data, rule, preprocessing
 from DBM_toolbox.data_manipulation import dataset_class, filter_class
 from DBM_toolbox.feature_engineering.predictors import combinations, components
 from DBM_toolbox.modeling import optimized_models, stacking
-from DBM_toolbox.interpretation import feature_retrieval
 from DBM_toolbox.plotting import eda
 
 parse_filter_dict = {
@@ -633,7 +632,7 @@ class Config:
 
         return results
 
-    def get_best_algos(self, trained_models: dict, mode="standard"):
+    def get_best_algos(self, optimal_algos: dict, mode="standard"):
         """
         Compares the results of different algorithms for the same target with the same omic type, 
         looks for the highest performance and returns a dictionary of models
@@ -642,7 +641,7 @@ class Config:
         logging.info("(lvl0) *** Selecting best algorithms")
         options = self.raw_dict["modeling"]["ensembling"]
         models = dict()
-        targets = trained_models.keys()
+        targets = optimal_algos.keys()
         results_df = pd.DataFrame(
             columns=["target", "omic", "algo", "perf", "estim", "N"]
         )
@@ -651,16 +650,18 @@ class Config:
             models[target] = dict()
             # ranked list of algos
             if mode == "standard":
-                omics = trained_models[target].keys()
+                omics = optimal_algos[target].keys()
                 n_models = options["n_models"]
             elif mode == "over":
                 omics = ["complete"]
-                n_models = len(trained_models[target]["complete"].keys())
+                n_models = len(optimal_algos[target]["complete"].keys())
             for omic in omics:
-                algos = trained_models[target][omic]
+                print(omic)
+                algos = optimal_algos[target][omic]
+                print(algos)
                 models[target][omic] = []
                 for algo in algos:
-                    i = trained_models[target][omic][algo]
+                    i = optimal_algos[target][omic][algo]
                     estimator = i["estimator"]
                     num = i["N"]
                     try:
@@ -693,7 +694,7 @@ class Config:
 
         return models, results_df
 
-    def get_stacks(self, models_dict: dict, dataset: dataset_class.Dataset, tag=None):
+    def get_best_stacks(self, models: dict, dataset: dataset_class.Dataset, tag=None):
         """
         Computes stacks for each target with two stacking types:
             - lean: only with predictions of the first-level models
@@ -733,7 +734,7 @@ class Config:
 
         folds = min(folds, len(dataset.dataframe.index))
         results_stacks = stacking.compute_systematic_stacks(
-            dataset, models_dict, final_model, targets_list, metric, folds, seed
+            dataset, models, final_model, targets_list, metric, folds, seed
         )
         return results_stacks
 
@@ -781,33 +782,6 @@ class Config:
 
     def evaluate_stacks(self, best_stacks):
         pass
-
-    def retrieve_features(self, trained_models: dict, dataset: dataset_class.Dataset):
-        logging.info(f"Starting retrieval of important features...")
-        targets_list = []
-        explanation_dict = dict()
-        folds = self.raw_dict["modeling"]["inspection"]["folds"]
-        seed = self.raw_dict["modeling"]["inspection"]["random_seed"]
-        for item in self.raw_dict["data"]["targets"]:
-            this_name = item["target_drug_name"] + "_" + item["responses"]
-            targets_list.append(this_name)
-        targets_list = list(set(targets_list))
-        omics_list = list(trained_models[targets_list[0]].keys())
-        for target in targets_list:
-            logging.info(f"...extracting feature importance for {target}...")
-            explanation_dict[target] = dict()
-            this_dataset = dataset.to_binary(target=target)
-            this_target = this_dataset.to_pandas()[target]
-            for omic in omics_list:
-                logging.info(f"...with dataset: {omic}...")
-                if omic == "complete":
-                    this_predictors = this_dataset.to_pandas().drop(targets_list, axis=1)
-                else:
-                    this_predictors = this_dataset.to_pandas(omic=omic)
-                this_models = trained_models[target][omic]
-                explanation_dict[target][omic] = feature_retrieval.explain_all(models=this_models, predictors=this_predictors, target=this_target, folds=folds, seed=seed)
-
-        return explanation_dict
 
     def save(self, to_save=[], name="file"):
         date = datetime.now()

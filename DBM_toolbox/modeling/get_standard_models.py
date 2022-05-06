@@ -9,7 +9,6 @@ import numpy as np
 import time
 import warnings
 from matplotlib import pyplot as plt
-import logging
 
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LinearRegression
@@ -58,7 +57,7 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.model_selection import cross_val_score
 
 
-def get_classification_models(models=dict(), depth=1): #TODO: here is mutable default argument, replace with None
+def get_classification_models(models=dict(), depth=1):
     # linear models
     #     models['linear'] = LinearRegression()
     models["logistic"] = LogisticRegression()
@@ -160,7 +159,7 @@ def get_classification_models(models=dict(), depth=1): #TODO: here is mutable de
                         max_iter=nMax,
                     )
 
-    logging.info(f"Defined {len(models)} models")
+    print("Defined %d models" % len(models))
     return models
 
 
@@ -266,8 +265,7 @@ def get_regression_models(models=dict(), depth=1):
                         batch_size=32,
                         max_iter=nMax,
                     )
-
-    logging.info(f"Defined {len(models)} models")
+    print("Defined %d models" % len(models))
     return models
 
 
@@ -319,21 +317,24 @@ def evaluate_models(X, y, models, X_test, folds=10, metric="accuracy"):
             predictions[predictions <= 0.5] = 0
             predicted[name] = predictions
             mean_score, std_score, = np.mean(scores), np.std(scores)
-            logging.info(f"{name}: {folds}-val= {mean_score}+-{std_score} in {timesec} s")
+            print(
+                ">%s: %0.0f-val= %.3f +/- %.3f in %.3fs"
+                % (name, folds, mean_score, std_score, timesec)
+            )
+        #             logging.debug('>%s: %.3f (+/- %.3f) in %.3fs' % (name, mean_score, std_score, timesec))
         else:
-            logging.info(f"error:  {name}")
-    return results, predicted
+            print(">%s: error" % name)
+    return (results, predicted)
 
 
 def summarize_results(
-        results, predicted, y_test, this_col, maximize=True, top_n=0, graph=False
-
+    results, predicted, y_test, thisCol, maximize=True, top_n=0, graph=False
 ):
     """summarizes the results for the top-performing algorithms"""
     if top_n == 0:
         top_n = len(results)
     if len(results) == 0:
-        logging.info("no results")
+        print("no results")
         return
     n = min(top_n, len(results))
     mean_scores = [(k, np.mean(v)) for k, v in results.items()]
@@ -344,6 +345,7 @@ def summarize_results(
     scores = [results[x[0]] for x in mean_scores[:n]]
     predict = [predicted[x[0]] for x in mean_scores[:n]]
     #     logging.debug('Target = %s' %(thisCol))
+    print()
     for i in range(n):
         name = names[i]
         mean_score, std_score = np.mean(results[name]), np.std(results[name])
@@ -354,6 +356,6 @@ def summarize_results(
         plt.boxplot(scores, labels=names)
         _, labels = plt.xticks()
         plt.setp(labels, rotation=90)
-        this_title = this_col + "_spotcheck.pdf"
-        plt.savefig(this_title)
+        thisTitle = thisCol + "_spotcheck.pdf"
+        plt.savefig(thisTitle)
     return names, scores, predict
