@@ -1,5 +1,6 @@
 import pandas as pd
 from DBM_toolbox.data_manipulation.dataset_class import Dataset
+import logging
 
 
 class KeepFeaturesFilter:
@@ -18,8 +19,6 @@ class KeepFeaturesFilter:
         selected["omic"] = (omic != self.omic).values
         selected["database"] = database != self.database
         selected["retained"] = selected.any(axis=1)
-        #         print('features retained:')
-        #         print(self.features)
         for this_feature in self.features:
             try:
                 selected.loc[this_feature, "retained"] = True
@@ -35,7 +34,7 @@ class KeepFeaturesFilter:
         )
 
     def __repr__(self):
-        return f"KeepFeaturesFilter({self.features}, {self.omic})"
+        return f"KeepFeaturesFilter({len(self.features)} features: {self.features}, {self.omic})"
 
 
 class KeepDenseRowsFilter:
@@ -50,7 +49,7 @@ class KeepDenseRowsFilter:
         samples_to_keep = completeness[
             completeness >= self.completeness_threshold
         ].index
-        print(f"Keeping {len(samples_to_keep)} samples out of {dataframe.shape[0]}")
+        logging.info(f"Keeping {len(samples_to_keep)} samples out of {dataframe.shape[0]}")
         filtered_dataframe = dataset.dataframe.loc[samples_to_keep, :]
         return Dataset(
             dataframe=filtered_dataframe, omic=dataset.omic, database=dataset.database

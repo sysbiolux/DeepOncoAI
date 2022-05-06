@@ -25,7 +25,7 @@ def get_polynomials(dataframe, degree: int = None):
     df_polynomial = pd.DataFrame(
         data=df_transformed, index=dataframe.index, columns=poly.get_feature_names()
     )
-    return make_dataset(df_polynomial, omic="poly", database="ENGINEEERED")
+    return make_dataset(df_polynomial, omic="poly", database="ENGINEERED")
 
 
 def get_boolean_or(dataframe):
@@ -41,4 +41,4 @@ def get_boolean_or(dataframe):
             or_value = 1 - ((1 - A) * (1 - B))
             df_boolean["BoolOR" + str(count)] = or_value
 
-    return make_dataset(df_boolean, omic="boolean", database="ENGINEEERED")
+    return make_dataset(df_boolean, omic="boolean", database="ENGINEERED")

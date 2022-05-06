@@ -10,7 +10,7 @@ import xgboost as xgb
 from sklearn.linear_model import LogisticRegressionCV
 
 from DBM_toolbox.data_manipulation import load_data, rule, preprocessing
-from DBM_toolbox.data_manipulation import dataset_class, filter_class
+from DBM_toolbox.data_manipulation import dataset_class, filter_class, rule
 from DBM_toolbox.feature_engineering.predictors import combinations, components
 from DBM_toolbox.modeling import optimized_models, stacking
 from DBM_toolbox.interpretation import feature_retrieval
@@ -348,7 +348,8 @@ class Config:
         for omic in omics:
             database = omic["database"]
             for selection in omic["feature_engineering"]["feature_selection"]:
-                logging.info(f"Creating selection for {omic['name']}_{database}")
+                s_name = selection["name"]
+                logging.info(f"Creating selection {s_name} for {omic['name']}_{database}")
                 new_selection = parse_selection(
                     selection=selection, omic=omic["name"], database=database
                 )
@@ -363,14 +364,14 @@ class Config:
                     new_filter = new_selection.create_filter(
                         dataset=this_dataset, target_dataframe=target
                     )
-                    logging.info(f"Applying selection for {omic['name']}_{database}")
+                    logging.info(f"Applying selection {s_name} for {omic['name']}_{database}")
                     new_training_subset = this_dataset.apply_filters([new_filter])
                     if isinstance(datasets, list):
                         this_test_dataset = dataset_class.Dataset(
                             dataframe=test_dataset.to_pandas(
                                 omic=omic["name"], database=database
                             ),
-                            omic=omic["name"],
+                            omic=omic["name"] + "_" + s_name,
                             database=database,
                         )
                         new_test_subset = this_test_dataset.apply_filters([new_filter])
@@ -399,6 +400,7 @@ class Config:
                             selected_test_subset = new_test_subset
                 else:
                     logging.info("inactive...")
+
         if isinstance(datasets, list):
             return selected_training_subset, selected_test_subset
         else:
@@ -415,8 +417,10 @@ class Config:
             dataframe = dataset.to_pandas()
             engineered_features = None
             database = dataset.database
+            print("******************")
+            print(omics)
             for omic in omics:
-                transformations_dict = omic["feature_engineering"]["transformations"]
+                transformations_dict = omic["transformations"]
                 for transformation in transformations_dict:
                     logging.info(
                         f"Engineering {transformation['name']} for {omic['name']} in {omic['database']}"
@@ -438,12 +442,15 @@ class Config:
 
         use_type = self.raw_dict["modeling"]["general"]["use_tumor_type"]
         if use_type["enabled"]:
-            logging.info("Retrieving tumor types")
+            logging.info("Retrieving tumor types...")
             dataframe_tumors = preprocessing.get_tumor_type(dataframe)
             tumor_dataset = dataset_class.Dataset(
                 dataframe=dataframe_tumors, omic="TYPE", database="OWN"
             ).remove_constants()
-            engineered_features = engineered_features.merge_with(tumor_dataset)
+            if engineered_features is not None:
+                engineered_features = engineered_features.merge_with(tumor_dataset)
+            else:
+                engineered_features = tumor_dataset
 
         return engineered_features
 

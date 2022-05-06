@@ -40,18 +40,12 @@ class Dataset:
         resulting_dataset = self
         if filters:
             for individual_filter in filters:
-                print(individual_filter)
+                logging.info(individual_filter)
                 logging.info(f"{individual_filter}")
                 size_pre = resulting_dataset.dataframe.shape
                 resulting_dataset = individual_filter.apply(resulting_dataset)
                 size_post = resulting_dataset.dataframe.shape
-                print(f"pre-filter: {size_pre[0]} samples and {size_pre[1]} features")
-                print(
-                    f"post-filter: {size_post[0]} samples and {size_post[1]} features"
-                )
-                logging.info(
-                    f"pre-filter: {size_pre[0]} samples and {size_pre[1]} features"
-                )
+                logging.info(f"pre-filter: {size_pre[0]} samples and {size_pre[1]} features")
                 logging.info(
                     f"post-filter: {size_post[0]} samples and {size_post[1]} features"
                 )
@@ -110,6 +104,7 @@ class Dataset:
         return self
 
     def merge_two_datasets(self, other_dataset):
+
         dataframe = self.dataframe
         other_dataframe = other_dataset.dataframe
 
@@ -284,3 +279,14 @@ class Dataset:
         )
 
         return train_dataset, test_dataset
+
+    def change_att(self, old_omic: str = None, new_omic: str = None, old_database: str = None, new_database: str = None):
+        if old_omic is not None and new_omic is not None:
+            previous = self.omic
+            self.omic = pd.Series(new_omic, index=previous.columns)
+        if old_database is not None and new_database is not None:
+            previous = self.database
+            self.database = pd.Series(new_database, index=previous.columns)
+
+
+

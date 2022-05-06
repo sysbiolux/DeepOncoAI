@@ -16,7 +16,7 @@ from config import Config
 from DBM_toolbox.data_manipulation import dataset_class
 from DBM_toolbox.interpretation import gsea
 
-config = Config("testmin/first/config.yaml")
+config = Config("testmore/config.yaml")
 
 ###################################
 ### READING AND PROCESSING DATA ###
@@ -31,14 +31,16 @@ data, ActAreas, IC50s, dose_responses = config.read_data()
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
 
-print(filtered_data.dataframe.shape)
-for omic in list(set(filtered_data.omic)):
-    print(f"{omic}: {filtered_data.omic[filtered_data.omic == omic].shape[0]}")
-
 logging.info("Selecting subsets for feature engineering")
 selected_subset = config.select_subsets(filtered_data)
 
+
+
 logging.info("Engineering features")
+engineered_features = config.engineer_features(filtered_data)
+
+
+
 if selected_subset is not None:
     engineered_features = config.engineer_features(selected_subset)
     logging.info("Merging engineered features")
