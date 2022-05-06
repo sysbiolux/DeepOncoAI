@@ -21,6 +21,7 @@ def read_data(
             "CNV": "placeholder",  # TODO: import file
             "DNA": "CCLE_MUT_CNA_AMP_DEL_binary_Revealer.csv",  # TODO: import file
             "DRUGS": "CCLE_NP24.2009_Drug_data_2015.02.24.csv",
+            "CHROMATIN": "CCLE_GlobalChromatinProfiling_20181130.csv",
         }[omic_root]
 
     elif database == "GDSC":
@@ -53,7 +54,7 @@ def read_data(
         pass  ## TODO: implement here
     elif file_extension in [".xlsx", ".xls"]:
         dataframe = pd.read_excel(os.path.join(folder, filename), engine="openpyxl")
-        pass  ## TODO: implement here
+        pass  ## TODO: test excel imports
 
     dataset = Dataset(dataframe=dataframe, omic=omic, database=database)
 

@@ -91,13 +91,17 @@ def main():
     data_pickle = args.input
     [filtered_data, filters] = unpickle_objects(data_pickle)
 
-    logging.info("Preprocessing 1/2: Selecting subsets and feature engineering...")
+    logging.info(
+        "(snake) Preprocessing 1/2: Selecting subsets and feature engineering..."
+    )
     selected_subset_pickle = os.path.join(args.output_dir, "selected_subset.pickle")
     if not os.path.exists(selected_subset_pickle) or args.overwrite:
+        logging.info("commencing selecting ****************************************************")
         selected_subset = config.select_subsets(filtered_data)
         if selected_subset is not None:
+            logging.info("selected_subset is not None... *********************************************")
             engineered_features = config.engineer_features(selected_subset)
-            logging.info("Merging engineered features")
+            logging.info("Merging engineered features ***********************************************")
             engineered_data = filtered_data.merge_with(engineered_features)
             pickle_objects(selected_subset, selected_subset_pickle)
         else:
@@ -105,14 +109,14 @@ def main():
 
     print(engineered_data)
 
-    logging.info("Preprocessing 2/2: Quantizing targets...")
+    logging.info("(snake) Preprocessing 2/2: Quantizing targets...")
     raw_data_pickle = args.input_raw
     [data, ActAreas, IC50s, dose_responses] = unpickle_objects(raw_data_pickle)
     quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
 
     final_data = quantized_data.normalize().optimize_formats()
     pickle_objects(final_data, args.final_data)
-    logging.info("Data preprocessing completed")
+    logging.info("(snake) Data preprocessing completed")
 
 
 if __name__ == "__main__":

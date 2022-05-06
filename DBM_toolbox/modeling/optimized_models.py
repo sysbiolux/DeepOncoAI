@@ -76,6 +76,7 @@ def create_EN(**kwargs):
         penalty="elasticnet", solver="saga", l1_ratio=0.5, random_state=42, **kwargs
     )
 
+
 def create_ET(**kwargs):
     return ExtraTreesClassifier(random_state=42, n_jobs=-1, **kwargs)
 
@@ -85,7 +86,9 @@ def create_KNN(**kwargs):
 
 
 def create_XGB(**kwargs):
-    return xgb.XGBClassifier(random_state=42, n_jobs=-1, **kwargs)
+    return xgb.XGBClassifier(
+        random_state=42, n_jobs=-1, eval_metric="logloss", **kwargs
+    )
 
 
 def create_Ada(**kwargs):
