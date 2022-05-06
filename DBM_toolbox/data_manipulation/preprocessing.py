@@ -10,7 +10,6 @@ from DBM_toolbox.data_manipulation import dataset_class
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from pandas.api.types import is_categorical_dtype
 from sklearn.impute import KNNImputer
-import logging
 
 pd.options.mode.chained_assignment = None
 
@@ -19,8 +18,6 @@ def reformat_drugs(dataset):
     """reshapes a CCLE pandas dataframe from 'one line per datapoint' to a more convenient
     'one line per sample' format, meaning the response of a given cell line to different drugs
     will be placed on the same line in different columns."""
-
-    logging.info(f"reformating drugs...")
 
     dataframe = dataset.dataframe
     database = dataset.database
@@ -82,8 +79,6 @@ def reformat_drugs(dataset):
 
 
 def preprocess_data(dataset, flag: str = None):
-
-    logging.info(f"starting data preprocessing...")
     omic = dataset.omic
     database = dataset.database
     if all(x == database[0] for x in database) and all(x == omic[0] for x in omic):
@@ -130,7 +125,6 @@ def preprocess_data(dataset, flag: str = None):
 
 
 def preprocess_ccle_rppa(dataset, flag: str = None):
-    logging.info(f"preprocessing: CCLE RPPA")
     if flag is None:
         df = dataset.dataframe
         df = df.set_index("Unnamed: 0")
@@ -141,7 +135,6 @@ def preprocess_ccle_rppa(dataset, flag: str = None):
 
 
 def preprocess_ccle_rna(dataset, flag: str = None):
-    logging.info(f"preprocessing: CCLE RNA")
     df = dataset.dataframe
     if flag is None:
         df["GeneTrans"] = df["Description"] + "_" + df["Name"]
@@ -154,7 +147,6 @@ def preprocess_ccle_rna(dataset, flag: str = None):
 
 
 def preprocess_ccle_rna_filtered(dataset, flag: str = None):
-    logging.info(f"preprocessing: CCLE RNA pre-filtered")
     if flag is None:
         df = dataset.dataframe
         df = df.set_index("Unnamed: 0")
@@ -162,7 +154,6 @@ def preprocess_ccle_rna_filtered(dataset, flag: str = None):
 
 
 def preprocess_ccle_mirna(dataset, flag: str = None):
-    logging.info(f"preprocessing: CCLE miRNA")
     df = dataset.dataframe
     if flag is None:
         df["GeneTrans"] = df["Description"] + "_" + df["Name"]
@@ -176,7 +167,6 @@ def preprocess_ccle_mirna(dataset, flag: str = None):
 
 
 def preprocess_ccle_meta(dataset, flag: str = None):
-    logging.info(f"preprocessing: CCLE META")
     df = dataset.dataframe
     if flag is None:
         df = df.drop("DepMap_ID", axis=1).set_index(["CCLE_ID"])
@@ -185,7 +175,6 @@ def preprocess_ccle_meta(dataset, flag: str = None):
 
 
 def preprocess_ccle_dna(dataset, flag: str = None):
-    logging.info(f"preprocessing: CCLE DNA")
     df = dataset.dataframe
     if flag is None:
         df = df.drop("Description", axis=1)
@@ -196,7 +185,6 @@ def preprocess_ccle_dna(dataset, flag: str = None):
 
 
 def preprocess_ccle_chromatin(dataset, flag: str = None):
-
     df = dataset.dataframe
     if flag is None:
         df = df
@@ -229,7 +217,6 @@ def preprocess_gdsc_dna(dataset, flag: str = None):
 
 
 def preprocess_features_pathway(dataset, flag: str = None):
-    logging.info(f"preprocessing: PATHWAY")
     df = dataset.dataframe
     if flag is None:
         df = df.set_index(["Cell_line"])
@@ -237,7 +224,6 @@ def preprocess_features_pathway(dataset, flag: str = None):
 
 
 def preprocess_features_eigenvector(dataset, flag: str = None):
-    logging.info(f"preprocessing: eigenvector")
     df = dataset.dataframe
     df = df.drop("Unnamed: 0", axis=1).set_index(["Gene"]).transpose()
     #    df.index = [idx[6:-11] for idx in df.index]
@@ -251,7 +237,6 @@ def preprocess_features_eigenvector(dataset, flag: str = None):
 
 
 def preprocess_features_betweenness(dataset, flag: str = None):
-    logging.info(f"preprocessing: betweenness")
     # @Apurva
     df = dataset.dataframe
     df = df.drop("Unnamed: 0", axis=1).set_index(["Gene"]).transpose()
@@ -264,7 +249,6 @@ def preprocess_features_betweenness(dataset, flag: str = None):
 
 
 def preprocess_features_closeness(dataset, flag: str = None):
-    logging.info(f"preprocessing: closeness")
     # @Apurva
     df = dataset.dataframe
     df = df.drop("Unnamed: 0", axis=1).set_index(["Gene"]).transpose()
@@ -277,7 +261,6 @@ def preprocess_features_closeness(dataset, flag: str = None):
 
 
 def preprocess_features_pagerank(dataset, flag: str = None):
-    logging.info(f"preprocessing: pagerank")
     # @Apurva
     df = dataset.dataframe
     df = df.drop("Unnamed: 0", axis=1).set_index(["Gene"]).transpose()
@@ -290,7 +273,6 @@ def preprocess_features_pagerank(dataset, flag: str = None):
 
 
 def preprocess_features_avneighbour(dataset, flag: str = None):
-    logging.info(f"preprocessing: avneighbour")
     # @Apurva
     df = dataset.dataframe
     df = df.drop("Unnamed: 0", axis=1).set_index(["Gene"]).transpose()
@@ -306,7 +288,6 @@ def preprocess_features_avneighbour(dataset, flag: str = None):
 
 
 def rescale_data(dataframe):
-    logging.info(f"rescaling data...")
     """Normalization by mapping to the [0 1] interval (each feature independently)
     this is the same as maxScaler? should we leave it?"""
     return (dataframe - dataframe.min()) / (dataframe.max() - dataframe.min())
@@ -314,7 +295,6 @@ def rescale_data(dataframe):
 
 def impute_missing_data(dataframe, method: str = "average", threshold: float = None):
     """imputes computed values for missing data according to the specified method"""
-    logging.info(f"preprocessing: imputing data...")
     if threshold is not None:
         df_copy = dataframe.copy()
         df_sum_missing = df_copy.isna().sum(axis=1)
@@ -350,14 +330,12 @@ def impute_missing_data(dataframe, method: str = "average", threshold: float = N
 
 
 def remove_constant_data(dataframe):
-    logging.info(f"preprocessing: removing constant data...")
     """removes the columns that are strictly constant"""
     dataframe = dataframe.loc[:, (dataframe != dataframe.iloc[0]).any()]
     return dataframe
 
 
 def get_tumor_type(dataframe):
-    logging.info(f"preprocessing: getting tumor type...")
     tumors_list = [
         "PROSTATE",
         "STOMACH",
@@ -402,7 +380,6 @@ def get_tumor_type(dataframe):
 
 
 def select_drug_metric(dataset, metric: str):
-    logging.info(f"preprocessing: selecting drug metric...")
     omic = dataset.omic
     database = dataset.database
     dataframe = dataset.dataframe
@@ -418,7 +395,6 @@ def select_drug_metric(dataset, metric: str):
 def reduce_mem_usage(df, check=False):
     """reduces memory usage for large pandas dataframes by changing datatypes per column into the ones
     that need the least number of bytes (int8 if possible, otherwise int16 etc...)"""
-    logging.info(f"preprocessing: reducing memory usage")
 
     df_orig = df.copy()
     start_mem = df.memory_usage().sum() / 1024 ** 2
@@ -487,7 +463,6 @@ def reduce_mem_usage(df, check=False):
 
 
 def extract_ActAreas(dataset):
-    logging.info(f"preprocessing: extracting ActAreas...")
     dataframe = dataset.dataframe
     cols = dataframe.columns.str.contains("ActArea")
 
@@ -497,7 +472,6 @@ def extract_ActAreas(dataset):
 
 
 def extract_IC50s(dataset):
-    logging.info(f"preprocessing: extracting IC50s")
     dataframe = dataset.dataframe
     cols = dataframe.columns.str.contains("IC50")
 
@@ -507,7 +481,6 @@ def extract_IC50s(dataset):
 
 
 def extract_dr(dataset):
-    logging.info(f"preprocessing: extracting dose-responses...")
     dataframe = dataset.dataframe
     cols = dataframe.columns.str.contains("_dr_")
     dataframe = dataframe.loc[:, cols]

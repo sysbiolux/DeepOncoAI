@@ -105,13 +105,8 @@ def main():
     models, algos_dict = unpickle_objects(models_pickle)
     data = unpickle_objects(data_pickle)
 
-    logging.info(models)
-    logging.info(algos_dict)
-
     if not os.path.exists(trained_stacks_pickle) or args.overwrite:
-        results_sec = config.get_stacks(
-            models_dict=models, dataset=data
-        )
+        results_sec = config.get_best_stacks(models=models, dataset=data)
         objects = results_sec
         pickle_objects(objects, trained_stacks_pickle)
         for item in results_sec.keys():
