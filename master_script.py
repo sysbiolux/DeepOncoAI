@@ -41,12 +41,10 @@ engineered_features = config.engineer_features(filtered_data)
 
 
 
-if selected_subset is not None:
-    engineered_features = config.engineer_features(selected_subset)
-    logging.info("Merging engineered features")
-    engineered_data = filtered_data.merge_with(engineered_features)
-else:
-    engineered_data = filtered_data
+logging.info("Merging engineered features")
+engineered_data = filtered_data.merge_with(engineered_features)
+### returns only 320 samples !!!
+
 
 
 logging.info("Quantizing targets")
@@ -71,7 +69,7 @@ results_sec = config.get_stacks(dataset=final_data, models_dict=trained_models)
 
 config.save(to_save=results_sec, name="stack_results")
 
-expl_dict = config.retrieve_features(models=trained_models, dataset=final_data)
+expl_dict = config.retrieve_features(trained_models=trained_models, dataset=final_data)
 
 
 

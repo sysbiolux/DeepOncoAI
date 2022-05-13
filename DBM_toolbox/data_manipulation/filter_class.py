@@ -4,7 +4,8 @@ import logging
 
 
 class KeepFeaturesFilter:
-    def __init__(self, features, omic, database):
+    def __init__(self, ftype, features, omic, database):
+        self.ftype = ftype
         self.features = features
         self.omic = omic
         self.database = database
@@ -48,7 +49,7 @@ class KeepDenseRowsFilter:
         completeness = 1 - (dataframe.isna().mean(axis=1))
         samples_to_keep = completeness[
             completeness >= self.completeness_threshold
-        ].index
+            ].index
         logging.info(f"Keeping {len(samples_to_keep)} samples out of {dataframe.shape[0]}")
         filtered_dataframe = dataset.dataframe.loc[samples_to_keep, :]
         return Dataset(
