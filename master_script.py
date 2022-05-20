@@ -31,6 +31,8 @@ data, ActAreas, IC50s, dose_responses = config.read_data()
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
 
+#####
+
 logging.info("Selecting subsets for feature engineering")
 selected_subset = config.select_subsets(filtered_data)
 
@@ -43,7 +45,6 @@ engineered_features = config.engineer_features(filtered_data)
 
 logging.info("Merging engineered features")
 engineered_data = filtered_data.merge_with(engineered_features)
-### returns only 320 samples !!!
 
 
 
