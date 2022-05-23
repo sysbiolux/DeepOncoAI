@@ -16,7 +16,7 @@ from config import Config
 from DBM_toolbox.data_manipulation import dataset_class
 from DBM_toolbox.interpretation import gsea
 
-config = Config("testmore/config.yaml")
+config = Config("testmin/first/config.yaml")
 
 ###################################
 ### READING AND PROCESSING DATA ###
@@ -36,17 +36,11 @@ filtered_data, filters = config.filter_data(data)
 logging.info("Selecting subsets for feature engineering")
 selected_subset = config.select_subsets(filtered_data)
 
-
-
 logging.info("Engineering features")
 engineered_features = config.engineer_features(filtered_data)
 
-
-
 logging.info("Merging engineered features")
 engineered_data = filtered_data.merge_with(engineered_features)
-
-
 
 logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
@@ -56,7 +50,8 @@ final_data = quantized_data.normalize().optimize_formats()
 logging.info("Getting optimized models")
 
 trained_models = config.get_models(dataset=final_data, method="standard")
-config.save(to_save=trained_models, name="f_test")
+config.save(to_save=final_data, name="f_test2_data")
+config.save(to_save=trained_models, name="f_test2_models")
 
 models, algos_dict = config.get_best_algos(trained_models)
 

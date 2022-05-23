@@ -21,7 +21,7 @@ data:
          feature_selection:
            - name: importance
              fraction_selected: 0.05
-             enabled: true # try if cell types comes back
+             enabled: false
            - name: predictivity
              fraction_selected: 0.05
              enabled: false
@@ -136,7 +136,7 @@ data:
           enabled: true
         - name: feature_variance
           fraction_retained: 0.5
-          enabled: true
+          enabled: false
         - name: cross-correlation
           correlation_threshold: 0.9
           enabled: true
@@ -248,47 +248,47 @@ data:
     #      enabled: false
     #    - name: OR
     #      enabled: false
-    #- name: PATHWAYS
-    #  database: OWN
-    #  filtering:
-    #    - name: sample_completeness
-    #      threshold: 0.95
-    #      enabled: true
-    #    - name: feature_completeness
-    #      threshold: 0.95
-    #      enabled: true
-    #    - name: feature_variance
-    #      fraction_retained: 0.9
-    #      enabled: true
-    #    - name: cross-correlation
-    #      correlation_threshold: 0.9
-    #      enabled: true
-    #  feature_engineering:
-    #    feature_selection:
-    #      - name: importance
-    #        fraction_selected: 0.5
-    #        enabled: false
-    #      - name: predictivity
-    #        fraction_selected: 0.5
-    #        enabled: false
-    #  transformations:
-    #    - name: PCA
-    #      n_components: 5
-    #      enabled: false
-    #    - name: ICA
-    #      n_components: 10
-    #      enabled: false
-    #    - name: RP
-    #      n_components: 10
-    #      enabled: false
-    #    - name: TSNE
-    #      n_components: 2
-    #      enabled: false
-    #    - name: Poly
-    #      degree: 2
-    #      enabled: false
-    #    - name: OR
-    #      enabled: false
+    - name: PATHWAYS
+      database: OWN
+      filtering:
+        - name: sample_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_completeness
+          threshold: 0.95
+          enabled: true
+        - name: feature_variance
+          fraction_retained: 0.9
+          enabled: true
+        - name: cross-correlation
+          correlation_threshold: 0.9
+          enabled: true
+      feature_engineering:
+        feature_selection:
+          - name: importance
+            fraction_selected: 0.5
+            enabled: false
+          - name: predictivity
+            fraction_selected: 0.5
+            enabled: false
+      transformations:
+        - name: PCA
+          n_components: 5
+          enabled: false
+        - name: ICA
+          n_components: 10
+          enabled: false
+        - name: RP
+          n_components: 10
+          enabled: false
+        - name: TSNE
+          n_components: 2
+          enabled: false
+        - name: Poly
+          degree: 2
+          enabled: false
+        - name: OR
+          enabled: false
     # - name: EIGENVECTOR
     #   database: OWN
     #   filtering:
