@@ -16,7 +16,7 @@ from config import Config
 from DBM_toolbox.data_manipulation import dataset_class
 from DBM_toolbox.interpretation import gsea
 
-config = Config("config.yaml")
+config = Config("testmin/first/config.yaml")
 
 ###################################
 ### READING AND PROCESSING DATA ###
@@ -25,62 +25,55 @@ config = Config("config.yaml")
 logging.info("Reading data")
 data, ActAreas, IC50s, dose_responses = config.read_data()
 
-logging.info("Creating visualizations")
-config.visualize_dataset(data, ActAreas, IC50s, dose_responses, mode="pre")
+# logging.info("Creating visualizations")
+# config.visualize_dataset(data, ActAreas, IC50s, dose_responses, mode="pre")
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
 
-print(filtered_data.dataframe.shape)
-for omic in list(set(filtered_data.omic)):
-    print(f"{omic}: {filtered_data.omic[filtered_data.omic == omic].shape[0]}")
+#####
 
 logging.info("Selecting subsets for feature engineering")
 selected_subset = config.select_subsets(filtered_data)
 
 logging.info("Engineering features")
-if selected_subset is not None:
-    engineered_features = config.engineer_features(selected_subset)
-    logging.info("Merging engineered features")
-    engineered_data = filtered_data.merge_with(engineered_features)
-else:
-    engineered_data = filtered_data
+engineered_features = config.engineer_features(filtered_data)
 
+logging.info("Merging engineered features")
+engineered_data = filtered_data.merge_with(engineered_features)
 
 logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
-engineered_data
+
 final_data = quantized_data.normalize().optimize_formats()
 
 logging.info("Getting optimized models")
-# TODO: start chunk 2
-# input data = output data of chunk 1
-trainedmodels = config.get_models(dataset=final_data, method="standard")
-config.save(to_save=trainedmodels, name="f_test")
 
-# logging.info("Getting standard models")
-# standard_algos = config.get_models(dataset=final_data, method='standard')
-# config.save(to_save=standard_algos, name='standard_algos_3omics6drugs')
+trained_models = config.get_models(dataset=final_data, method="standard")
+config.save(to_save=final_data, name="f_test2_data")
+config.save(to_save=trained_models, name="f_test2_models")
 
-algos_dict, results_prim = config.get_best_algos(trainedmodels)
+models, algos_dict = config.get_best_algos(trained_models)
 
-config.show_results(config, results_prim)
-# TODO: end chunk 2
-# TODO: start chunk 3
-#
-#%%
+# config.show_results(config, algos_dict)
 
 logging.info("Creating best stacks")
-best_stacks, results_sec = config.get_best_stacks(models=algos_dict, dataset=final_data)
+results_sec = config.get_stacks(dataset=final_data, models_dict=trained_models)
+
 # algos_dict_over, _ = config.get_best_algos(optimal_algos, mode='over')
 # over_stacks, results_over = config.get_best_stacks(models=algos_dict_over, dataset=final_data, tag='_over')
 
-config.save(to_save=best_stacks, name="stack_results")
+config.save(to_save=results_sec, name="stack_results")
+
+expl_dict = config.retrieve_features(trained_models=trained_models, dataset=final_data)
+config.save(to_save=expl_dict, name="expl_dict")
+
+
 
 print("DONE")
-# TODO: end chunk 3
-#%%
 
+
+##################################################################################################################
 # compare optimized versus standard
 
 import pandas as pd

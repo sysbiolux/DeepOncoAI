@@ -36,7 +36,7 @@ def get_PCs(df, n_components: int = None, label: str = None):
     var = pca.explained_variance_ratio_
     #     comp = pca.components_
     print("fraction of variance explained: %.5f (PC1), %.5f (PC2)" % (var[0], var[1]))
-    return make_dataset(df_PCs, omic="PC", database="ENGINEEERED")
+    return make_dataset(df_PCs, omic="PC", database="ENGINEERED")
 
 
 def get_ICs(df, n_components: int = None, label: str = None, random_state=42):
@@ -51,7 +51,7 @@ def get_ICs(df, n_components: int = None, label: str = None, random_state=42):
     for n in range(1, n_components + 1):
         column_names.append("IC" + str(n) + label)
     df_ICs = pd.DataFrame(data=X_transformed, index=df.index, columns=column_names)
-    return make_dataset(df_ICs, omic="IC", database="ENGINEEERED")
+    return make_dataset(df_ICs, omic="IC", database="ENGINEERED")
 
 
 def get_RPCs(df, n_components: int = 2, label: str = None, random_state=42):
@@ -66,7 +66,7 @@ def get_RPCs(df, n_components: int = 2, label: str = None, random_state=42):
     for n in range(1, n_components + 1):
         column_names.append("RPC" + str(n) + label)
     df_RPCs = pd.DataFrame(data=X_transformed, index=df.index, columns=column_names)
-    return make_dataset(df_RPCs, omic="RPC", database="ENGINEEERED")
+    return make_dataset(df_RPCs, omic="RPC", database="ENGINEERED")
 
 
 def get_TSNEs(df, n_components: int = None, label: str = None, random_state=42):
@@ -82,4 +82,4 @@ def get_TSNEs(df, n_components: int = None, label: str = None, random_state=42):
     for n in range(1, n_components + 1):
         column_names.append("TSNE" + str(n) + label)
     df_TSNEs = pd.DataFrame(data=tsne_components, index=df.index, columns=column_names)
-    return make_dataset(df_TSNEs, omic="TSNE", database="ENGINEEERED")
+    return make_dataset(df_TSNEs, omic="TSNE", database="ENGINEERED")

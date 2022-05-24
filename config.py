@@ -10,23 +10,21 @@ import xgboost as xgb
 from sklearn.linear_model import LogisticRegressionCV
 
 from DBM_toolbox.data_manipulation import load_data, rule, preprocessing
-from DBM_toolbox.data_manipulation import dataset_class, filter_class
+from DBM_toolbox.data_manipulation import dataset_class, filter_class, rule
 from DBM_toolbox.feature_engineering.predictors import combinations, components
 from DBM_toolbox.modeling import optimized_models, stacking
+from DBM_toolbox.interpretation import feature_retrieval
 from DBM_toolbox.plotting import eda
 
 parse_filter_dict = {
     "sample_completeness": lambda this_filter, omic, database: filter_class.KeepDenseRowsFilter(
-        ftype="DenseRows",
-        completeness_threshold=this_filter["threshold"],
-        omic=omic,
-        database=database,
+        completeness_threshold=this_filter["threshold"], omic=omic, database=database
     ),
     "feature_completeness": lambda this_filter, omic, database: rule.ColumnDensityRule(
-        completeness_threshold=this_filter["threshold"], omic=omic, database=database,
+        completeness_threshold=this_filter["threshold"], omic=omic, database=database
     ),
     "feature_variance": lambda this_filter, omic, database: rule.HighestVarianceRule(
-        fraction=this_filter["fraction_retained"], omic=omic, database=database,
+        fraction=this_filter["fraction_retained"], omic=omic, database=database
     ),
     "cross-correlation": lambda this_filter, omic, database: rule.CrossCorrelationRule(
         correlation_threshold=this_filter["correlation_threshold"],
@@ -113,7 +111,7 @@ def parse_transformations(dataframe, transformation: dict, omic: str, database: 
 
 class Config:
     def __init__(self, config):
-        logging.info(f"(lvl0) accessing the config file: {config}")
+        logging.info(f"accessing the config file: {config}")
         with open(config) as f:
             self.raw_dict = yaml.load(f, Loader=yaml.FullLoader)
 
@@ -124,7 +122,7 @@ class Config:
         """
         nrows = self.raw_dict["data"].get("maximum_rows", None)
         omic = self.raw_dict["data"]["omics"][0]
-        logging.info(f"(lvl0) Loading {omic['name']} from {omic['database']}:")
+        logging.info(f"Loading {omic['name']} from {omic['database']}:")
         full_dataset = load_data.read_data(
             "data", omic=omic["name"], database=omic["database"]
         )
@@ -132,7 +130,7 @@ class Config:
             f"{full_dataset.dataframe.shape[0]} samples and {full_dataset.dataframe.shape[1]} features"
         )
         for omic in self.raw_dict["data"]["omics"][1:]:
-            logging.info(f"(lvl0) Loading {omic['name']} from {omic['database']}:")
+            logging.info(f"Loading {omic['name']} from {omic['database']}:")
             additional_dataset = load_data.read_data(
                 "data", omic=omic["name"], database=omic["database"], nrows=nrows
             )
@@ -152,9 +150,7 @@ class Config:
                 list_target_names_IC50.append(target_name + "_IC50")
                 list_target_names_dr.append(target_name + "_dr_doses")
                 list_target_names_dr.append(target_name + "_dr_responses")
-                logging.info(
-                    f"(lvl0) Loading {target['name']} from {target['database']}:"
-                )
+                logging.info(f"Loading {target['name']} from {target['database']}:")
                 additional_dataset = load_data.read_data(
                     "data",
                     omic=target["name"],
@@ -169,14 +165,14 @@ class Config:
                     additional_dataset, target_name + "_" + target_metric
                 )
                 logging.info(
-                    f"(lvl0) {additional_dataset.dataframe.shape[0]} samples and {additional_dataset.dataframe.shape[1]} features"
+                    f"{additional_dataset.dataframe.shape[0]} samples and {additional_dataset.dataframe.shape[1]} features"
                 )
                 full_dataset = full_dataset.merge_with(additional_dataset)
             cols = [x for x in IC50s.columns if x in list_target_names_IC50]
             IC50s = IC50s[cols]
             cols = [x for x in dose_responses.columns if x in list_target_names_dr]
             dose_responses = dose_responses[cols]
-            logging.info("(lvl0) Data fully loaded!")
+            logging.info("Data fully loaded!")
         return full_dataset, ActAreas, IC50s, dose_responses
 
     def quantize(self, dataset, target_omic: str, quantiles=None, IC50s=None):
@@ -200,8 +196,8 @@ class Config:
                     thresholds[this_target["target_drug_name"]] = engineering[
                         "threshold"
                     ]
-        logging.info(f"(lvl0) Thresholds: {thresholds}")
-        logging.info(f"(lvl0) Quantiles: {quantiles}")
+        logging.info(f"Thresholds: {thresholds}")
+        logging.info(f"Quantiles: {quantiles}")
         dataset = dataset.data_pop_quantize(
             target_omic=target_omic, quantiles_df=quantiles
         )
@@ -222,7 +218,7 @@ class Config:
         Splits the Dataset according to the split type indicated in the config file
         and returns the list of training and testing indices
         """
-        logging.info("(lvl0) Splitting dataset...")
+        logging.info("Splitting dataset...")
         if split_type == "outer":
             split_txt = "outer_folds"
         elif split_type == "inner":
@@ -232,7 +228,7 @@ class Config:
         try:
             n_splits = self.raw_dict["modeling"]["general"][split_txt]["value"]
         except:
-            logging.info("(lvl0) split not recognized")
+            logging.info("split not recognized")
             raise ValueError("split type not recognized")
         dataframe = dataset.to_pandas()
         target = dataframe[target_name]
@@ -249,20 +245,18 @@ class Config:
             Returns the list of filters
             """
 
-            logging.info("(lvl0) Creating fast filters...")
+            logging.info("Creating fast filters...")
 
             omics = self.raw_dict["data"]["omics"]
             filters = []
             for omic in omics:
                 for this_filter in omic["filtering"]:
                     if this_filter["name"] in fast_filters_list:
-                        logging.info(
-                            f"(lvl0) Creating filter {this_filter['name']} for {omic['database']} / {omic['name']}"
-                        )
+                        logging.info(f"Creating filter {this_filter['name']} for {omic['database']} / {omic['name']}")
                         new_rule = parse_filter(
                             this_filter, omic["name"], omic["database"]
                         )
-                        logging.info(f"(lvl0) new rule: {new_rule}")
+                        logging.info(f"new rule: {new_rule}")
                         if new_rule is not None:
                             if (
                                 this_filter["name"] == "sample_completeness"
@@ -275,7 +269,7 @@ class Config:
                                 new_filter = new_rule.create_filter(dataset)
                                 filters.append(new_filter)  # other filters at the end
                         else:
-                            logging.info("(lvl0) ...none")
+                            logging.info("...none")
             return filters
 
         def create_slow_filters(self, dataset: dataset_class.Dataset):
@@ -283,15 +277,13 @@ class Config:
             Computes a filter for each omic based on the config file specifications
             Returns the list of filters
             """
-            logging.info("(lvl0) Creating slow filters...")
+            logging.info("Creating slow filters...")
             omics = self.raw_dict["data"]["omics"]
             filters = []
             for omic in omics:
                 for this_filter in omic["filtering"]:
                     if this_filter["name"] in slow_filters_list:
-                        logging.info(
-                            f"(lvl0) Creating filter {this_filter['name']} for {omic['database']}/{omic['name']}"
-                        )
+                        logging.info(f"Creating filter {this_filter['name']} for {omic['database']}/{omic['name']}")
                         new_rule = parse_filter(
                             this_filter, omic["name"], omic["database"]
                         )
@@ -308,19 +300,19 @@ class Config:
                                 new_filter = new_rule.create_filter(dataset)
                                 filters.append(new_filter)  # other filters at the end
                         else:
-                            logging.info("(lvl0) ...none")
+                            logging.info("...none")
             return filters
 
-        logging.info("(lvl0) Creating fast filters")
+        logging.info("Creating fast filters")
         fast_filters = create_fast_filters(self, dataset)
 
-        logging.info("(lvl0) Applying fast filters")
+        logging.info("Applying fast filters")
         filtered_data = dataset.apply_filters(filters=fast_filters)
 
-        logging.info("(lvl0) Creating slow filters")
+        logging.info("Creating slow filters")
         slow_filters = create_slow_filters(self, filtered_data)
 
-        logging.info("(lvl0) Applying slow filters")
+        logging.info("Applying slow filters")
         refiltered_data = filtered_data.apply_filters(filters=slow_filters)
 
         return refiltered_data, [fast_filters, slow_filters]
@@ -331,7 +323,7 @@ class Config:
         Returns a Dataset
         'dataset' can be a single dataset or a list of datasets (after splitting)
         """
-        logging.info("(lvl0) Selecting subsets...")
+        logging.info("Selecting subsets...")
         if isinstance(
             datasets, list
         ):  # TODO: this is not clean anymore. find another way to accept both single datasets and transfer from one to another
@@ -356,7 +348,8 @@ class Config:
         for omic in omics:
             database = omic["database"]
             for selection in omic["feature_engineering"]["feature_selection"]:
-                logging.info(f"(lvl0) Creating selection for {omic['name']}_{database}")
+                s_name = selection["name"]
+                logging.info(f"Creating selection {s_name} for {omic['name']}_{database}")
                 new_selection = parse_selection(
                     selection=selection, omic=omic["name"], database=database
                 )
@@ -371,16 +364,14 @@ class Config:
                     new_filter = new_selection.create_filter(
                         dataset=this_dataset, target_dataframe=target
                     )
-                    logging.info(
-                        f"(lvl0) Applying selection for {omic['name']}_{database}"
-                    )
+                    logging.info(f"Applying selection {s_name} for {omic['name']}_{database}")
                     new_training_subset = this_dataset.apply_filters([new_filter])
                     if isinstance(datasets, list):
                         this_test_dataset = dataset_class.Dataset(
                             dataframe=test_dataset.to_pandas(
                                 omic=omic["name"], database=database
                             ),
-                            omic=omic["name"],
+                            omic=omic["name"] + "_" + s_name,
                             database=database,
                         )
                         new_test_subset = this_test_dataset.apply_filters([new_filter])
@@ -408,7 +399,8 @@ class Config:
                         if isinstance(datasets, list):
                             selected_test_subset = new_test_subset
                 else:
-                    logging.info("(lvl0) inactive...")
+                    logging.info("inactive...")
+
         if isinstance(datasets, list):
             return selected_training_subset, selected_test_subset
         else:
@@ -419,17 +411,19 @@ class Config:
         Applies transformations (PCA, TSNE, combinations) to a dataset and 
         returns the dataset
         """
-        logging.info("(lvl0) Engineering features...")
+        logging.info("Engineering features...")
         if dataset is not None:
             omics = self.raw_dict["data"]["omics"]
             dataframe = dataset.to_pandas()
             engineered_features = None
             database = dataset.database
+            print("******************")
+            print(omics)
             for omic in omics:
                 transformations_dict = omic["transformations"]
                 for transformation in transformations_dict:
                     logging.info(
-                        f"(lvl0) Engineering {transformation['name']} for {omic['name']} in {omic['database']}"
+                        f"Engineering {transformation['name']} for {omic['name']} in {omic['database']}"
                     )
                     new_features = parse_transformations(
                         dataframe=dataframe,
@@ -445,17 +439,11 @@ class Config:
                             )
                         else:
                             engineered_features = new_features
-                        logging.info(
-                            f"(lvl0) Engineered {new_features.shape[1]} features"
-                        )
-                    else:
-                        logging.info("lvl0) ...inactive")
 
         use_type = self.raw_dict["modeling"]["general"]["use_tumor_type"]
         if use_type["enabled"]:
-            logging.info("(lvl0) Retrieving tumor types")
+            logging.info("Retrieving tumor types...")
             dataframe_tumors = preprocessing.get_tumor_type(dataframe)
-            print(f"Tumors: {dataframe_tumors}")
             tumor_dataset = dataset_class.Dataset(
                 dataframe=dataframe_tumors, omic="TYPE", database="OWN"
             ).remove_constants()
@@ -463,6 +451,7 @@ class Config:
                 engineered_features = engineered_features.merge_with(tumor_dataset)
             else:
                 engineered_features = tumor_dataset
+
         return engineered_features
 
     def get_models(self, dataset: dataset_class.Dataset, method: str = None):
@@ -473,7 +462,7 @@ class Config:
         """
         # TODO: this can be simplified as the code repeats between standard and optimized
         algos = self.raw_dict["modeling"]["general"]["algorithms"]
-        logging.info("(lvl0) Computing models")
+        logging.info("Computing models")
         targets_list = []
         if method is None:
             method = self.raw_dict["modeling"]["general"]["first_level_models"]
@@ -508,12 +497,14 @@ class Config:
             complete_dataframe = complete_dataset.to_pandas()
             if method == "optimize":
                 logging.info(
-                    f"(lvl0) *** Optimizing models for {this_target_name} with the complete set of predictors"
+                    f"*** Optimizing models for {this_target_name} with the complete set of predictors"
                 )
                 this_dataframe = complete_dataframe
                 targets = this_dataset.dataframe[this_target_name]
 
-                index1 = targets.index[targets.apply(np.isnan)]
+                index1 = targets.index[
+                    targets.apply(np.isnan)
+                ]
                 index2 = this_dataframe.index[
                     this_dataframe.apply(np.isnan).any(axis=1)
                 ]
@@ -522,11 +513,9 @@ class Config:
                 npos = sum(targets == 1)
                 nneg = sum(targets == 0)
                 logging.info(
-                    f"(lvl0) X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
+                    f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
                 )
-                logging.info(
-                    f"(lvl0) y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)"
-                )
+                logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
 
                 this_dataframe = this_dataframe.drop(indices_to_drop)
                 targets = targets.drop(indices_to_drop)
@@ -544,9 +533,11 @@ class Config:
                     this_dataframe = this_dataset.to_pandas(omic=this_omic)
                     targets = this_dataset.dataframe[this_target_name]
                     logging.info(
-                        f"(lvl0) *** Optimizing models for {this_target_name} with {this_omic}"
+                        f"*** Optimizing models for {this_target_name} with {this_omic}"
                     )
-                    index1 = targets.index[targets.apply(np.isnan)]
+                    index1 = targets.index[
+                        targets.apply(np.isnan)
+                    ]
                     index2 = this_dataframe.index[
                         this_dataframe.apply(np.isnan).any(axis=1)
                     ]
@@ -558,11 +549,9 @@ class Config:
                     npos = sum(targets == 1)
                     nneg = sum(targets == 0)
                     logging.info(
-                        f"(lvl0) X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
+                        f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
                     )
-                    logging.info(
-                        f"(lvl0) y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)"
-                    )
+                    logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
                     this_result = optimized_models.bayes_optimize_models(
                         data=this_dataframe,
                         targets=targets,
@@ -575,27 +564,29 @@ class Config:
                         results[this_target_name][this_omic] = this_result
             elif method == "standard":
                 logging.info(
-                    f"(lvl0) *** Computing standard models for {this_target_name} with the complete set of predictors"
+                    f"*** Computing standard models for {this_target_name} with the complete set of predictors"
                 )
                 this_dataframe = complete_dataframe
                 targets = this_dataset.dataframe[this_target_name]
-                index1 = targets.index[targets.apply(np.isnan)]
+                index1 = targets.index[
+                    targets.apply(np.isnan)
+                ]
                 index2 = this_dataframe.index[
                     this_dataframe.apply(np.isnan).any(axis=1)
                 ]
                 indices_to_drop = index1.union(index2)
+                # TODO: log number of dropped here
                 n_dropped = len(indices_to_drop)
                 npos = sum(targets == 1)
                 nneg = sum(targets == 0)
                 this_dataframe = this_dataframe.drop(indices_to_drop)
                 targets = targets.drop(indices_to_drop)
 
+                # TODO: log nr of positive vs negative
                 logging.info(
-                    f"(lvl0) X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
+                    f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
                 )
-                logging.info(
-                    f"(lvl0) y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)"
-                )
+                logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
                 this_result = optimized_models.get_standard_models(
                     data=this_dataframe, targets=targets, algos=algos, metric=metric
                 )
@@ -605,9 +596,11 @@ class Config:
                     this_dataframe = this_dataset.to_pandas(omic=this_omic)
                     targets = this_dataset.dataframe[this_target_name]
                     logging.info(
-                        f"(lvl0) *** Computing standard models for {this_target_name} with {this_omic}"
+                        f"*** Computing standard models for {this_target_name} with {this_omic}"
                     )
-                    index1 = targets.index[targets.apply(np.isnan)]
+                    index1 = targets.index[
+                        targets.apply(np.isnan)
+                    ]
                     index2 = this_dataframe.index[
                         this_dataframe.apply(np.isnan).any(axis=1)
                     ]
@@ -618,11 +611,9 @@ class Config:
                     this_dataframe = this_dataframe.drop(indices_to_drop)
                     targets = targets.drop(indices_to_drop)
                     logging.info(
-                        f"(lvl0) X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
+                        f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
                     )
-                    logging.info(
-                        f"(lvl0) y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)"
-                    )
+                    logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
 
                     this_result = optimized_models.get_standard_models(
                         data=this_dataframe, targets=targets, algos=algos, metric=metric
@@ -632,36 +623,34 @@ class Config:
 
         return results
 
-    def get_best_algos(self, optimal_algos: dict, mode="standard"):
+    def get_best_algos(self, trained_models: dict, mode="standard"):
         """
         Compares the results of different algorithms for the same target with the same omic type, 
         looks for the highest performance and returns a dictionary of models
         """
 
-        logging.info("(lvl0) *** Selecting best algorithms")
+        logging.info("*** Selecting best algorithms")
         options = self.raw_dict["modeling"]["ensembling"]
         models = dict()
-        targets = optimal_algos.keys()
+        targets = trained_models.keys()
         results_df = pd.DataFrame(
             columns=["target", "omic", "algo", "perf", "estim", "N"]
         )
         for target in targets:  # for each target
-            logging.info(f"(lvl0) {target}")
+            logging.info(target)
             models[target] = dict()
             # ranked list of algos
             if mode == "standard":
-                omics = optimal_algos[target].keys()
+                omics = trained_models[target].keys()
                 n_models = options["n_models"]
             elif mode == "over":
                 omics = ["complete"]
-                n_models = len(optimal_algos[target]["complete"].keys())
+                n_models = len(trained_models[target]["complete"].keys())
             for omic in omics:
-                print(omic)
-                algos = optimal_algos[target][omic]
-                print(algos)
+                algos = trained_models[target][omic]
                 models[target][omic] = []
                 for algo in algos:
-                    i = optimal_algos[target][omic][algo]
+                    i = trained_models[target][omic][algo]
                     estimator = i["estimator"]
                     num = i["N"]
                     try:
@@ -670,31 +659,25 @@ class Config:
                             result = result["target"]
                     except:
                         result = np.nan
-                    print(f"results_df: {results_df}")
-                    new_df = pd.Series([target, omic, algo, result, estimator, num], index=results_df.columns,).to_frame().T
-                    print(f"New_df: {new_df}")
-                    #results_df = results_df.append(
-                    #    pd.Series(
-                    #        [target, omic, algo, result, estimator, num],
-                    #        index=results_df.columns,
-                    #    ),
-                    #    ignore_index=True,
-                    #)
-                    results_df = pd.concat([results_df, new_df],
-                                           ignore_index=True,
-                                           axis=0,)
+                    results_df = results_df.append(
+                        pd.Series(
+                            [target, omic, algo, result, estimator, num],
+                            index=results_df.columns,
+                        ),
+                        ignore_index=True,
+                    )
                 # select the best one
                 omic_results = results_df[
                     (results_df["target"] == target) & (results_df["omic"] == omic)
                 ]
                 best = omic_results.sort_values(by="perf", ascending=False).iloc[
-                    0 : min(n_models, omic_results.shape[0]), :
+                    0: min(n_models, omic_results.shape[0]), :
                 ]
                 models[target][omic].append(best["estim"])
 
         return models, results_df
 
-    def get_best_stacks(self, models: dict, dataset: dataset_class.Dataset, tag=None):
+    def get_stacks(self, models_dict: dict, dataset: dataset_class.Dataset, tag=None):
         """
         Computes stacks for each target with two stacking types:
             - lean: only with predictions of the first-level models
@@ -734,7 +717,7 @@ class Config:
 
         folds = min(folds, len(dataset.dataframe.index))
         results_stacks = stacking.compute_systematic_stacks(
-            dataset, models, final_model, targets_list, metric, folds, seed
+            dataset, models_dict, final_model, targets_list, metric, folds, seed
         )
         return results_stacks
 
@@ -752,25 +735,21 @@ class Config:
         databases = dataset.database
         targets = self.raw_dict["data"]["targets"]
 
-        eda.plot_overlaps(
-            dataset, title=mode, outputdir=outputdir
-        )  # TODO: review function, does nothing at the moment
+        eda.plot_overlaps(dataset, title=mode, outputdir=outputdir)  # TODO: review function, does nothing at the moment
 
         for database in pd.unique(databases):
             for omic in pd.unique(omics):
                 dataframe = dataset.to_pandas(omic=omic, database=database)
                 if dataframe.shape[1] > 0:
-                    logging.info(f"(lvl0) plotting info for {omic} in {database}")
-                    eda.plot_eda_all(
-                        dataframe, title=mode + "_" + database + "_" + omic
-                    )
+                    logging.info(f"plotting info for {omic} in {database}")
+                    eda.plot_eda_all(dataframe, title=mode + '_' + database + '_' + omic)
         for target in targets:
             this_target = target["target_drug_name"] + "_" + target["responses"]
             bounds = (
                 target["target_engineering"][0]["upper_bound_resistant"],
                 target["target_engineering"][0]["lower_bound_sensitive"],
             )
-            logging.info(f"(lvl0) plotting info for {target}")
+            logging.info(f"plotting info for {target}")
             eda.plot_target(
                 dataset.dataframe[this_target],
                 ActAreas=ActAreas,
@@ -782,6 +761,36 @@ class Config:
 
     def evaluate_stacks(self, best_stacks):
         pass
+
+    def retrieve_features(self, trained_models: dict, dataset: dataset_class.Dataset):
+        logging.info(f"Starting retrieval of important features...")
+        targets_list = []
+        explanation_dict = dict()
+        folds = self.raw_dict["modeling"]["inspection"]["folds"]
+        seed = self.raw_dict["modeling"]["inspection"]["random_seed"]
+        for item in self.raw_dict["data"]["targets"]:
+            this_name = item["target_drug_name"] + "_" + item["responses"]
+            targets_list.append(this_name)
+        targets_list = list(set(targets_list))
+        omics_list = list(trained_models[targets_list[0]].keys())
+        for target in targets_list:
+            logging.info(f"...extracting feature importance for {target}...")
+            explanation_dict[target] = dict()
+            this_dataset = dataset.to_binary(target=target)
+            this_target = this_dataset.to_pandas()[target]
+            for omic in omics_list:
+                logging.info(f"...with dataset: {omic}...")
+                if omic == "complete":
+                    this_predictors = this_dataset.to_pandas().drop(targets_list, axis=1)
+                else:
+                    this_predictors = this_dataset.to_pandas(omic=omic)
+                this_models = trained_models[target][omic]
+                print(f"model: {this_models}")
+                print(f"predictors: {this_predictors}")
+                print(f"target: {this_target}")
+                explanation_dict[target][omic] = feature_retrieval.explain_all(models=this_models, predictors=this_predictors, target=this_target, folds=folds, seed=seed)
+
+        return explanation_dict
 
     def save(self, to_save=[], name="file"):
         date = datetime.now()

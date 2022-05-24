@@ -1,5 +1,6 @@
 import pandas as pd
 from DBM_toolbox.data_manipulation.dataset_class import Dataset
+import logging
 
 
 class KeepFeaturesFilter:
@@ -10,7 +11,7 @@ class KeepFeaturesFilter:
         self.database = database
 
     def apply(self, dataset):
-        # TODO: profile this part to id the bottlenecks!
+        # TODO: this takes too much time!
         dataframe = dataset.dataframe
         omic = dataset.omic
         database = dataset.database
@@ -34,12 +35,11 @@ class KeepFeaturesFilter:
         )
 
     def __repr__(self):
-        return f"KeepFeaturesFilter with type {self.ftype}, ({self.features}, {self.omic}, {self.database})"
+        return f"KeepFeaturesFilter({len(self.features)} features: {self.features}, {self.omic})"
 
 
 class KeepDenseRowsFilter:
-    def __init__(self, ftype, completeness_threshold, omic, database):
-        self.ftype = ftype
+    def __init__(self, completeness_threshold, omic, database):
         self.completeness_threshold = completeness_threshold
         self.omic = omic
         self.database = database
@@ -49,11 +49,9 @@ class KeepDenseRowsFilter:
         completeness = 1 - (dataframe.isna().mean(axis=1))
         samples_to_keep = completeness[
             completeness >= self.completeness_threshold
-        ].index
+            ].index
+        logging.info(f"Keeping {len(samples_to_keep)} samples out of {dataframe.shape[0]}")
         filtered_dataframe = dataset.dataframe.loc[samples_to_keep, :]
         return Dataset(
             dataframe=filtered_dataframe, omic=dataset.omic, database=dataset.database
         )
-
-    def __repr__(self):
-        return f"KeepDenseRowsFilter with type {self.ftype}, ({self.completeness_threshold}, {self.omic}, {self.database})"

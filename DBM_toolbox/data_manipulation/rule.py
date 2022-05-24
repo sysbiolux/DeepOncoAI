@@ -143,11 +143,13 @@ class FeatureImportanceRule(Rule):
         model = xgb.XGBClassifier(
             max_depth=4, n_estimators=100, colsample_bytree=0.5
         )  ### deeper?
+        target_dataframe_bin = target_dataframe >= target_dataframe.mean()
 
-        model.fit(dataframe, target_dataframe)  # use ravel() here?
+        print(target_dataframe_bin)
+        model.fit(dataframe, target_dataframe_bin)  # use ravel() here?
         scores = pd.Series(
             data=model.feature_importances_,
-            name=target_dataframe.name,
+            name=target_dataframe_bin.name,
             index=dataframe.columns,
         )
         importances = pd.concat([importances, scores], axis=1)
