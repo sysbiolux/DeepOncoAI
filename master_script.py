@@ -66,7 +66,7 @@ results_sec = config.get_stacks(dataset=final_data, models_dict=trained_models)
 config.save(to_save=results_sec, name="stack_results")
 
 expl_dict = config.retrieve_features(trained_models=trained_models, dataset=final_data)
-
+config.save(to_save=expl_dict, name="expl_dict")
 
 
 

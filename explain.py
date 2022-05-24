@@ -110,9 +110,8 @@ def main():
         pickle_objects(objects, models_explanations_pickle)
         for target in explanations.keys():
             for omic in explanations[target].keys():
-                for model in explanations[target][omic].keys():
-                    filename = "explanations_" + target + "_" + omic + "_" + model + ".csv"
-                    explanations[target][omic][model].to_csv(os.path.join(args.output_dir, filename))
+                filename = "explanations_" + target + "_" + omic + ".csv"
+                explanations[target][omic].to_csv(os.path.join(args.output_dir, filename))
     else:
         explanations = unpickle_objects(models_explanations_pickle)
     logging.info("Model explanations performed")

@@ -42,7 +42,9 @@ Here are aexamples of run configurations
 
 * modeling_results: --overwrite -c input\config.yaml -i testdir\trained_models.pkl -o testdir
 
-* stacks: tbc
+* stacks: --overwrite -c input/config.yaml -i testdir\preprocessed.pkl -m testdir\trained_models.pkl -o testdir -f testdir\stacks.pkl
+
+* explain: ----overwrite -c input/config.yaml -i testdir\preprocessed.pkl -m testdir\trained_models.pkl -o testdir -f testdir\explanations.pkl
 
 ## Getting Started
 
@@ -181,7 +183,7 @@ Remember the slash is inverted in Unix systems, and your default environment mig
 
 Alright, you want to dig in the code. Here is some useful info: 
 
-* chunks: `load.py`, `filter.py`, `preprocess.py`, `model.py`, `stack.py`
+* chunks: `load.py`, `filter.py`, `preprocess.py`, `model.py`, `stack.py` 'explain.py'
 * the highest-level functions are located in `config.py`
 * data is organized with samples as lines and features as columns
 * the `Dataset` class is used throughout the project. It contains a Pandas Dataframe, and two
@@ -228,10 +230,9 @@ a brief list of things yet to implement:
 * upsampling with SMOTE and VAEs
 * thresholding of responses in combination with the quantization
 * loading of the 'BinarizedIC50' values (alternative targets)
-* more models to hyper-optimize (elastic net, NN architectures)
+* more models to hyper-optimize (NN architectures)
 * stacking with more algorithms for scikit-learn or others
 * stack of stacks
-* load mutational data
 * compile gene-level versus transcript level expression
 * more filters (outliers, ...)
 * grid-search or other to compare with bayesian search
@@ -248,6 +249,8 @@ a brief list of things yet to implement:
 
 
 ## Version History
+* 0.2 (May 2022):
+  * working pipeline up and to explained models
 
 * 0.1
   * Initial Release April 2021
