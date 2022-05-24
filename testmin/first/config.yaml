@@ -1076,6 +1076,3 @@ modeling:
     metalearner: XGBoost
     include_data: False
     n_models: 2
-  inspection:
-    folds: 5
-    random_seed: 42
