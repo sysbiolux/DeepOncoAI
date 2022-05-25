@@ -32,12 +32,16 @@ def explain_model(model, predictors, target, folds=10, seed=42):
     index1 = target.index[target.apply(np.isnan)]
     index2 = predictors.index[predictors.apply(np.isnan).any(axis=1)]
     indices_to_drop = index1.union(index2)
-    # TODO: log number of dropped here
     n_dropped = len(indices_to_drop)
     npos = sum(target == 1)
     nneg = sum(target == 0)
     predictors = predictors.drop(indices_to_drop)
     target = target.drop(indices_to_drop)
+    logging.info(
+        f"X: {predictors.shape[0]} samples and {predictors.shape[1]} features"
+    )
+    logging.info(f"y: {target.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
+
     trained_model = model.fit(predictors, target)
     importances_df = permutation_importances(trained_model, predictors, target, folds, random_state=seed)
 

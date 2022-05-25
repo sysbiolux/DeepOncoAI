@@ -92,3 +92,19 @@ rule stacking:
         "environment.yaml",
     shell:
         "python stack.py -c {input.config} -i {input.input_data_pickle} -m {input.input_models_pickle} -o {params.outputdir} -f {output.final_data}"
+
+
+rule explain:
+    """stacking models"""
+    input:
+        config = expand("{inputdir}/config.yaml",inputdir=config['inputdir']),
+        input_models_pickle = expand("{outputdir}/trained_models.pkl",outputdir=config['outputdir']),
+        input_data_pickle = expand("{outputdir}/preprocessed.pkl", outputdir=config['outputdir']),
+    params:
+        outputdir = expand("{outputdir}",outputdir=config['outputdir']),
+    output:
+        final_data = expand("{outputdir}/explanations.pkl",outputdir=config['outputdir']),
+    conda:
+        "environment.yaml",
+    shell:
+        "python explain.py -c {input.config} -i {input.input_data_pickle} -m {input.input_models_pickle} -o {params.outputdir} -f {output.final_data}"
