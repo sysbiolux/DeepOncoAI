@@ -766,6 +766,7 @@ class Config:
         logging.info(f"Starting retrieval of important features...")
         targets_list = []
         explanation_dict = dict()
+        shap_dict = dict()
         folds = self.raw_dict["modeling"]["inspection"]["folds"]
         seed = self.raw_dict["modeling"]["inspection"]["random_seed"]
         for item in self.raw_dict["data"]["targets"]:
@@ -776,6 +777,7 @@ class Config:
         for target in targets_list:
             logging.info(f"...extracting feature importance for {target}...")
             explanation_dict[target] = dict()
+            shap_dict[target] = dict()
             this_dataset = dataset.to_binary(target=target)
             this_target = this_dataset.to_pandas()[target]
             for omic in omics_list:
@@ -788,9 +790,11 @@ class Config:
                 print(f"models: {this_models}")
                 print(f"predictors: {this_predictors}")
                 print(f"target: {this_target}")
-                explanation_dict[target][omic] = feature_retrieval.explain_all(models=this_models, predictors=this_predictors, target=this_target, folds=folds, seed=seed)
-
-        return explanation_dict
+                shap_dict[target][omic] = feature_retrieval.shap_all(models=this_models, predictors=this_predictors,
+                                                                     target=this_target, folds=folds, seed=seed)
+                explanation_dict[target][omic] = feature_retrieval.explain_all(models=this_models, predictors=this_predictors,
+                                                                               target=this_target, folds=folds, seed=seed)
+        return explanation_dict, shap_dict
 
     def save(self, to_save=[], name="file"):
         date = datetime.now()
