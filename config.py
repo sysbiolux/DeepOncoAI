@@ -785,7 +785,7 @@ class Config:
                 else:
                     this_predictors = this_dataset.to_pandas(omic=omic)
                 this_models = trained_models[target][omic]
-                print(f"model: {this_models}")
+                print(f"models: {this_models}")
                 print(f"predictors: {this_predictors}")
                 print(f"target: {this_target}")
                 explanation_dict[target][omic] = feature_retrieval.explain_all(models=this_models, predictors=this_predictors, target=this_target, folds=folds, seed=seed)
