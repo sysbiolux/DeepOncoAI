@@ -93,9 +93,8 @@ rule stacking:
     shell:
         "python stack.py -c {input.config} -i {input.input_data_pickle} -m {input.input_models_pickle} -o {params.outputdir} -f {output.final_data}"
 
-
 rule explain:
-    """stacking models"""
+    """explaining models"""
     input:
         config = expand("{inputdir}/config.yaml",inputdir=config['inputdir']),
         input_models_pickle = expand("{outputdir}/trained_models.pkl",outputdir=config['outputdir']),
