@@ -5,7 +5,7 @@
 import logging
 
 logging.basicConfig(
-    filename="run.log",
+    filename="run_testf.log",
     level=logging.INFO,
     filemode="a",
     format="%(asctime)s %(levelname)-8s %(message)s",

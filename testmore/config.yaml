@@ -12,10 +12,10 @@ data:
            threshold: 0.90
            enabled: true
          - name: feature_variance
-           fraction_retained: 0.9
+           fraction_retained: 0.8
            enabled: true
          - name: cross-correlation
-           correlation_threshold: 0.9
+           correlation_threshold: 0.75
            enabled: true
       feature_engineering:
          feature_selection:
@@ -56,7 +56,7 @@ data:
           fraction_retained: 0.25
           enabled: true
         - name: cross-correlation
-          correlation_threshold: 0.9
+          correlation_threshold: 0.75
           enabled: false
       feature_engineering:
         feature_selection:
@@ -135,10 +135,10 @@ data:
           threshold: 0.95
           enabled: true
         - name: feature_variance
-          fraction_retained: 0.5
+          fraction_retained: 0.25
           enabled: true
         - name: cross-correlation
-          correlation_threshold: 0.9
+          correlation_threshold: 0.75
           enabled: true
       feature_engineering:
         feature_selection:
@@ -176,10 +176,10 @@ data:
           threshold: 0.95
           enabled: true
         - name: feature_variance
-          fraction_retained: 0.9
+          fraction_retained: 0.8
           enabled: true
         - name: cross-correlation
-          correlation_threshold: 0.9
+          correlation_threshold: 0.75
           enabled: true
       feature_engineering:
         feature_selection:
@@ -217,10 +217,10 @@ data:
           threshold: 0.95
           enabled: true
         - name: feature_variance
-          fraction_retained: 0.5
+          fraction_retained: 0.25
           enabled: true
         - name: cross-correlation
-          correlation_threshold: 0.8
+          correlation_threshold: 0.75
           enabled: false
       feature_engineering:
         feature_selection:
