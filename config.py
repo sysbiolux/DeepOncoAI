@@ -788,8 +788,8 @@ class Config:
                 print(f"models: {this_models}")
                 print(f"predictors: {this_predictors}")
                 print(f"target: {this_target}")
-                explanation_dict[target][omic] = feature_retrieval.explain_all(models=this_models, predictors=this_predictors, target=this_target, folds=folds, seed=seed)
-
+                explanation_dict[target][omic] = feature_retrieval.explain_all(models=this_models, predictors=this_predictors,
+                                                                               target=this_target, folds=folds, seed=seed)
         return explanation_dict
 
     def save(self, to_save=[], name="file"):

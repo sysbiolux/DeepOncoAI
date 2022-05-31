@@ -5,6 +5,7 @@ rule all:
     """final rule"""
     input:
          expand("{outputdir}/stacks.pkl",outputdir=config['outputdir']),
+         expand("{outputdir}/explanations.pkl",outputdir=config['outputdir']),
          expand("{outputdir}/figures",outputdir=config['outputdir'])
 
 rule load:

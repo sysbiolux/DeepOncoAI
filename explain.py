@@ -106,7 +106,7 @@ def main():
         explanations = config.retrieve_features(
             trained_models=models, dataset=data
         )
-        objects = explanations
+        objects = [explanations]
         pickle_objects(objects, models_explanations_pickle)
         for target in explanations.keys():
             for omic in explanations[target].keys():
