@@ -5,7 +5,7 @@
 import logging
 
 logging.basicConfig(
-    filename="run_testf.log",
+    filename="run_testall5.log",
     level=logging.INFO,
     filemode="a",
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -16,7 +16,7 @@ from config import Config
 from DBM_toolbox.data_manipulation import dataset_class
 from DBM_toolbox.interpretation import gsea
 
-config = Config("testmin/first/config.yaml")
+config = Config("testall/config.yaml")
 
 ###################################
 ### READING AND PROCESSING DATA ###
@@ -46,11 +46,15 @@ logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
 
 final_data = quantized_data.normalize().optimize_formats()
+config.save(to_save=final_data, name="f_test2_data")
+
+missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axis=0)]
+
+######
 
 logging.info("Getting optimized models")
 
 trained_models = config.get_models(dataset=final_data, method="standard")
-config.save(to_save=final_data, name="f_test2_data")
 config.save(to_save=trained_models, name="f_test2_models")
 
 models, algos_dict = config.get_best_algos(trained_models)
