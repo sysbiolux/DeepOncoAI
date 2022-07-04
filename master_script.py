@@ -5,7 +5,7 @@
 import logging
 
 logging.basicConfig(
-    filename="run.log",
+    filename="run_testall5.log",
     level=logging.INFO,
     filemode="a",
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -16,7 +16,7 @@ from config import Config
 from DBM_toolbox.data_manipulation import dataset_class
 from DBM_toolbox.interpretation import gsea
 
-config = Config("testmin/first/config.yaml")
+config = Config("testall/config.yaml")
 
 ###################################
 ### READING AND PROCESSING DATA ###
@@ -46,11 +46,15 @@ logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
 
 final_data = quantized_data.normalize().optimize_formats()
+config.save(to_save=final_data, name="f_test2_data")
+
+missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axis=0)]
+
+######
 
 logging.info("Getting optimized models")
 
 trained_models = config.get_models(dataset=final_data, method="standard")
-config.save(to_save=final_data, name="f_test2_data")
 config.save(to_save=trained_models, name="f_test2_models")
 
 models, algos_dict = config.get_best_algos(trained_models)
@@ -59,14 +63,20 @@ models, algos_dict = config.get_best_algos(trained_models)
 
 logging.info("Creating best stacks")
 results_sec = config.get_stacks(dataset=final_data, models_dict=trained_models)
+config.save(to_save=results_sec, name="f_test2_stack_results")
 
-# algos_dict_over, _ = config.get_best_algos(optimal_algos, mode='over')
-# over_stacks, results_over = config.get_best_stacks(models=algos_dict_over, dataset=final_data, tag='_over')
+######################################################################
+### rerun from saved data
+from functions import unpickle_objects
+final_data = unpickle_objects("f_test2_data_2022-06-29-15-36-18-152559.pkl")
+trained_models = unpickle_objects("f_test2_models_2022-06-29-17-20-07-296704.pkl")
+results_sec = unpickle_objects("f_test2_stack_results_2022-07-04-10-37-53-902000.pkl")
 
-config.save(to_save=results_sec, name="stack_results")
+######################################################################
+
 
 expl_dict = config.retrieve_features(trained_models=trained_models, dataset=final_data)
-config.save(to_save=expl_dict, name="expl_dict")
+config.save(to_save=expl_dict, name="f_test2_expl_dict")
 
 
 
