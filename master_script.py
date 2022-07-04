@@ -63,14 +63,20 @@ models, algos_dict = config.get_best_algos(trained_models)
 
 logging.info("Creating best stacks")
 results_sec = config.get_stacks(dataset=final_data, models_dict=trained_models)
+config.save(to_save=results_sec, name="f_test2_stack_results")
 
-# algos_dict_over, _ = config.get_best_algos(optimal_algos, mode='over')
-# over_stacks, results_over = config.get_best_stacks(models=algos_dict_over, dataset=final_data, tag='_over')
+######################################################################
+### rerun from saved data
+from functions import unpickle_objects
+final_data = unpickle_objects("f_test2_data_2022-06-29-15-36-18-152559.pkl")
+trained_models = unpickle_objects("f_test2_models_2022-06-29-17-20-07-296704.pkl")
+results_sec = unpickle_objects("f_test2_stack_results_2022-07-04-10-37-53-902000.pkl")
 
-config.save(to_save=results_sec, name="stack_results")
+######################################################################
+
 
 expl_dict = config.retrieve_features(trained_models=trained_models, dataset=final_data)
-config.save(to_save=expl_dict, name="expl_dict")
+config.save(to_save=expl_dict, name="f_test2_expl_dict")
 
 
 

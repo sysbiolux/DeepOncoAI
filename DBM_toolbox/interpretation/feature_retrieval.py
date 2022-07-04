@@ -13,7 +13,7 @@ def shuffle_feature(dataframe, column_name, random_state=42): #TODO: set up rng 
     return df_shuffled
 
 
-def permutation_importances(model, predictors, target, folds=5, random_state=42):
+def permutation_essentialities(model, predictors, target, folds=5, random_state=42):
     importances_df = pd.DataFrame(index=list(range(folds)), columns=predictors.columns)
     xval = StratifiedKFold(n_splits=folds, shuffle=True, random_state=random_state)
     predictions_0 = cross_val_predict(model, predictors, target, cv=xval, n_jobs=-1)
@@ -27,6 +27,22 @@ def permutation_importances(model, predictors, target, folds=5, random_state=42)
             perf = np.mean(np.mean([predictions[x] == target[x] for x in range(len(target))]))
             print(f"{perf}, ", end="")
             importances_df.loc[fold, feature] = perf_0 - perf
+        print("")
+    return importances_df.mean()
+
+
+def permutation_importances(model, predictors, target, folds=5, random_state=42):
+    importances_df = pd.DataFrame(index=list(range(folds)), columns=predictors.columns)
+    train_predictions = model.predict(predictors)
+    train_perf = np.mean(np.mean([train_predictions[x] == target[x] for x in range(len(target))]))
+    for feature in predictors.columns:
+        print(f"feature: {feature}... ", end="")
+        for fold in range(folds):
+            shuffled = shuffle_feature(dataframe=predictors, column_name=feature, random_state=random_state)
+            shuffled_predictions = model.predict(shuffled)
+            shuffled_perf = np.mean(np.mean([shuffled_predictions[x] == target[x] for x in range(len(target))]))
+            print(f"{train_perf - shuffled_perf}, ", end="")
+            importances_df.loc[fold, feature] = train_perf - shuffled_perf
         print("")
     return importances_df.mean()
 
