@@ -58,11 +58,10 @@ missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axi
 logging.info("Getting optimized models")
 
 trained_models = config.get_models(dataset=final_data, method="standard")
+preds = config.loo(trained_models, final_data)
+
 config.save(to_save=trained_models, name="f_test2_models")
 
-models, algos_dict = config.get_best_algos(trained_models)
-
-# config.show_results(config, algos_dict)
 
 logging.info("Creating best stacks")
 results_sec = config.get_stacks(dataset=final_data, models_dict=trained_models)
@@ -88,6 +87,7 @@ print("DONE")
 ##############################################################################
 
 models, algos_dict = config.get_best_algos(trained_models)
+# config.show_results(config, algos_dict)
 
 results = pd.DataFrame(index=list(trained_models.keys()))
 x = ["TYPE only", "RPPA", "RNA", "DNA", "PATHWAYS", "META", "MIRNA"]
@@ -105,14 +105,5 @@ for target in trained_models.keys():
         results.loc[target, omic + "_best_stack_algo"] = spec_df.index[0].split('_')[-1]
         results.loc[target, omic + "_best_stack_add"] = spec_df[0]
 
-
-for i, target in enumerate(trained_models.keys()):
-    f, ax = plt.subplots()
-    print(target)
-    y = results.iloc[i, [1, 3, 5, 7, 9, 11, 13]]
-    annot = results.loc[i, [0, 2, 4, 6, 8, 10, 12]]
-    plt.bar(x, y)
-    for a in range(7):
-        plt.text(x[a], y[a], annot[a])
-    plt.savefig(target + "_comparison")
+all_preds = config.loo(final_data)
 

@@ -1053,7 +1053,7 @@ modeling:
       - RFC
       - KNN
 #      - MLP1
-      - SVP
+#      - SVP
       # - GBM
       # - MLP2
     first_level_models: standard
