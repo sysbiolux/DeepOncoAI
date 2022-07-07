@@ -495,6 +495,8 @@ class Config:
                 omics_list=omics_list, databases_list=[]
             )
             complete_dataframe = complete_dataset.to_pandas()
+            if complete_dataset.omic.unique()[0] == 'prediction':
+                complete_dataframe = complete_dataframe.loc[:, complete_dataframe.columns.str.contains(this_target_name)]
             if method == "optimize":
                 logging.info(
                     f"*** Optimizing models for {this_target_name} with the complete set of predictors"
@@ -566,7 +568,7 @@ class Config:
                 logging.info(
                     f"*** Computing standard models for {this_target_name} with the complete set of predictors"
                 )
-                this_dataframe = complete_dataframe
+                this_dataframe = complete_dataframe.astype('float')
                 targets = this_dataset.dataframe[this_target_name]
                 index1 = targets.index[
                     targets.apply(np.isnan)
@@ -592,34 +594,35 @@ class Config:
                 )
                 results[this_target_name]["complete"] = this_result
 
-                for this_omic in omics_list:
-                    this_dataframe = this_dataset.to_pandas(omic=this_omic)
-                    targets = this_dataset.dataframe[this_target_name]
-                    logging.info(
-                        f"*** Computing standard models for {this_target_name} with {this_omic}"
-                    )
-                    index1 = targets.index[
-                        targets.apply(np.isnan)
-                    ]
-                    index2 = this_dataframe.index[
-                        this_dataframe.apply(np.isnan).any(axis=1)
-                    ]
-                    indices_to_drop = index1.union(index2)
-                    n_dropped = len(indices_to_drop)
-                    npos = sum(targets == 1)
-                    nneg = sum(targets == 0)
-                    this_dataframe = this_dataframe.drop(indices_to_drop)
-                    targets = targets.drop(indices_to_drop)
-                    logging.info(
-                        f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
-                    )
-                    logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
+                if len(list(set(omics_list))) > 1:
+                    for this_omic in omics_list:
+                        this_dataframe = this_dataset.to_pandas(omic=this_omic)
+                        targets = this_dataset.dataframe[this_target_name]
+                        logging.info(
+                            f"*** Computing standard models for {this_target_name} with {this_omic}"
+                        )
+                        index1 = targets.index[
+                            targets.apply(np.isnan)
+                        ]
+                        index2 = this_dataframe.index[
+                            this_dataframe.apply(np.isnan).any(axis=1)
+                        ]
+                        indices_to_drop = index1.union(index2)
+                        n_dropped = len(indices_to_drop)
+                        npos = sum(targets == 1)
+                        nneg = sum(targets == 0)
+                        this_dataframe = this_dataframe.drop(indices_to_drop)
+                        targets = targets.drop(indices_to_drop)
+                        logging.info(
+                            f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
+                        )
+                        logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
 
-                    this_result = optimized_models.get_standard_models(
-                        data=this_dataframe, targets=targets, algos=algos, metric=metric
-                    )
-                    if this_omic not in results[this_target_name]:
-                        results[this_target_name][this_omic] = this_result
+                        this_result = optimized_models.get_standard_models(
+                            data=this_dataframe, targets=targets, algos=algos, metric=metric
+                        )
+                        if this_omic not in results[this_target_name]:
+                            results[this_target_name][this_omic] = this_result
 
         return results
 
@@ -806,4 +809,11 @@ class Config:
         metric = self.raw_dict["modeling"]["general"]["metric"]
         targets_dict = self.raw_dict["data"]["targets"]
         preds = validation.loo(dataset, algos=algos, metric=metric, targets_dict=targets_dict)
+
+    def get_valid_loo(self, dataset):
+        logging.info(f"...performing l-o-o validation...")
+        algos = self.raw_dict["modeling"]["general"]["algorithms"]
+        metric = self.raw_dict["modeling"]["general"]["metric"]
+        targets_dict = self.raw_dict["data"]["targets"]
+        valid = validation.valid_loo(dataset, algos=algos, metric=metric, targets_dict=targets_dict)
         return preds

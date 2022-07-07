@@ -3,12 +3,12 @@
 ####################
 
 import logging
-
+from functions import unpickle_objects
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 logging.basicConfig(
-    filename="run_testall5.log",
+    filename="run_testmin77.log",
     level=logging.INFO,
     filemode="a",
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -19,7 +19,7 @@ from config import Config
 from DBM_toolbox.data_manipulation import dataset_class
 from DBM_toolbox.interpretation import gsea
 
-config = Config("testall/config.yaml")
+config = Config("testmin/second/config.yaml")
 
 ###################################
 ### READING AND PROCESSING DATA ###
@@ -49,7 +49,7 @@ logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
 
 final_data = quantized_data.normalize().optimize_formats()
-config.save(to_save=final_data, name="f_test2_data")
+config.save(to_save=final_data, name="f_test77_data")
 
 missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axis=0)]
 
@@ -58,29 +58,38 @@ missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axi
 logging.info("Getting optimized models")
 
 trained_models = config.get_models(dataset=final_data, method="standard")
-preds = config.loo(trained_models, final_data)
+config.save(to_save=trained_models, name="f_test67_2_models")
+preds = config.loo(final_data)
+config.save(to_save=preds, name="f_test77_preds")
 
-config.save(to_save=trained_models, name="f_test2_models")
-
+# build models based on primary predictions:
+trained_sec_models = config.get_models(dataset=preds, method="standard")
 
 logging.info("Creating best stacks")
 results_sec = config.get_stacks(dataset=final_data, models_dict=trained_models)
-config.save(to_save=results_sec, name="f_test2_stack_results")
+config.save(to_save=results_sec, name="f_test77_stack_results")
+
+logging.info("final validation")
+results_valid = config.get_valid_loo(dataset=final_data)
+config.save(to_save=results_valid, name="f_test77_valid")
+
+
+
+
+
+
 
 ######################################################################
 ### rerun from saved data
-from functions import unpickle_objects
-final_data = unpickle_objects("f_test2_data_2022-06-29-15-36-18-152559.pkl")
-trained_models = unpickle_objects("f_test2_models_2022-06-29-17-20-07-296704.pkl")
-results_sec = unpickle_objects("f_test2_stack_results_2022-07-04-10-37-53-902000.pkl")
+
+# final_data = unpickle_objects("f_test2_data_2022-06-29-15-36-18-152559.pkl")
+# trained_models = unpickle_objects("f_test2_models_2022-06-29-17-20-07-296704.pkl")
+# results_sec = unpickle_objects("f_test2_stack_results_2022-07-04-10-37-53-902000.pkl")
 
 ######################################################################
 
-
 expl_dict = config.retrieve_features(trained_models=trained_models, dataset=final_data)
-config.save(to_save=expl_dict, name="f_test2_expl_dict")
-
-
+config.save(to_save=expl_dict, name="f_test77_expl_dict")
 
 print("DONE")
 
@@ -104,6 +113,4 @@ for target in trained_models.keys():
         spec_df = stacks_add[stacks_add.index.str.startswith(omic)]
         results.loc[target, omic + "_best_stack_algo"] = spec_df.index[0].split('_')[-1]
         results.loc[target, omic + "_best_stack_add"] = spec_df[0]
-
-all_preds = config.loo(final_data)
 
