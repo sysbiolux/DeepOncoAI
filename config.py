@@ -833,19 +833,22 @@ class Config:
             targets_list.append(this_name)
         targets_list = list(set(targets_list))
         colnames = []
-        for this_omic in omics_unique:
-            for this_target_name in targets_list:
-                for algo2 in algos:
-                    colnames.append(this_omic + "_" + this_target_name + "_" + algo2)
+        for this_target_name in targets_list:
+            for algo2 in algos:
+                colnames.append(this_target_name + "_" + algo2)
         validation_results = pd.DataFrame(index=original_dataframe.index, columns=colnames)
+        trained_master_models = dict()
 
         for n_d, this_target_name in enumerate(targets_list):
             this_dataset = original_dataset.to_binary(target=this_target_name)
             this_dataframe = this_dataset.extract(omics_list=omics_unique).dataframe
             this_target = this_dataset.dataframe.loc[:, this_target_name]
+            trained_master_models[this_target_name] = dict()
 
             for sample in original_dataframe.index:
                 if sample in this_target.index:
+                    sample_data = this_dataframe.loc[sample, :]
+                    sample_truth = this_target.loc[sample]
                     loo_dataframe = this_dataframe.drop(sample)
                     loo_target = this_target.drop(sample)
                     loo_omic = original_omic
@@ -864,8 +867,30 @@ class Config:
                     this_result = optimized_models.get_standard_models(
                         data=preds, targets=loo_target, algos=algos, metric=metric
                     )
-                    validation_results[this_target]['loo'] = this_result
-                    # get best model
+                    current_best = 0
+                    current_select = []
+                    for master_algo in this_result.keys():
+                        perf = this_result[master_algo]['result']
+                        if perf > current_best:
+                            current_best = perf
+                            current_select = master_algo
+                        colname = this_target_name + "_" + master_algo
+                        validation_results.loc[sample, colname] = perf
+                    # now predict the sample
+                    sample_pred = pd.DataFrame(index=[sample], columns=preds.columns)
+                    for sample_omic in omics_unique:
+                        sample_dataframe = loo_dataset.to_pandas(omic=sample_omic)
+
+                        glob = optimized_models.get_standard_models(data=sample_dataframe, targets=loo_target, algos=algos, metric=metric)
+                        for sample_algo in list(glob.keys()):
+                            ze_model = glob[sample_algo]['estimator']
+                            try:
+                                prediction = ze_model.predict_proba(sample_data)
+                            except:
+                                prediction = ze_model.predict(sample_data)
+
+                            sample_pred.loc[sample, sample_omic + '_' + this_target_name + '_' + sample_algo] = prediction
+
                 else:
                     pass
 
