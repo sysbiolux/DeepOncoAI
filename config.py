@@ -808,12 +808,73 @@ class Config:
         algos = self.raw_dict["modeling"]["general"]["algorithms"]
         metric = self.raw_dict["modeling"]["general"]["metric"]
         targets_dict = self.raw_dict["data"]["targets"]
-        preds = validation.loo(dataset, algos=algos, metric=metric, targets_dict=targets_dict)
+        targets_list = []
+        for item in targets_dict:
+            this_name = item["target_drug_name"] + "_" + item["responses"]
+            targets_list.append(this_name)
+        targets_list = list(set(targets_list))
+        preds = validation.loo(dataset, algos=algos, metric=metric, targets_list=targets_list)
+        return preds
 
-    def get_valid_loo(self, dataset):
+    def get_valid_loo(self, original_dataset):
         logging.info(f"...performing l-o-o validation...")
         algos = self.raw_dict["modeling"]["general"]["algorithms"]
         metric = self.raw_dict["modeling"]["general"]["metric"]
         targets_dict = self.raw_dict["data"]["targets"]
-        valid = validation.valid_loo(dataset, algos=algos, metric=metric, targets_dict=targets_dict)
-        return preds
+        #prepare matrix
+        original_dataframe = original_dataset.dataframe
+        original_omic = original_dataset.omic
+        original_database = original_dataset.database
+        omics_unique = list(set(original_omic))
+        omics_unique.remove('DRUGS')
+        targets_list = []
+        for item in targets_dict:
+            this_name = item["target_drug_name"] + "_" + item["responses"]
+            targets_list.append(this_name)
+        targets_list = list(set(targets_list))
+        colnames = []
+        for this_omic in omics_unique:
+            for this_target_name in targets_list:
+                for algo2 in algos:
+                    colnames.append(this_omic + "_" + this_target_name + "_" + algo2)
+        validation_results = pd.DataFrame(index=original_dataframe.index, columns=colnames)
+
+        for n_d, this_target_name in enumerate(targets_list):
+            this_dataset = original_dataset.to_binary(target=this_target_name)
+            this_dataframe = this_dataset.extract(omics_list=omics_unique).dataframe
+            this_target = this_dataset.dataframe.loc[:, this_target_name]
+
+            for sample in original_dataframe.index:
+                if sample in this_target.index:
+                    loo_dataframe = this_dataframe.drop(sample)
+                    loo_target = this_target.drop(sample)
+                    loo_omic = original_omic
+                    for drug_to_remove in targets_list:
+                        if drug_to_remove == this_target_name:
+                            pass
+                        else:
+                            loo_omic = loo_omic.drop(drug_to_remove)
+
+                    loo_dataset = dataset_class.Dataset(dataframe=pd.concat([loo_dataframe, loo_target], axis=1),
+                                                        omic=loo_omic,
+                                                        database='yo')
+
+                    preds = validation.loo(loo_dataset, algos=algos, metric=metric, targets_list=[this_target_name])
+                    preds = preds.to_pandas(omic='prediction')
+                    this_result = optimized_models.get_standard_models(
+                        data=preds, targets=loo_target, algos=algos, metric=metric
+                    )
+                    validation_results[this_target]['loo'] = this_result
+                    # get best model
+                else:
+                    pass
+
+
+        # rest of data, make loo
+        # train models with loo, take the best
+        # predict that one sample, record
+
+
+
+
+        return validation_results

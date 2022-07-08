@@ -57,21 +57,24 @@ missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axi
 
 logging.info("Getting optimized models")
 
-trained_models = config.get_models(dataset=final_data, method="standard")
-config.save(to_save=trained_models, name="f_test67_2_models")
-preds = config.loo(final_data)
-config.save(to_save=preds, name="f_test77_preds")
+# trained_models = config.get_models(dataset=final_data, method="standard")
+# config.save(to_save=trained_models, name="f_test67_2_models")
+# preds = config.loo(final_data)
+# config.save(to_save=preds, name="f_test77_preds")
 
-# build models based on primary predictions:
-trained_sec_models = config.get_models(dataset=preds, method="standard")
+# # build models based on primary predictions:
+# trained_sec_models = config.get_models(dataset=preds, method="standard")
+#
+# logging.info("Creating best stacks")
+# results_sec = config.get_stacks(dataset=final_data, models_dict=trained_models)
+# config.save(to_save=results_sec, name="f_test77_stack_results")
 
-logging.info("Creating best stacks")
-results_sec = config.get_stacks(dataset=final_data, models_dict=trained_models)
-config.save(to_save=results_sec, name="f_test77_stack_results")
+###
 
 logging.info("final validation")
-results_valid = config.get_valid_loo(dataset=final_data)
+results_valid = config.get_valid_loo(original_dataset=final_data)
 config.save(to_save=results_valid, name="f_test77_valid")
+
 
 
 

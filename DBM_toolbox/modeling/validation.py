@@ -3,22 +3,16 @@ import logging
 
 from DBM_toolbox.modeling import optimized_models
 from DBM_toolbox.data_manipulation import data_utils, dataset_class
-from config import Config
 # import numpy as np
 
 
-def loo(dataset, algos, metric, targets_dict):
+def loo(dataset, algos, metric, targets_list):
     dataframe = dataset.dataframe
     omic = dataset.omic
     omics_unique = list(set(omic))
     omics_unique.remove('DRUGS')
     # database = dataset.database
 
-    targets_list = []
-    for item in targets_dict:
-        this_name = item["target_drug_name"] + "_" + item["responses"]
-        targets_list.append(this_name)
-    targets_list = list(set(targets_list))
     colnames = []
     for this_omic in omics_unique:
         for this_target_name in targets_list:
@@ -66,29 +60,5 @@ def loo(dataset, algos, metric, targets_dict):
     target_dataset = dataset_class.Dataset(target_data, omic='DRUGS', database='OWN')
     sec_dataset = preds_dataset.merge_two_datasets(target_dataset)
     return sec_dataset
-
-def get_predictions(dataset, algos, metric, targets_dict):
-
-
-def valid_loo(original_dataset, algos, metric, targets_dict):
-    original_dataframe = original_dataset.dataframe
-    omic = original_dataset.omic
-    database = original_dataset.database
-    omics_unique = list(set(omic))
-    omics_unique.remove('DRUGS')
-    targets_list = []
-    for item in targets_dict:
-        this_name = item["target_drug_name"] + "_" + item["responses"]
-        targets_list.append(this_name)
-    targets_list = list(set(targets_list))
-    colnames = []
-    for this_omic in omics_unique:
-        for this_target_name in targets_list:
-            for algo2 in algos:
-                colnames.append(this_omic + "_" + this_target_name + "_" + algo2)
-    validation_results = pd.DataFrame(index=original_dataframe.index, columns=colnames)
-    for sample in original_dataframe.index:
-        dataframe = original_dataframe.drop(sample)
-        dataset = dataset_class.Dataset(dataframe=dataframe, omic=omic, database=database)
 
 
