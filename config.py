@@ -832,6 +832,9 @@ class Config:
             this_name = item["target_drug_name"] + "_" + item["responses"]
             targets_list.append(this_name)
         targets_list = list(set(targets_list))
+        final_results = pd.DataFrame(index=original_dataframe.index, columns=targets_list)
+        preds = validation.loo(original_dataset, algos=algos, metric=metric, targets_list=targets_list)
+
         colnames = []
         for this_target_name in targets_list:
             for algo2 in algos:
@@ -862,10 +865,10 @@ class Config:
                                                         omic=loo_omic,
                                                         database='yo')
 
-                    preds = validation.loo(loo_dataset, algos=algos, metric=metric, targets_list=[this_target_name])
-                    preds = preds.to_pandas(omic='prediction')
+                    loo_preds = validation.loo(loo_dataset, algos=algos, metric=metric, targets_list=[this_target_name])
+                    loo_preds = loo_preds.to_pandas(omic='prediction')
                     this_result = optimized_models.get_standard_models(
-                        data=preds, targets=loo_target, algos=algos, metric=metric
+                        data=loo_preds, targets=loo_target, algos=algos, metric=metric
                     )
                     current_best = 0
                     current_select = []
@@ -876,20 +879,23 @@ class Config:
                             current_select = master_algo
                         colname = this_target_name + "_" + master_algo
                         validation_results.loc[sample, colname] = perf
+
                     # now predict the sample
                     sample_pred = pd.DataFrame(index=[sample], columns=preds.columns)
-                    for sample_omic in omics_unique:
-                        sample_dataframe = loo_dataset.to_pandas(omic=sample_omic)
 
-                        glob = optimized_models.get_standard_models(data=sample_dataframe, targets=loo_target, algos=algos, metric=metric)
-                        for sample_algo in list(glob.keys()):
-                            ze_model = glob[sample_algo]['estimator']
-                            try:
-                                prediction = ze_model.predict_proba(sample_data)
-                            except:
-                                prediction = ze_model.predict(sample_data)
+                    ze_model = this_result[current_select]['estimator'].fit(loo_preds, loo_target)
 
-                            sample_pred.loc[sample, sample_omic + '_' + this_target_name + '_' + sample_algo] = prediction
+                    col_to_retrieve = [x for x in preds.dataframe.columns if this_target_name in x][:-1]
+                    sample_pred = preds.dataframe.loc[sample, col_to_retrieve]
+
+                    try:
+                        prediction = ze_model.predict_proba(sample_pred.to_frame().transpose())
+                    except:
+                        prediction = ze_model.predict(sample_pred.to_frame().transpose())
+
+                    prediction = data_utils.recurse_to_float(prediction)
+
+                    final_results.loc[sample, this_target_name] = prediction
 
                 else:
                     pass

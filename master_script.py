@@ -8,7 +8,7 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 logging.basicConfig(
-    filename="run_testmin77.log",
+    filename="run_testmax711.log",
     level=logging.INFO,
     filemode="a",
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -19,7 +19,7 @@ from config import Config
 from DBM_toolbox.data_manipulation import dataset_class
 from DBM_toolbox.interpretation import gsea
 
-config = Config("testmin/second/config.yaml")
+config = Config("testall/config.yaml")
 
 ###################################
 ### READING AND PROCESSING DATA ###
@@ -49,7 +49,7 @@ logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
 
 final_data = quantized_data.normalize().optimize_formats()
-config.save(to_save=final_data, name="f_test77_data")
+config.save(to_save=final_data, name="f_testmax711_data")
 
 missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axis=0)]
 
@@ -73,10 +73,12 @@ logging.info("Getting optimized models")
 
 logging.info("final validation")
 results_valid = config.get_valid_loo(original_dataset=final_data)
-config.save(to_save=results_valid, name="f_test77_valid")
+config.save(to_save=results_valid, name="f_test711_valid")
 
-
-
+########################
+logging.info("single-loo")
+loo_preds = config.loo(final_data)
+config.save(to_save=results_valid, name="f_test711_preds")
 
 
 
