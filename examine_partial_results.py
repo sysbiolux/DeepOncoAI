@@ -8,9 +8,9 @@ from DBM_toolbox.data_manipulation import dataset_class
 
 config = Config("testmin/second/config.yaml")
 
-loo_preds = unpickle_objects("f_testsmall_preds_.pkl")
+loo_preds = unpickle_objects("f_testsmall_preds_2022-07-21-12-33-52-564134.pkl")
 
-loo_data =  unpickle_objects("f_testsmall_data_2022-07-18-09-10-35-582909.pkl")
+loo_data = unpickle_objects("f_testsmall_data_2022-07-18-09-10-35-582909.pkl")
 
 drugs_list = ['Lapatinib', 'AZD6244']
 
