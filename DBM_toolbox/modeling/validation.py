@@ -32,6 +32,7 @@ def loo(dataset, algos, metric, targets_list):
             for sample in this_data.index:
                 logging.info(f"{this_omic}, {this_target_name}, {sample}")
                 print(sample)
+                truth = this_target[sample]
                 rest_data = this_data.drop(sample)
                 rest_target = this_target.drop(sample)
                 rest_data, rest_target = data_utils.merge_and_clean(rest_data, rest_target)
@@ -52,7 +53,7 @@ def loo(dataset, algos, metric, targets_list):
                         print("there was a problem")
                     print(f"{this_target_name} with {this_omic} with {algo}...", end="")
                     print(f"raw pred: {pred}...", end="")
-                    print(pred)
+                    print(f"truth: {truth}")
                     colname = this_omic + "_" + this_target_name + "_" + algo
                     preds_quant.loc[sample, colname] = pred
     target_data = dataset.to_pandas(omic='DRUGS')

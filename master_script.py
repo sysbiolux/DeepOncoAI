@@ -5,21 +5,23 @@
 import logging
 from functions import unpickle_objects
 import pandas as pd
-import seaborn as sns
-from matplotlib import pyplot as plt
+#import seaborn as sns
+#from matplotlib import pyplot as plt
+
+from config import Config
+
+# from DBM_toolbox.data_manipulation import dataset_class
+# from DBM_toolbox.interpretation import gsea
+
 logging.basicConfig(
-    filename="run_testmax711.log",
+    filename="run_testsmall.log",
     level=logging.INFO,
     filemode="a",
     format="%(asctime)s %(levelname)-8s %(message)s",
     datefmt="%H:%M:%S",
 )
-from config import Config
 
-from DBM_toolbox.data_manipulation import dataset_class
-from DBM_toolbox.interpretation import gsea
-
-config = Config("testall/config.yaml")
+config = Config("testmin/second/config.yaml")
 
 ###################################
 ### READING AND PROCESSING DATA ###
@@ -49,7 +51,7 @@ logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
 
 final_data = quantized_data.normalize().optimize_formats()
-config.save(to_save=final_data, name="f_testmax711_data")
+config.save(to_save=final_data, name="f_testsmall_data")
 
 missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axis=0)]
 
@@ -70,15 +72,18 @@ logging.info("Getting optimized models")
 # config.save(to_save=results_sec, name="f_test77_stack_results")
 
 ###
-
-logging.info("final validation")
-results_valid = config.get_valid_loo(original_dataset=final_data)
-config.save(to_save=results_valid, name="f_test711_valid")
-
 ########################
 logging.info("single-loo")
 loo_preds = config.loo(final_data)
-config.save(to_save=results_valid, name="f_test711_preds")
+config.save(to_save=loo_preds, name="f_testsmall_preds")
+loo_preds = unpickle_objects("f_testsmall_preds_2022-07-18-09-54-08-286211.pkl")
+#############
+
+logging.info("final validation")
+results_valid = config.get_valid_loo(original_dataset=final_data)
+config.save(to_save=results_valid, name="f_testsmall_valid")
+
+
 
 
 
@@ -94,7 +99,7 @@ config.save(to_save=results_valid, name="f_test711_preds")
 ######################################################################
 
 expl_dict = config.retrieve_features(trained_models=trained_models, dataset=final_data)
-config.save(to_save=expl_dict, name="f_test77_expl_dict")
+config.save(to_save=expl_dict, name="f_testsmall_expl_dict")
 
 print("DONE")
 

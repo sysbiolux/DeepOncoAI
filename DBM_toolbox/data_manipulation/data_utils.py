@@ -27,4 +27,7 @@ def recurse_to_float(weird_object):
     if isinstance(weird_object, float) or isinstance(weird_object, int) or isinstance(weird_object, np.float16) or isinstance(weird_object, np.float32):
         return weird_object
     else:
-        return recurse_to_float(weird_object[0])
+        try:
+            return recurse_to_float(weird_object[1])
+        except:
+            return recurse_to_float(weird_object[0])

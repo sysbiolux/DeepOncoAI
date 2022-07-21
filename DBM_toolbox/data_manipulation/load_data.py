@@ -7,9 +7,7 @@ from DBM_toolbox.data_manipulation.dataset_class import Dataset
 from DBM_toolbox.data_manipulation import preprocessing
 
 
-def read_data(
-    folder: str, omic: str, database: str, nrows: int = None, keywords: list[str] = None
-):
+def read_data(folder: str, omic: str, database: str, nrows: int = None):
     omic_root = omic.split("_")[0]
     if database == "CCLE":
         filename = {
