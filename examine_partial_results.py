@@ -6,7 +6,7 @@ from DBM_toolbox.modeling import validation
 from DBM_toolbox.data_manipulation import dataset_class
 
 
-config = Config("testmin/second/config.yaml")
+config = Config("testall/config.yaml")
 
 loo_preds = unpickle_objects("f_testsmall_preds_2022-07-21-12-33-52-564134.pkl")
 
