@@ -155,7 +155,7 @@ class Config:
                     "data",
                     omic=target["name"],
                     database=target["database"],
-                    keywords=[target_name, target_metric],
+                    # keywords=[target_name, target_metric],
                 )
                 # TODO: IC50s,ActAreas and dose_responses are computed for all additional datasets, is this not redundant?
                 IC50s = preprocessing.extract_IC50s(additional_dataset)
