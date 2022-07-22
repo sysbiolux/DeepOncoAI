@@ -4,7 +4,7 @@ if __name__ == '__main__':
     from DBM_toolbox.modeling import validation
     config = Config("testall/config.yaml")
 
-    final_data = unpickle_objects('f_testsmall_data_10.pkl')
+    final_data = unpickle_objects('f_testall_data_10.pkl')
     algos = config.raw_dict["modeling"]["general"]["algorithms"]
     metric = config.raw_dict["modeling"]["general"]["metric"]
 
