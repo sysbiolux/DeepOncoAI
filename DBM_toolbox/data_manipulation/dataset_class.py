@@ -269,14 +269,14 @@ class Dataset:
         database = self.database
         dataframe = self.to_pandas()
         train_dataset = Dataset(
-            dataframe=dataframe[train_index],
-            omic=omic[train_index],
-            database=database[train_index],
+            dataframe=dataframe.loc[train_index, :],
+            omic=omic,
+            database=database,
         )
         test_dataset = Dataset(
-            dataframe=dataframe[test_index],
-            omic=omic[test_index],
-            database=database[test_index],
+            dataframe=dataframe.loc[test_index, :],
+            omic=omic,
+            database=database,
         )
 
         return train_dataset, test_dataset

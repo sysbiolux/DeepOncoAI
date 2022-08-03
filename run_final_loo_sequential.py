@@ -81,17 +81,37 @@ for n in range(23):
 
     n_samples = len(final_data.dataframe.index)
     split_size = np.floor(n_samples/outer_folds)
-    mixed = rng.choice(n_samples, size=n_samples, replace=False)
+    outer_mixed = rng.choice(final_data.dataframe.index, size=n_samples, replace=False)
 
     outer_train_idx = dict()
     outer_test_idx = dict()
+    inner_train_idx = dict()
+    inner_test_idx = dict()
+
     for outer_loop in range(outer_folds):
-        print(outer_loop)
+
         if outer_loop == outer_folds - 1:
-            outer_test_idx[outer_loop] = mixed[int(outer_loop * split_size) : -1]
+            outer_test_idx[outer_loop] = outer_mixed[int(outer_loop * split_size): -1]
         else:
-            outer_test_idx[outer_loop] = mixed[int(outer_loop * split_size) : int((outer_loop+1) * split_size)]
-        outer_train_idx[outer_loop] = [x for x in mixed if x not in outer_test_idx[outer_loop]]
+            outer_test_idx[outer_loop] = outer_mixed[int(outer_loop * split_size): int((outer_loop + 1) * split_size)]
+        outer_train_idx[outer_loop] = [x for x in outer_mixed if x not in outer_test_idx[outer_loop]]
 
+        rest_dataset, valid_dataset = final_data.split(train_index=outer_train_idx[outer_loop], test_index=outer_test_idx[outer_loop])
 
-    train_dataset, test_dataset = final_data.split(train_index=, test_index=)
+        n_inner_samples = len(rest_dataset.dataframe.index)
+        split_inner_size = np.floor(n_inner_samples / inner_folds)
+        inner_mixed = rng.choice(rest_dataset.dataframe.index, size=n_inner_samples, replace=False)
+
+        inner_train_idx[outer_loop] = dict()
+        inner_test_idx[outer_loop] = dict()
+
+        for inner_loop in range(inner_folds):
+            print(f"n: {n}, out: {outer_loop}, in: {inner_loop}")
+            if inner_loop == inner_folds - 1:
+                inner_test_idx[outer_loop][inner_loop] = inner_mixed[int(inner_loop * split_inner_size): -1]
+            else:
+                inner_test_idx[outer_loop][inner_loop] = inner_mixed[int(inner_loop * split_inner_size): int((inner_loop + 1) * split_inner_size)]
+            inner_train_idx[outer_loop][inner_loop] = [x for x in inner_mixed if x not in inner_test_idx[outer_loop][inner_loop]]
+
+            train_dataset, test_dataset = rest_dataset.split(train_index=inner_train_idx[outer_loop][inner_loop], test_index=inner_test_idx[outer_loop][inner_loop])
+
