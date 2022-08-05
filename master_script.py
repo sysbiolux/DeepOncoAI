@@ -14,14 +14,14 @@ from config import Config
 # from DBM_toolbox.interpretation import gsea
 
 logging.basicConfig(
-    filename="run_alldrugs_01.log",
+    filename="run_min2.log",
     level=logging.INFO,
     filemode="a",
     format="%(asctime)s %(levelname)-8s %(message)s",
     datefmt="%H:%M:%S",
 )
 
-config = Config("testall/config.yaml")
+config = Config("testmin/second/config.yaml")
 
 ###################################
 ### READING AND PROCESSING DATA ###
@@ -51,7 +51,7 @@ logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
 
 final_data = quantized_data.normalize().optimize_formats()
-config.save(to_save=final_data, name="f_testall_01_data")
+config.save(to_save=final_data, name="f_testmin_2_data")
 
 missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axis=0)]
 
