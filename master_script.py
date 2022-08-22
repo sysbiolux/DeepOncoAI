@@ -14,14 +14,14 @@ from config import Config
 # from DBM_toolbox.interpretation import gsea
 
 logging.basicConfig(
-    filename="run_min2.log",
+    filename="run_repro.log",
     level=logging.INFO,
     filemode="a",
     format="%(asctime)s %(levelname)-8s %(message)s",
     datefmt="%H:%M:%S",
 )
 
-config = Config("testmin/second/config.yaml")
+config = Config("testall/config.yaml")
 
 ###################################
 ### READING AND PROCESSING DATA ###
