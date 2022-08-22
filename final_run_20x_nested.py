@@ -171,5 +171,14 @@ for n in range(23):  # for each target
 ### Analysis
 
 all_features = pd.DataFrame()
+for this_drug in feature_importances.keys():
+    for split in feature_importances[this_drug].keys():
+        my_features = feature_importances[this_drug][split]['RFC']
+        if all_features.size < 1:
+            all_features = my_features
+        else:
+            all_features = all_features.join(my_features, lsuffix='_x', rsuffix='_y')
+
+all_features.to_csv('all_features.csv')
 
 
