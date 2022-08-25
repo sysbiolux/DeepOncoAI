@@ -19,6 +19,7 @@ inner_folds = 20
 ########################################
 final_results = dict()
 feature_importances = dict()
+base_models = dict()
 fprs = dict()
 tprs = dict()
 roc_aucs = dict()
@@ -121,6 +122,8 @@ for n in range(23):  # for each target
         test_labels = first_level_preds.loc[outer_test_idx[outer_loop], cols[0]]
         train_features, train_labels = data_utils.merge_and_clean(train_features, train_labels)
 
+        base_models[target_name] = first_level_preds
+
         for algo in trained_models[target_name][omic].keys():
             this_model = trained_models[target_name][omic][algo]['estimator']
             this_model.fit(train_features, train_labels)
@@ -180,5 +183,10 @@ for this_drug in feature_importances.keys():
             all_features = all_features.join(my_features, lsuffix='_x', rsuffix='_y')
 
 all_features.to_csv('all_features.csv')
+
+##### redo with 0-1 data
+
+for this_drug in final_results.keys():
+    df = final_results[this_drug]
 
 
