@@ -16,7 +16,7 @@ from config import Config
 logging.basicConfig(
     filename="run_repro.log",
     level=logging.INFO,
-    filemode="a",
+    filemode="w",
     format="%(asctime)s %(levelname)-8s %(message)s",
     datefmt="%H:%M:%S",
 )
