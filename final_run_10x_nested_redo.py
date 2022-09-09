@@ -25,7 +25,7 @@ tprs = dict()
 roc_aucs = dict()
 
 # for n in range(23):  # for each target
-for n in [0, 1, 2, 3, 4, 5, 6, 22]:
+for n in [0, 1, 2, 3, 4, 5, 22]:
     idx = str(n+1)
     if len(idx) == 1:
         idx = '0' + idx
@@ -71,6 +71,7 @@ for n in [0, 1, 2, 3, 4, 5, 6, 22]:
 
         inner_train_idx[outer_loop] = dict()
         inner_test_idx[outer_loop] = dict()
+        base_models[outer_loop] = dict()
 
         first_level_preds = pd.DataFrame(final_data.dataframe.iloc[:, -1].copy())  # truth
 
@@ -84,6 +85,8 @@ for n in [0, 1, 2, 3, 4, 5, 6, 22]:
 
             train_dataset, test_dataset = rest_dataset.split(train_index=inner_train_idx[outer_loop][inner_loop], test_index=inner_test_idx[outer_loop][inner_loop])
 
+            base_models[outer_loop][inner_loop] = dict()
+
             for omic in trained_models[target_name].keys():  # for each omic type
                 if omic != 'complete':
                     print(f'omic: {omic}')
@@ -91,6 +94,9 @@ for n in [0, 1, 2, 3, 4, 5, 6, 22]:
                     train_labels = train_dataset.to_pandas(omic='DRUGS').values.ravel()
                     test_features = test_dataset.to_pandas(omic=omic)
                     test_labels = test_dataset.to_pandas(omic='DRUGS').values.ravel()
+
+                    base_models[outer_loop][inner_loop][omic] = dict()
+
                     for algo in trained_models[target_name][omic].keys():  # for each algo
                         print(f'algo: {algo}')
                         this_model = trained_models[target_name][omic][algo]['estimator']
@@ -101,6 +107,7 @@ for n in [0, 1, 2, 3, 4, 5, 6, 22]:
                         except:
                             this_predictions = this_model.predict(test_features)
                         first_level_preds.loc[inner_test_idx[outer_loop][inner_loop], 'pred_' + omic + '_' + algo] = this_predictions
+                        base_models[outer_loop][inner_loop][omic][algo] = this_model
 
         for omic in trained_models[target_name].keys():  # for each omic type
             if omic != 'complete':
@@ -175,3 +182,4 @@ for n in [0, 1, 2, 3, 4, 5, 6, 22]:
     config.save(to_save=[fprs, tprs, roc_aucs], name="roc_info")
     config.save(to_save=final_results, name="final_results")
     config.save(to_save=feature_importances, name="features_imp")
+    config.save(to_save=base_models, name="base_models")
