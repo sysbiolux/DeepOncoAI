@@ -1,12 +1,14 @@
 
 import pandas as pd
 import numpy as np
+import seaborn as sns
 
 from config import Config
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc
 from functions import pickle_objects, unpickle_objects
 from DBM_toolbox.data_manipulation import data_utils
+import matplotlib.pyplot as plt
 
 config = Config("testall/config.yaml")
 algos = config.raw_dict["modeling"]["general"]["algorithms"]
@@ -37,7 +39,7 @@ for n in [0, 1, 2, 3, 4, 5, 22]:
     target_name = final_data.dataframe.columns[-1]
     print(target_name)
 
-
+    base_models[target_name] = dict()
 
     final_data = final_data.to_binary(target=target_name)
 
@@ -71,7 +73,7 @@ for n in [0, 1, 2, 3, 4, 5, 22]:
 
         inner_train_idx[outer_loop] = dict()
         inner_test_idx[outer_loop] = dict()
-        base_models[outer_loop] = dict()
+        base_models[target_name][outer_loop] = dict()
 
         first_level_preds = pd.DataFrame(final_data.dataframe.iloc[:, -1].copy())  # truth
 
@@ -85,7 +87,7 @@ for n in [0, 1, 2, 3, 4, 5, 22]:
 
             train_dataset, test_dataset = rest_dataset.split(train_index=inner_train_idx[outer_loop][inner_loop], test_index=inner_test_idx[outer_loop][inner_loop])
 
-            base_models[outer_loop][inner_loop] = dict()
+            base_models[target_name][outer_loop][inner_loop] = dict()
 
             for omic in trained_models[target_name].keys():  # for each omic type
                 if omic != 'complete':
@@ -95,7 +97,7 @@ for n in [0, 1, 2, 3, 4, 5, 22]:
                     test_features = test_dataset.to_pandas(omic=omic)
                     test_labels = test_dataset.to_pandas(omic='DRUGS').values.ravel()
 
-                    base_models[outer_loop][inner_loop][omic] = dict()
+                    base_models[target_name][outer_loop][inner_loop][omic] = dict()
 
                     for algo in trained_models[target_name][omic].keys():  # for each algo
                         print(f'algo: {algo}')
@@ -107,7 +109,13 @@ for n in [0, 1, 2, 3, 4, 5, 22]:
                         except:
                             this_predictions = this_model.predict(test_features)
                         first_level_preds.loc[inner_test_idx[outer_loop][inner_loop], 'pred_' + omic + '_' + algo] = this_predictions
-                        base_models[outer_loop][inner_loop][omic][algo] = this_model
+                        try:
+                            base_models[target_name][outer_loop][inner_loop][omic][algo] = this_model.feature_importances_
+                        except:
+                            try:
+                                base_models[target_name][outer_loop][inner_loop][omic][algo] = this_model.coef_
+                            except:
+                                base_models[target_name][outer_loop][inner_loop][omic][algo] = 'None'
 
         for omic in trained_models[target_name].keys():  # for each omic type
             if omic != 'complete':
@@ -134,7 +142,7 @@ for n in [0, 1, 2, 3, 4, 5, 22]:
         test_labels = first_level_preds.loc[outer_test_idx[outer_loop], cols[0]]
         train_features, train_labels = data_utils.merge_and_clean(train_features, train_labels)
 
-        base_models[target_name] = first_level_preds
+
 
         for algo in trained_models[target_name][omic].keys():
             this_model = trained_models[target_name][omic][algo]['estimator']
@@ -183,3 +191,49 @@ for n in [0, 1, 2, 3, 4, 5, 22]:
     config.save(to_save=final_results, name="final_results")
     config.save(to_save=feature_importances, name="features_imp")
     config.save(to_save=base_models, name="base_models")
+
+#################################################
+
+res = dict()
+for target in base_models.keys():
+    res[target] = dict()
+    for omic in ['RPPA', 'RNA', 'MIRNA', 'META', 'DNA', 'PATHWAYS', 'TYPE']:
+        res[target][omic] = dict()
+        for algo in ['RFC', 'SVM', 'Logistic', 'Ridge', 'EN', 'ET', 'XGB', 'Ada']:
+            res[target][omic][algo] = pd.DataFrame(index=final_data.to_pandas(omic=omic).columns)
+
+#
+# res_RFC = dict()
+# res_RFC['RPPA'] = pd.DataFrame(index=final_data.to_pandas(omic='RPPA').columns)
+# res_RFC['RNA'] = pd.DataFrame(index=final_data.to_pandas(omic='RNA').columns)
+# res_RFC['MIRNA'] = pd.DataFrame(index=final_data.to_pandas(omic='MIRNA').columns)
+# res_RFC['META'] = pd.DataFrame(index=final_data.to_pandas(omic='META').columns)
+# res_RFC['DNA'] = pd.DataFrame(index=final_data.to_pandas(omic='DNA').columns)
+# res_RFC['PATHWAYS'] = pd.DataFrame(index=final_data.to_pandas(omic='PATHWAYS').columns)
+# res_RFC['TYPE'] = pd.DataFrame(index=final_data.to_pandas(omic='TYPE').columns)
+
+
+for n_o in range(outer_folds):
+    for n_i in range(inner_folds):
+        for target in base_models.keys():
+            r = base_models[target][n_o][n_i]
+            for omic in r.keys():
+                for algo in r[omic].keys():
+                    n = str(n_o) + str(n_i)
+                    res[target][omic][algo][n] = r[omic][algo]
+
+for target in res.keys():
+    for omic in res[target].keys():
+        for algo in res[target][omic].keys():
+            res[target][omic][algo]['avg'] = res[target][omic][algo].mean(axis=1)
+            res[target][omic][algo]['stdev'] = res[target][omic][algo].std(axis=1)
+            res[target][omic][algo] = res[target][omic][algo].sort_values(by='avg', ascending=False)
+            means = res[target][omic][algo].iloc[:19, -2]
+            names = means.index
+            stdevs = res[target][omic][algo].iloc[:19, -1]
+            ind = np.arange(20)
+            fig = plt.subplots(figsize=(10, 7))
+            p1 = plt.bar(ind, means, 0.5, yerr=stdevs)
+            plt.ylabel('Feature Importances')
+            plt.title(f'Importance in {target}/{omic}: {algo}')
+            plt.xticks(ind, (names))
