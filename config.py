@@ -9,10 +9,10 @@ from sklearn.svm import SVC
 import xgboost as xgb
 from sklearn.linear_model import LogisticRegressionCV
 
-from DBM_toolbox.data_manipulation import load_data, rule, preprocessing
-from DBM_toolbox.data_manipulation import dataset_class, filter_class, rule
+from DBM_toolbox.data_manipulation import load_data, preprocessing, dataset_class, filter_class, rule, data_utils
+#from DBM_toolbox.data_manipulation import dataset_class, filter_class, rule
 from DBM_toolbox.feature_engineering.predictors import combinations, components
-from DBM_toolbox.modeling import optimized_models, stacking
+from DBM_toolbox.modeling import optimized_models, stacking, validation
 from DBM_toolbox.interpretation import feature_retrieval
 from DBM_toolbox.plotting import eda
 
@@ -155,7 +155,7 @@ class Config:
                     "data",
                     omic=target["name"],
                     database=target["database"],
-                    keywords=[target_name, target_metric],
+                    # keywords=[target_name, target_metric],
                 )
                 # TODO: IC50s,ActAreas and dose_responses are computed for all additional datasets, is this not redundant?
                 IC50s = preprocessing.extract_IC50s(additional_dataset)
@@ -495,6 +495,8 @@ class Config:
                 omics_list=omics_list, databases_list=[]
             )
             complete_dataframe = complete_dataset.to_pandas()
+            if complete_dataset.omic.unique()[0] == 'prediction':
+                complete_dataframe = complete_dataframe.loc[:, complete_dataframe.columns.str.contains(this_target_name)]
             if method == "optimize":
                 logging.info(
                     f"*** Optimizing models for {this_target_name} with the complete set of predictors"
@@ -566,7 +568,7 @@ class Config:
                 logging.info(
                     f"*** Computing standard models for {this_target_name} with the complete set of predictors"
                 )
-                this_dataframe = complete_dataframe
+                this_dataframe = complete_dataframe.astype('float')
                 targets = this_dataset.dataframe[this_target_name]
                 index1 = targets.index[
                     targets.apply(np.isnan)
@@ -592,34 +594,35 @@ class Config:
                 )
                 results[this_target_name]["complete"] = this_result
 
-                for this_omic in omics_list:
-                    this_dataframe = this_dataset.to_pandas(omic=this_omic)
-                    targets = this_dataset.dataframe[this_target_name]
-                    logging.info(
-                        f"*** Computing standard models for {this_target_name} with {this_omic}"
-                    )
-                    index1 = targets.index[
-                        targets.apply(np.isnan)
-                    ]
-                    index2 = this_dataframe.index[
-                        this_dataframe.apply(np.isnan).any(axis=1)
-                    ]
-                    indices_to_drop = index1.union(index2)
-                    n_dropped = len(indices_to_drop)
-                    npos = sum(targets == 1)
-                    nneg = sum(targets == 0)
-                    this_dataframe = this_dataframe.drop(indices_to_drop)
-                    targets = targets.drop(indices_to_drop)
-                    logging.info(
-                        f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
-                    )
-                    logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
+                if len(list(set(omics_list))) > 1:
+                    for this_omic in omics_list:
+                        this_dataframe = this_dataset.to_pandas(omic=this_omic)
+                        targets = this_dataset.dataframe[this_target_name]
+                        logging.info(
+                            f"*** Computing standard models for {this_target_name} with {this_omic}"
+                        )
+                        index1 = targets.index[
+                            targets.apply(np.isnan)
+                        ]
+                        index2 = this_dataframe.index[
+                            this_dataframe.apply(np.isnan).any(axis=1)
+                        ]
+                        indices_to_drop = index1.union(index2)
+                        n_dropped = len(indices_to_drop)
+                        npos = sum(targets == 1)
+                        nneg = sum(targets == 0)
+                        this_dataframe = this_dataframe.drop(indices_to_drop)
+                        targets = targets.drop(indices_to_drop)
+                        logging.info(
+                            f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
+                        )
+                        logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
 
-                    this_result = optimized_models.get_standard_models(
-                        data=this_dataframe, targets=targets, algos=algos, metric=metric
-                    )
-                    if this_omic not in results[this_target_name]:
-                        results[this_target_name][this_omic] = this_result
+                        this_result = optimized_models.get_standard_models(
+                            data=this_dataframe, targets=targets, algos=algos, metric=metric
+                        )
+                        if this_omic not in results[this_target_name]:
+                            results[this_target_name][this_omic] = this_result
 
         return results
 
@@ -799,3 +802,110 @@ class Config:
         f = open(filename, "wb")
         pickle.dump(to_save, f)
         f.close()
+
+    def loo(self, dataset): #leave-one-out predictions
+        logging.info(f"...performing leave-one-out predictions...")
+        algos = self.raw_dict["modeling"]["general"]["algorithms"]
+        metric = self.raw_dict["modeling"]["general"]["metric"]
+        targets_dict = self.raw_dict["data"]["targets"]
+        targets_list = []
+        for item in targets_dict:
+            this_name = item["target_drug_name"] + "_" + item["responses"]
+            targets_list.append(this_name)
+        targets_list = list(set(targets_list))
+        preds = validation.loo(dataset, algos=algos, metric=metric, targets_list=targets_list)
+        return preds
+
+    def get_valid_loo(self, original_dataset):
+        logging.info(f"...performing l-o-o validation...")
+        algos = self.raw_dict["modeling"]["general"]["algorithms"]
+        metric = self.raw_dict["modeling"]["general"]["metric"]
+        targets_dict = self.raw_dict["data"]["targets"]
+        #prepare matrix
+        original_dataframe = original_dataset.dataframe
+        original_omic = original_dataset.omic
+        original_database = original_dataset.database
+        omics_unique = list(set(original_omic))
+        omics_unique.remove('DRUGS')
+        targets_list = []
+        for item in targets_dict:
+            this_name = item["target_drug_name"] + "_" + item["responses"]
+            targets_list.append(this_name)
+        targets_list = list(set(targets_list))
+        final_results = pd.DataFrame(index=original_dataframe.index, columns=targets_list)
+        preds = validation.loo(original_dataset, algos=algos, metric=metric, targets_list=targets_list)
+
+        colnames = []
+        for this_target_name in targets_list:
+            for algo2 in algos:
+                colnames.append(this_target_name + "_" + algo2)
+        validation_results = pd.DataFrame(index=original_dataframe.index, columns=colnames)
+        trained_master_models = dict()
+
+        for n_d, this_target_name in enumerate(targets_list):
+            this_dataset = original_dataset.to_binary(target=this_target_name)
+            this_dataframe = this_dataset.extract(omics_list=omics_unique).dataframe
+            this_target = this_dataset.dataframe.loc[:, this_target_name]
+            trained_master_models[this_target_name] = dict()
+
+            for sample in original_dataframe.index:
+                if sample in this_target.index:
+                    sample_data = this_dataframe.loc[sample, :]
+                    sample_truth = this_target.loc[sample]
+                    loo_dataframe = this_dataframe.drop(sample)
+                    loo_target = this_target.drop(sample)
+                    loo_omic = original_omic
+                    for drug_to_remove in targets_list:
+                        if drug_to_remove == this_target_name:
+                            pass
+                        else:
+                            loo_omic = loo_omic.drop(drug_to_remove)
+
+                    loo_dataset = dataset_class.Dataset(dataframe=pd.concat([loo_dataframe, loo_target], axis=1),
+                                                        omic=loo_omic,
+                                                        database='yo')
+
+                    loo_preds = validation.loo(loo_dataset, algos=algos, metric=metric, targets_list=[this_target_name])
+                    loo_preds = loo_preds.to_pandas(omic='prediction')
+                    this_result = optimized_models.get_standard_models(
+                        data=loo_preds, targets=loo_target, algos=algos, metric=metric
+                    )
+                    current_best = 0
+                    current_select = []
+                    for master_algo in this_result.keys():
+                        perf = this_result[master_algo]['result']
+                        if perf > current_best:
+                            current_best = perf
+                            current_select = master_algo
+                        colname = this_target_name + "_" + master_algo
+                        validation_results.loc[sample, colname] = perf
+
+                    # now predict the sample
+                    sample_pred = pd.DataFrame(index=[sample], columns=preds.columns)
+
+                    ze_model = this_result[current_select]['estimator'].fit(loo_preds, loo_target)
+
+                    col_to_retrieve = [x for x in preds.dataframe.columns if this_target_name in x][:-1]
+                    sample_pred = preds.dataframe.loc[sample, col_to_retrieve]
+
+                    try:
+                        prediction = ze_model.predict_proba(sample_pred.to_frame().transpose())
+                    except:
+                        prediction = ze_model.predict(sample_pred.to_frame().transpose())
+
+                    prediction = data_utils.recurse_to_float(prediction)
+
+                    final_results.loc[sample, this_target_name] = prediction
+
+                else:
+                    pass
+
+
+        # rest of data, make loo
+        # train models with loo, take the best
+        # predict that one sample, record
+
+
+
+
+        return validation_results

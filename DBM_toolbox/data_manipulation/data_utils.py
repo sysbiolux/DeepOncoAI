@@ -20,3 +20,14 @@ def merge_and_clean(dataframe, series):
     logging.info(f"y: {series.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
 
     return new_df, new_series
+
+
+def recurse_to_float(weird_object):
+    print(weird_object)
+    if isinstance(weird_object, float) or isinstance(weird_object, int) or isinstance(weird_object, np.float16) or isinstance(weird_object, np.float32):
+        return weird_object
+    else:
+        try:
+            return recurse_to_float(weird_object[1])
+        except:
+            return recurse_to_float(weird_object[0])

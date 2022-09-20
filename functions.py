@@ -4,6 +4,8 @@
 
 import _pickle
 
+import pandas as pd
+
 
 def pickle_objects(objects, location):
     """pickle objects at location"""
@@ -16,5 +18,8 @@ def pickle_objects(objects, location):
 def unpickle_objects(location):
     """pickle objects at location"""
     with open(location, "rb") as f:
-        loaded_objects = _pickle.load(f)
+        try:
+            loaded_objects = _pickle.load(f)
+        except AttributeError:
+            loaded_objects = pd.read_pickle(f)
     return loaded_objects
