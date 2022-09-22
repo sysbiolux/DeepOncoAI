@@ -1,10 +1,8 @@
 
 import pandas as pd
 import numpy as np
-import seaborn as sns
 
 from config import Config
-import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc
 from functions import pickle_objects, unpickle_objects
 from DBM_toolbox.data_manipulation import data_utils
@@ -194,6 +192,9 @@ for n in [0, 1, 2, 3, 4, 5, 22]:
 
 #################################################
 
+base_models = unpickle_objects('base_models_2022-09-21-06-48-52-057051.pkl')
+final_data = unpickle_objects('f_testall_data_' + '01' + '.pkl')
+
 res = dict()
 for target in base_models.keys():
     res[target] = dict()
@@ -202,38 +203,29 @@ for target in base_models.keys():
         for algo in ['RFC', 'SVM', 'Logistic', 'Ridge', 'EN', 'ET', 'XGB', 'Ada']:
             res[target][omic][algo] = pd.DataFrame(index=final_data.to_pandas(omic=omic).columns)
 
-#
-# res_RFC = dict()
-# res_RFC['RPPA'] = pd.DataFrame(index=final_data.to_pandas(omic='RPPA').columns)
-# res_RFC['RNA'] = pd.DataFrame(index=final_data.to_pandas(omic='RNA').columns)
-# res_RFC['MIRNA'] = pd.DataFrame(index=final_data.to_pandas(omic='MIRNA').columns)
-# res_RFC['META'] = pd.DataFrame(index=final_data.to_pandas(omic='META').columns)
-# res_RFC['DNA'] = pd.DataFrame(index=final_data.to_pandas(omic='DNA').columns)
-# res_RFC['PATHWAYS'] = pd.DataFrame(index=final_data.to_pandas(omic='PATHWAYS').columns)
-# res_RFC['TYPE'] = pd.DataFrame(index=final_data.to_pandas(omic='TYPE').columns)
-
 
 for n_o in range(outer_folds):
     for n_i in range(inner_folds):
         for target in base_models.keys():
             r = base_models[target][n_o][n_i]
-            for omic in r.keys():
-                for algo in r[omic].keys():
+            for omic in ['RPPA', 'RNA', 'MIRNA', 'META', 'DNA', 'PATHWAYS', 'TYPE']:
+                for algo in ['RFC', 'SVM', 'Logistic', 'Ridge', 'EN', 'ET', 'XGB', 'Ada']:
                     n = str(n_o) + str(n_i)
-                    res[target][omic][algo][n] = r[omic][algo]
+                    if len(r[omic][algo].shape) == 1:
+                        res[target][omic][algo][n] = r[omic][algo]
+                    else:
+                        res[target][omic][algo][n] = r[omic][algo][0]
+
 
 for target in res.keys():
     for omic in res[target].keys():
+        x = pd.DataFrame(index=res[target][omic]['RFC'].index)
         for algo in res[target][omic].keys():
-            res[target][omic][algo]['avg'] = res[target][omic][algo].mean(axis=1)
-            res[target][omic][algo]['stdev'] = res[target][omic][algo].std(axis=1)
-            res[target][omic][algo] = res[target][omic][algo].sort_values(by='avg', ascending=False)
-            means = res[target][omic][algo].iloc[:19, -2]
-            names = means.index
-            stdevs = res[target][omic][algo].iloc[:19, -1]
-            ind = np.arange(20)
-            fig = plt.subplots(figsize=(10, 7))
-            p1 = plt.bar(ind, means, 0.5, yerr=stdevs)
-            plt.ylabel('Feature Importances')
-            plt.title(f'Importance in {target}/{omic}: {algo}')
-            plt.xticks(ind, (names))
+            means = res[target][omic][algo].mean(axis=1)
+            stdevs = res[target][omic][algo].std(axis=1)
+            x[f'{algo}_mean'] = means
+            x[f'{algo}_std'] = stdevs
+
+        x.to_csv(f'{target}_{omic}.csv')
+
+
