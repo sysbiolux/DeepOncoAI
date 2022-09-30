@@ -27,7 +27,7 @@ tprs = dict()
 roc_aucs = dict()
 
 # for n in range(23):  # for each target
-for n in [0, 1, 2, 3, 4, 5, 22]:
+for n in [5]:
     idx = str(n+1)
     if len(idx) == 1:
         idx = '0' + idx
@@ -145,20 +145,21 @@ for n in [0, 1, 2, 3, 4, 5, 22]:
 
 
         for algo in trained_models[target_name][omic].keys():
-            this_model = trained_models[target_name][omic][algo]['estimator']
-            this_model.fit(train_features, train_labels)
-            try:
-                this_predictions = this_model.predict_proba(test_features)
-                this_predictions = this_predictions[:, 1]
-            except:
-                this_predictions = this_model.predict(test_features)
-            try:
-                f_imp = this_model.feature_importances_
-            except:
-                f_imp = np.nan
-            feature_importances[target_name][outer_loop][algo] = pd.DataFrame(f_imp, index=this_model.feature_names_in_, columns=[algo])
-            final_results[target_name].loc[outer_test_idx[outer_loop], 'pred2_' + algo] = this_predictions
-            pickle_objects(final_results, "final_results.pkl")
+            if algo == 'RFC':
+                this_model = trained_models[target_name][omic][algo]['estimator']
+                this_model.fit(train_features, train_labels)
+                try:
+                    this_predictions = this_model.predict_proba(test_features)
+                    this_predictions = this_predictions[:, 1]
+                except:
+                    this_predictions = this_model.predict(test_features)
+                try:
+                    f_imp = this_model.feature_importances_
+                except:
+                    f_imp = np.nan
+                feature_importances[target_name][outer_loop][algo] = pd.DataFrame(f_imp, index=this_model.feature_names_in_, columns=[algo])
+                final_results[target_name].loc[outer_test_idx[outer_loop], 'pred2_' + algo] = this_predictions
+                pickle_objects(final_results, "final_results.pkl")
 
     # draw ROC curves
     fpr = dict()
