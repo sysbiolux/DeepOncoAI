@@ -27,7 +27,7 @@ tprs = dict()
 roc_aucs = dict()
 
 # for n in range(23):  # for each target
-for n in [5]:
+for n in [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
     idx = str(n+1)
     if len(idx) == 1:
         idx = '0' + idx
