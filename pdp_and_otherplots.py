@@ -301,53 +301,105 @@ df_x = df.loc[:, ['HLA-DRB6_AMP', 'HLA-DRB1_AMP', 'HLA-DRB5_AMP', 'Irinotecan_Ac
 df_x['HLA_AMP'] = (df_x.iloc[:, :-1]).sum(axis=1) > 0
 plt.figure()
 sns.swarmplot(data=df_x, x='HLA_AMP', y='Irinotecan_ActArea')
+x1 = [df_x.loc[x, 'Irinotecan_ActArea'] for x in df_x.index if df_x.loc[x, 'HLA_AMP']]
+x2 = [df_x.loc[x, 'Irinotecan_ActArea'] for x in df_x.index if not df_x.loc[x, 'HLA_AMP']]
+t, p = sp.stats.ttest_ind(x1, x2)
+ax = plt.gca()
+ax.text(0.35, 5.5, 't-test: p={:.2g}'.format(p))
+
 
 df_x = df.loc[:, ['KRAS.G12_13_MUT', 'KRAS_MUT', 'Irinotecan_ActArea']].dropna()
 df_x['KRAS_MUT'] = (df_x.iloc[:, :-1]).sum(axis=1) > 0
 plt.figure()
 sns.swarmplot(data=df_x, x='KRAS_MUT', y='Irinotecan_ActArea')
+x1 = [df_x.loc[x, 'Irinotecan_ActArea'] for x in df_x.index if df_x.loc[x, 'KRAS_MUT']]
+x2 = [df_x.loc[x, 'Irinotecan_ActArea'] for x in df_x.index if not df_x.loc[x, 'KRAS_MUT']]
+t, p = sp.stats.ttest_ind(x1, x2)
+ax = plt.gca()
+ax.text(0.35, 5.5, 't-test: p={:.2g}'.format(p))
+
 
 df_x = df.loc[:, ['FBXL7_DEL', 'Irinotecan_ActArea']].dropna()
 plt.figure()
 sns.swarmplot(data=df_x, x='FBXL7_DEL', y='Irinotecan_ActArea')
-
+x1 = [df_x.loc[x, 'Irinotecan_ActArea'] for x in df_x.index if df_x.loc[x, 'FBXL7_DEL']]
+x2 = [df_x.loc[x, 'Irinotecan_ActArea'] for x in df_x.index if not df_x.loc[x, 'FBXL7_DEL']]
+t, p = sp.stats.ttest_ind(x1, x2)
+ax = plt.gca()
+ax.text(0.35, 5.5, 't-test: p={:.2g}'.format(p))
 
 
 df_x = df.loc[:, ['SLFN11_ENSG00000172716.12', 'Irinotecan_ActArea']].dropna()
 plt.figure()
 sns.regplot(data=df_x, x='SLFN11_ENSG00000172716.12', y='Irinotecan_ActArea')
+ax = plt.gca()
+r, p = sp.stats.pearsonr(df_x['SLFN11_ENSG00000172716.12'], df_x['Irinotecan_ActArea'])
+ax.text(2.5, 1, 'r={:.2f}, p={:.2g}'.format(r, p))
+
 
 df_x = df.loc[:, ['XIST_ENSG00000229807.5', 'Irinotecan_ActArea']].dropna()
 plt.figure()
 sns.regplot(data=df_x, x='XIST_ENSG00000229807.5', y='Irinotecan_ActArea')
+ax = plt.gca()
+r, p = sp.stats.pearsonr(df_x['XIST_ENSG00000229807.5'], df_x['Irinotecan_ActArea'])
+ax.text(0.35, 6.5, 'r={:.2f}, p={:.2g}'.format(r, p))
+
 
 df_x = df.loc[:, ['HNRNPA1_ENSG00000135486.13', 'Irinotecan_ActArea']].dropna()
 plt.figure()
 sns.regplot(data=df_x, x='HNRNPA1_ENSG00000135486.13', y='Irinotecan_ActArea')
+ax = plt.gca()
+r, p = sp.stats.pearsonr(df_x['HNRNPA1_ENSG00000135486.13'], df_x['Irinotecan_ActArea'])
+ax.text(0.35, 6.5, 'r={:.2f}, p={:.2g}'.format(r, p))
+
 
 df_x = df.loc[:, ['Chk1_Caution', 'Irinotecan_ActArea']].dropna()
 plt.figure()
 sns.regplot(data=df_x, x='Chk1_Caution', y='Irinotecan_ActArea')
+ax = plt.gca()
+r, p = sp.stats.pearsonr(df_x['Chk1_Caution'], df_x['Irinotecan_ActArea'])
+ax.text(0.7, 2.1, 'r={:.2f}, p={:.2g}'.format(r, p))
+
 
 df_x = df.loc[:, ['alpha-hydroxybutyrate', 'Irinotecan_ActArea']].dropna()
 plt.figure()
 sns.regplot(data=df_x, x='alpha-hydroxybutyrate', y='Irinotecan_ActArea')
+ax = plt.gca()
+r, p = sp.stats.pearsonr(df_x['alpha-hydroxybutyrate'], df_x['Irinotecan_ActArea'])
+ax.text(0.58, 1, 'r={:.2f}, p={:.2g}'.format(r, p))
 
-df_x = df.loc[:, ['C34:2 DAG', 'Irinotecan_ActArea']].dropna()
+
+df_x = df.loc[:, [' JAK-STAT', 'Irinotecan_ActArea']].dropna()
 plt.figure()
-sns.regplot(data=df_x, x='C34:2 DAG', y='Irinotecan_ActArea')
+sns.regplot(data=df_x, x=' JAK-STAT', y='Irinotecan_ActArea')
+ax = plt.gca()
+r, p = sp.stats.pearsonr(df_x[' JAK-STAT'], df_x['Irinotecan_ActArea'])
+ax.text(1.2, 1.65, 'r={:.2f}, p={:.2g}'.format(r, p))
+
 
 df_x = df.loc[:, ['hsa-miR-574-5p_nmiR00526.1', 'Irinotecan_ActArea']].dropna()
 plt.figure()
 sns.regplot(data=df_x, x='hsa-miR-574-5p_nmiR00526.1', y='Irinotecan_ActArea')
+ax = plt.gca()
+r, p = sp.stats.pearsonr(df_x['hsa-miR-574-5p_nmiR00526.1'], df_x['Irinotecan_ActArea'])
+ax.text(0.35, 6.5, 'r={:.2f}, p={:.2g}'.format(r, p))
+
 
 df_x = df.loc[:, ['hsa-miR-608_nmiR00562.1', 'Irinotecan_ActArea']].dropna()
 plt.figure()
 sns.regplot(data=df_x, x='hsa-miR-608_nmiR00562.1', y='Irinotecan_ActArea')
+ax = plt.gca()
+r, p = sp.stats.pearsonr(df_x['hsa-miR-608_nmiR00562.1'], df_x['Irinotecan_ActArea'])
+ax.text(0.35, 6.5, 'r={:.2f}, p={:.2g}'.format(r, p))
+
 
 df_x = df.loc[:, ['hsa-miR-22_nmiR00251.1', 'Irinotecan_ActArea']].dropna()
 plt.figure()
 sns.regplot(data=df_x, x='hsa-miR-22_nmiR00251.1', y='Irinotecan_ActArea')
+ax = plt.gca()
+r, p = sp.stats.pearsonr(df_x['hsa-miR-22_nmiR00251.1'], df_x['Irinotecan_ActArea'])
+ax.text(0.35, 5.5, 'r={:.2f}, p={:.2g}'.format(r, p))
+
 
 
 
