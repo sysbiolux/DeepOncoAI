@@ -160,8 +160,8 @@ def preprocess_ccle_mirna(dataset, flag: str = None):
         df = df.set_index(["GeneTrans"])
         df = df.drop(["Description", "Name"], axis=1)
         df = df.transpose()
-        df = rescale_data(df)
         df = np.log2(df + 1)
+        df = rescale_data(df)
 
     return dataset_class.Dataset(df, omic="MIRNA", database="CCLE")
 
@@ -188,8 +188,8 @@ def preprocess_ccle_chromatin(dataset, flag: str = None):
     df = dataset.dataframe
     if flag is None:
         df = df
-    df = rescale_data(df)
     df = np.log2(df + 1)
+    df = rescale_data(df)
     return dataset_class.Dataset(df, omic="CHROMATIN", database="CCLE")
 
 

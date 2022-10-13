@@ -7,6 +7,8 @@ from sklearn.metrics import roc_curve, auc
 from functions import pickle_objects, unpickle_objects
 from DBM_toolbox.data_manipulation import data_utils
 import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 config = Config("testall/config.yaml")
 algos = config.raw_dict["modeling"]["general"]["algorithms"]
@@ -221,11 +223,25 @@ for target in res.keys():
     for omic in res[target].keys():
         x = pd.DataFrame(index=res[target][omic]['RFC'].index)
         for algo in res[target][omic].keys():
-            means = res[target][omic][algo].mean(axis=1)
-            stdevs = res[target][omic][algo].std(axis=1)
+            means = abs(res[target][omic][algo]).mean(axis=1)
+            stdevs = abs(res[target][omic][algo]).std(axis=1)
             x[f'{algo}_mean'] = means
-            x[f'{algo}_std'] = stdevs
+            # x[f'{algo}_std'] = stdevs
 
         x.to_csv(f'{target}_{omic}.csv')
 
-
+        xt = StandardScaler().fit_transform(x.transpose())
+        pca = PCA(n_components=2)
+        principalComponents = pca.fit_transform(xt)
+        principal_df = pd.DataFrame(data=principalComponents, columns=['principal component 1', 'principal component 2'])
+        fig = plt.figure(figsize=(8, 8))
+        ax = fig.add_subplot(1, 1, 1)
+        ax.set_xlabel('PC1', fontsize=15)
+        ax.set_ylabel('PC2', fontsize=15)
+        ax.set_title(f'PCA-{omic}-{target}', fontsize=20)
+        for i, algo in enumerate(x.columns):
+            ax.scatter(principal_df.loc[i, 'principal component 1'], principal_df.loc[i, 'principal component 2'])
+        ax.legend(x.columns)
+        ax.grid()
+        plt.show()
+        plt.savefig(f'PCA-{omic}-{target}')

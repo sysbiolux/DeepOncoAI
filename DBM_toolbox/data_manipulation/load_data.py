@@ -9,6 +9,7 @@ from DBM_toolbox.data_manipulation import preprocessing
 
 def read_data(folder: str, omic: str, database: str, nrows: int = None):
     omic_root = omic.split("_")[0]
+    print(f'omic_root = {omic_root}')
     if database == "CCLE":
         filename = {
             "RNA": "CCLE_RNAseq_genes_rpkm_20180929.csv",
@@ -17,7 +18,7 @@ def read_data(folder: str, omic: str, database: str, nrows: int = None):
             "RPPA": "CCLE_RPPA_20181003.csv",
             "META": "CCLE_metabolomics_20190502.csv",
             "CNV": "placeholder",  # TODO: import file
-            "DNA": "CCLE_MUT_CNA_AMP_DEL_binary_Revealer.csv",  # TODO: import file
+            "DNA": "CCLE_MUT_CNA_AMP_DEL_binary_Revealer.csv",
             "DRUGS": "CCLE_NP24.2009_Drug_data_2015.02.24.csv",
             "CHROMATIN": "CCLE_GlobalChromatinProfiling_20181130.csv",
         }[omic_root]
@@ -55,6 +56,8 @@ def read_data(folder: str, omic: str, database: str, nrows: int = None):
         pass  ## TODO: test excel imports
 
     dataset = Dataset(dataframe=dataframe, omic=omic, database=database)
+
+    print('...pre-processing...')
 
     if omic_root == "DRUGS":
         dataset = preprocessing.reformat_drugs(dataset)

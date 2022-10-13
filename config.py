@@ -10,7 +10,6 @@ import xgboost as xgb
 from sklearn.linear_model import LogisticRegressionCV
 
 from DBM_toolbox.data_manipulation import load_data, preprocessing, dataset_class, filter_class, rule, data_utils
-#from DBM_toolbox.data_manipulation import dataset_class, filter_class, rule
 from DBM_toolbox.feature_engineering.predictors import combinations, components
 from DBM_toolbox.modeling import optimized_models, stacking, validation
 from DBM_toolbox.interpretation import feature_retrieval
