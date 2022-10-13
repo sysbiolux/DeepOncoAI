@@ -473,7 +473,8 @@ sns.swarmplot(data=df_x, x='LINC00226_AMP', y='Panobinostat_ActArea')
 df_x = df.loc[:, ['PRODH_DEL', 'Panobinostat_ActArea']].dropna()
 plt.figure()
 sns.swarmplot(data=df_x, x='PRODH_DEL', y='Panobinostat_ActArea')
-
+# ax = plt.gca()
+# sns.boxplot(data=df_x, x='PRODH_DEL', y='Panobinostat_ActArea', ax=ax)
 
 df_x = df.loc[:, ['beta-Catenin_pT41_S45', 'Panobinostat_ActArea']].dropna()
 plt.figure()
@@ -517,4 +518,4 @@ sns.regplot(data=df_x, x='hsa-miR-22_nmiR00251.1', y='Panobinostat_ActArea')
 
 df_x = df.loc[:, ['hsa-let-7e_nmiR00005.1', 'SKIN', 'Panobinostat_ActArea']].dropna()
 plt.figure()
-sns.lmplot(data=df_x, x='hsa-let-7e_nmiR00005.1', y='Panobinostat_ActArea')
+sns.regplot(data=df_x, x='hsa-let-7e_nmiR00005.1', y='Panobinostat_ActArea')
