@@ -22,500 +22,522 @@ ddf = data.dataframe
 t = datat.to_pandas(omic='TYPE')
 df = ddf.join(t)
 
+def plot_swarm(genelist, druglist, title, labels):
+    df_x = df.loc[:, genelist + druglist].dropna()
+    df_x[title] = (df_x.iloc[:, :-1]).sum(axis=1) > 0
+    plt.figure(figsize=(8,7))
+    ax = sns.swarmplot(data=df_x, x=title, y=druglist[0], linewidth=1)
+    sns.boxplot(data=df_x, x=title, y=druglist[0], ax=ax)
+    ax.set(xlabel=title)
+    ax.set_xticklabels(labels)
+    x1 = [df_x.loc[x, druglist[0]] for x in df_x.index if df_x.loc[x, title]]
+    x2 = [df_x.loc[x, druglist[0]] for x in df_x.index if not df_x.loc[x, title]]
+    t, p = sp.stats.ttest_ind(x1, x2)
+    ax.set(ylim=(-0.2, 8.8))
+    ax.text(0.35, 7.5, 't-test: p={:.2g}'.format(p))
+
+def plot_linreg(genelist, druglist, title):
+    df_x = df.loc[:, genelist + druglist].dropna()
+    plt.figure(figsize=(7,6))
+    ax = sns.regplot(data=df_x, x=genelist[0], y=druglist[0])
+    r, p = sp.stats.pearsonr(df_x[genelist[0]], df_x[druglist[0]])
+    ax.set(ylim=(-0.2, 8.8))
+    ax.text(0.35, 7.5, 'r={:.2f}, p={:.2g}'.format(r, p))
+    ax.set(xlabel=title)
+
 
 
 ############################### AZD6244 ##################
 
-df_x = df.loc[:, ['BRAF_MUT', 'BRAF.V600E_MUT', 'BRAF.MC_MUT', 'KRAS.G12_13_MUT', 'KRAS_MUT', 'NRAS_MUT',
-                  'AZD6244_ActArea']].dropna()
-df_x['Ras_RAF_MUT'] = (df_x.iloc[:, :-1]).sum(axis=1) > 0
-plt.figure()
-sns.swarmplot(data=df_x, x='Ras_RAF_MUT', y='AZD6244_ActArea')
-ax = plt.gca()
-x1 = [df_x.loc[x, 'AZD6244_ActArea'] for x in df_x.index if df_x.loc[x, 'Ras_RAF_MUT']]
-x2 = [df_x.loc[x, 'AZD6244_ActArea'] for x in df_x.index if not df_x.loc[x, 'Ras_RAF_MUT']]
-t, p = sp.stats.ttest_ind(x1, x2)
-ax.text(0.35, 6, 't-test: p={:.2g}'.format(p))
+genelist = ['BRAF_MUT', 'BRAF.V600E_MUT', 'BRAF.MC_MUT', 'KRAS.G12_13_MUT', 'KRAS_MUT', 'NRAS_MUT']
+druglist = ['AZD6244_ActArea']
+title = 'Ras-Raf'
+labels = ['WT', 'Mutated']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
 
-df_x = df.loc[:, ['OR4M2_DEL', 'OR4N4_DEL', 'OR2A7_AMP', 'OR2T10_DEL', 'AZD6244_ActArea']].dropna()
-df_x['OR_MUT'] = (df_x.iloc[:, :-1]).sum(axis=1) > 0
-plt.figure()
-sns.swarmplot(data=df_x, x='OR_MUT', y='AZD6244_ActArea')
-ax = plt.gca()
-x1 = [df_x.loc[x, 'AZD6244_ActArea'] for x in df_x.index if df_x.loc[x, 'OR_MUT']]
-x2 = [df_x.loc[x, 'AZD6244_ActArea'] for x in df_x.index if not df_x.loc[x, 'OR_MUT']]
-t, p = sp.stats.ttest_ind(x1, x2)
-ax.text(0.35, 6, 't-test: p={:.2g}'.format(p))
+genelist = ['OR4M2_DEL', 'OR4N4_DEL', 'OR2A7_AMP', 'OR2T10_DEL']
+title = 'OR_various'
+labels = ['No CNV', 'Amp or Del']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['GSTM1_DEL', 'AZD6244_ActArea']].dropna()
-plt.figure()
-sns.swarmplot(data=df_x, x='GSTM1_DEL', y='AZD6244_ActArea')
-ax = plt.gca()
-x1 = [df_x.loc[x, 'AZD6244_ActArea'] for x in df_x.index if df_x.loc[x, 'GSTM1_DEL']]
-x2 = [df_x.loc[x, 'AZD6244_ActArea'] for x in df_x.index if not df_x.loc[x, 'GSTM1_DEL']]
-t, p = sp.stats.ttest_ind(x1, x2)
-ax.text(0.35, 6, 't-test: p={:.2g}'.format(p))
+genelist = ['GSTM1_DEL']
+title = 'GSTM1'
+labels = ['normal', 'deleted']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
+genelist = ['ERBB4_DEL']
+title = 'ERBB4'
+labels = ['normal', 'deleted']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['ERBB4_DEL', 'AZD6244_ActArea']].dropna()
-plt.figure()
-sns.swarmplot(data=df_x, x='ERBB4_DEL', y='AZD6244_ActArea')
-ax = plt.gca()
-x1 = [df_x.loc[x, 'AZD6244_ActArea'] for x in df_x.index if df_x.loc[x, 'ERBB4_DEL']]
-x2 = [df_x.loc[x, 'AZD6244_ActArea'] for x in df_x.index if not df_x.loc[x, 'ERBB4_DEL']]
-t, p = sp.stats.ttest_ind(x1, x2)
-ax.text(0.35, 6, 't-test: p={:.2g}'.format(p))
+genelist = ['ETV4_ENSG00000175832.8']
+title = 'ETV4'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
+genelist = ['CMTM7_ENSG00000153551.9']
+title = 'CMTM7'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['ETV4_ENSG00000175832.8', 'AZD6244_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='ETV4_ENSG00000175832.8', y='AZD6244_ActArea')
-ax = plt.gca()
-r, p = sp.stats.pearsonr(df_x['ETV4_ENSG00000175832.8'], df_x['AZD6244_ActArea'])
-ax.text(0.35, 6.5, 'r={:.2f}, p={:.2g}'.format(r, p))
+genelist = ['S100A4_ENSG00000196154.7']
+title = 'S100A4'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
+genelist = ['Akt_pS473']
+title = 'phospho-Akt'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['CMTM7_ENSG00000153551.9', 'AZD6244_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='CMTM7_ENSG00000153551.9', y='AZD6244_ActArea')
-ax = plt.gca()
-r, p = sp.stats.pearsonr(df_x['CMTM7_ENSG00000153551.9'], df_x['AZD6244_ActArea'])
-ax.text(0.35, 6.5, 'r={:.2f}, p={:.2g}'.format(r, p))
+genelist = ['c-Jun_pS73']
+title = 'phospho-c-Jun'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['S100A4_ENSG00000196154.7', 'AZD6244_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='S100A4_ENSG00000196154.7', y='AZD6244_ActArea')
+genelist = ['MEK1_pS217_S221']
+title = 'phospho-MEK1'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['Akt_pS473', 'AZD6244_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='Akt_pS473', y='AZD6244_ActArea')
-ax = plt.gca()
-r, p = sp.stats.pearsonr(df_x['Akt_pS473'], df_x['AZD6244_ActArea'])
-ax.text(0.35, 6.5, 'r={:.2f}, p={:.2g}'.format(r, p))
+genelist = ['hsa-miR-130a_nmiR00132.1']
+title = 'miR-130a'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
+genelist = ['hsa-miR-1257_nmiR00070.1']
+title = 'miR-1257'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['c-Jun_pS73', 'AZD6244_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='c-Jun_pS73', y='AZD6244_ActArea')
+genelist = ['hsa-miR-1302_nmiR00125.1']
+title = 'miR-1302'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['hsa-miR-130a_nmiR00132.1', 'AZD6244_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-130a_nmiR00132.1', y='AZD6244_ActArea')
-ax = plt.gca()
-r, p = sp.stats.pearsonr(df_x['hsa-miR-130a_nmiR00132.1'], df_x['AZD6244_ActArea'])
-ax.text(0.35, 6.5, 'r={:.2f}, p={:.2g}'.format(r, p))
+for genelist in [[' IL-1'], [' VEGF'], [' TGFB'], [' MAPK_only']]:
+    title = genelist[0]
+    plot_linreg(genelist, druglist, title)
+    plt.savefig(f'Result_{druglist[0]}_{title}')
 
-
-df_x = df.loc[:, ['hsa-miR-1302_nmiR00125.1', 'AZD6244_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-1302_nmiR00125.1', y='AZD6244_ActArea')
-ax = plt.gca()
-r, p = sp.stats.pearsonr(df_x['hsa-miR-1302_nmiR00125.1'], df_x['AZD6244_ActArea'])
-ax.text(0.35, 6.5, 'r={:.2f}, p={:.2g}'.format(r, p))
-
-
-df_x = df.loc[:, ['C34:4 PC', 'AZD6244_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='C34:4 PC', y='AZD6244_ActArea')
 
 ################################ PD-0324901 #####################
 
-df_x = df.loc[:, ['BRAF_MUT', 'BRAF.V600E_MUT', 'BRAF.MC_MUT', 'KRAS.G12_13_MUT', 'KRAS_MUT', 'NRAS_MUT',
-                  'PD-0325901_ActArea']].dropna()
-df_x['Ras_RAF_MUT'] = (df_x.iloc[:, :-1]).sum(axis=1) > 0
-plt.figure()
-sns.swarmplot(data=df_x, x='Ras_RAF_MUT', y='PD-0325901_ActArea')
-
-df_x = df.loc[:, ['OR2T11_AMP', 'OR2T10_AMP', 'OR4N4_DEL', 'OR4M2_DEL', 'OR51A4_DEL', 'PD-0325901_ActArea']].dropna()
-df_x['OR_MUT'] = (df_x.iloc[:, :-1]).sum(axis=1) > 0
-plt.figure()
-sns.swarmplot(data=df_x, x='OR_MUT', y='PD-0325901_ActArea')
-
-df_x = df.loc[:, ['GSTM1_DEL', 'PD-0325901_ActArea']].dropna()
-plt.figure()
-sns.swarmplot(data=df_x, x='GSTM1_DEL', y='PD-0325901_ActArea')
-
-df_x = df.loc[:, ['KANK1_AMP', 'PD-0325901_ActArea']].dropna()
-plt.figure()
-sns.swarmplot(data=df_x, x='KANK1_AMP', y='PD-0325901_ActArea')
+genelist = ['BRAF_MUT', 'BRAF.V600E_MUT', 'BRAF.MC_MUT', 'KRAS.G12_13_MUT', 'KRAS_MUT', 'NRAS_MUT']
+druglist = ['PD-0325901_ActArea']
+title = 'Ras-Raf'
+labels = ['WT', 'Mutated']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
 
-df_x = df.loc[:, ['ETV4_ENSG00000175832.8', 'PD-0325901_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='ETV4_ENSG00000175832.8', y='PD-0325901_ActArea')
 
-df_x = df.loc[:, ['SPRY2_ENSG00000136158.6', 'PD-0325901_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='SPRY2_ENSG00000136158.6', y='PD-0325901_ActArea')
+genelist = ['OR2T11_AMP', 'OR2T10_AMP', 'OR4N4_DEL', 'OR4M2_DEL', 'OR51A4_DEL']
+title = 'OR_various'
+labels = ['No CNV', 'Amp or Del']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['TOR4A_ENSG00000198113.2', 'PD-0325901_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='TOR4A_ENSG00000198113.2', y='PD-0325901_ActArea')
+genelist = ['GSTM1_DEL']
+title = 'GSTM1'
+labels = ['Normal', 'Deleted']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['Akt_pS473', 'PD-0325901_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='Akt_pS473', y='PD-0325901_ActArea')
 
-df_x = df.loc[:, ['Chk2_pT68_Caution', 'PD-0325901_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='Chk2_pT68_Caution', y='PD-0325901_ActArea')
+genelist  = ['KANK1_AMP']
+title = 'KANK1'
+labels = ['Normal', 'Amplified']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['GABA', 'PD-0325901_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='GABA', y='PD-0325901_ActArea')
+genelist = ['ETV4_ENSG00000175832.8']
+title = 'ETV4'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['hsa-miR-34a_nmiR00324.1', 'PD-0325901_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-34a_nmiR00324.1', y='PD-0325901_ActArea')
+genelist = ['SPRY2_ENSG00000136158.6']
+title = 'SPRY2'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['hsa-miR-130a_nmiR00132.1', 'PD-0325901_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-130a_nmiR00132.1', y='PD-0325901_ActArea')
+genelist = ['TOR4A_ENSG00000198113.2']
+title = 'TOR4A'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
+genelist = ['Akt_pS473']
+title = 'phospho-Akt'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
+
+genelist = ['Chk2_pT68_Caution']
+title = 'phospho-Chk2'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
+
+genelist = ['GABA']
+title = 'GABA'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
+
+genelist = ['hsa-miR-34a_nmiR00324.1']
+title = 'miR-34a'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
+
+genelist = ['hsa-miR-130a_nmiR00132.1']
+title = 'miR-130a'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
 ############################ Lapatinib ###########################
 
-df_x = df.loc[:, ['OR51A2_DEL', 'OR51A4_DEL', 'OR2T35_AMP', 'Lapatinib_ActArea']].dropna()
-df_x['OR_MUT'] = (df_x.iloc[:, :-1]).sum(axis=1) > 0
-plt.figure()
-sns.swarmplot(data=df_x, x='OR_MUT', y='Lapatinib_ActArea')
+genelist  = ['OR51A2_DEL', 'OR51A4_DEL', 'OR2T35_AMP']
+druglist = ['Lapatinib_ActArea']
+title = 'OR various'
+labels = ['No CNV', 'Amp or Del']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['ZFP14_DEL', 'Lapatinib_ActArea']].dropna()
-plt.figure()
-sns.swarmplot(data=df_x, x='ZFP14_DEL', y='Lapatinib_ActArea')
+genelist  = ['ZFP14_DEL']
+title = 'ZFP14'
+labels = ['Normal', 'Deleted']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['TNK2_MUT', 'Lapatinib_ActArea']].dropna()
-plt.figure()
-sns.swarmplot(data=df_x, x='TNK2_MUT', y='Lapatinib_ActArea')
+genelist  = ['TNK2_MUT']
+title = 'TNK2'
+labels = ['WT', 'Mutated']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
+genelist = ['GPX3_ENSG00000211445.7']
+title = 'GPX3'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['GPX3_ENSG00000211445.7', 'Lapatinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='GPX3_ENSG00000211445.7', y='Lapatinib_ActArea')
+genelist = ['SYTL1_ENSG00000142765.13']
+title = 'STYL1'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['SYTL1_ENSG00000142765.13', 'Lapatinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='SYTL1_ENSG00000142765.13', y='Lapatinib_ActArea')
+genelist = ['HER2_pY1248_Caution']
+title = 'HER2'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['HER2_pY1248_Caution', 'Lapatinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='HER2_pY1248_Caution', y='Lapatinib_ActArea')
+genelist = ['creatine']
+title = 'creatine'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['EGFR', 'Lapatinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='EGFR', y='Lapatinib_ActArea')
+genelist = ['EGFR']
+title = 'EGFR'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['PAI-1', 'Lapatinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='PAI-1', y='Lapatinib_ActArea')
+genelist = ['PAI-1']
+title = 'PAI-1'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['creatine', 'Lapatinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='creatine', y='Lapatinib_ActArea')
+genelist = ['hsa-miR-558_nmiR00511.1']
+title = 'miR-558'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['2-deoxycytidine', 'Lapatinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='2-deoxycytidine', y='Lapatinib_ActArea')
+genelist = ['2-deoxycytidine']
+title = '2-deoxycytidine'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['hsa-miR-558_nmiR00511.1', 'Lapatinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-558_nmiR00511.1', y='Lapatinib_ActArea')
+genelist = ['hsa-miR-141_nmiR00151.1']
+title = 'miR-141'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['hsa-miR-216a_nmiR00244.1', 'Lapatinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-216a_nmiR00244.1', y='Lapatinib_ActArea')
-
-df_x = df.loc[:, ['hsa-miR-141_nmiR00151.1', 'Lapatinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-141_nmiR00151.1', y='Lapatinib_ActArea')
 
 
 ############################ Erlotinib ###############################
 
+druglist = ['Erlotinib_ActArea']
+genelist  = ['OR51A2_DEL', 'OR51A2_DEL', 'OR2T35_AMP']
+title = 'OR various'
+labels = ['No CNV', 'Amp or Del']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['OR51A2_DEL', 'OR51A2_DEL', 'OR2T35_AMP', 'Erlotinib_ActArea']].dropna()
-df_x['OR_MUT'] = (df_x.iloc[:, :-1]).sum(axis=1) > 0
-plt.figure()
-sns.swarmplot(data=df_x, x='OR_MUT', y='Erlotinib_ActArea')
+genelist  = ['NAALADL2_DEL']
+title = 'NAALADL2'
+labels = ['Normal', 'Deleted']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['NAALADL2_DEL', 'Erlotinib_ActArea']].dropna()
-plt.figure()
-sns.swarmplot(data=df_x, x='NAALADL2_DEL', y='Erlotinib_ActArea')
+genelist  = ['GALC_DEL']
+title = 'GALC'
+labels = ['Normal', 'Deleted']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['GALC_DEL', 'Erlotinib_ActArea']].dropna()
-plt.figure()
-sns.swarmplot(data=df_x, x='GALC_DEL', y='Erlotinib_ActArea')
-
-df_x = df.loc[:, ['FLNA_MUT', 'Erlotinib_ActArea']].dropna()
-plt.figure()
-sns.swarmplot(data=df_x, x='FLNA_MUT', y='Erlotinib_ActArea')
+genelist  = ['FLNA_MUT']
+title = 'FLNA'
+labels = ['WT', 'Mutated']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
 
+genelist = ['CORO2A_ENSG00000106789.8']
+title = 'CORO2A'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['CORO2A_ENSG00000106789.8', 'Erlotinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='CORO2A_ENSG00000106789.8', y='Erlotinib_ActArea')
+genelist = ['TSTD1_ENSG00000215845.6']
+title = 'TSTD1'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['TSTD1_ENSG00000215845.6', 'Erlotinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='TSTD1_ENSG00000215845.6', y='Erlotinib_ActArea')
+genelist = ['AKR1E2_ENSG00000165568.13']
+title = 'AKR1E2'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['AKR1E2_ENSG00000165568.13', 'Erlotinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='AKR1E2_ENSG00000165568.13', y='Erlotinib_ActArea')
+genelist = ['SYTL1_ENSG00000142765.13']
+title = 'SYTL1'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['SYTL1_ENSG00000142765.13', 'Erlotinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='SYTL1_ENSG00000142765.13', y='Erlotinib_ActArea')
+genelist = ['P-Cadherin_Caution']
+title = 'P-Cadherin'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['P-Cadherin_Caution', 'Erlotinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='P-Cadherin_Caution', y='Erlotinib_ActArea')
+genelist = ['C-Raf_pS338']
+title = 'phospho-C_Raf'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['C-Raf_pS338', 'Erlotinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='C-Raf_pS338', y='Erlotinib_ActArea')
+genelist = ['guanosine']
+title = 'guanosine'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['guanosine', 'Erlotinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='guanosine', y='Erlotinib_ActArea')
+genelist = ['hsa-miR-429_nmiR00367.2']
+title = 'miR-429'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['hsa-miR-429_nmiR00367.2', 'Erlotinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-429_nmiR00367.2', y='Erlotinib_ActArea')
+genelist = ['hsa-miR-548a-3p_nmiR00480.1']
+title = 'miR-548a-3p'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['hsa-miR-548a-3p_nmiR00480.1', 'Erlotinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-548a-3p_nmiR00480.1', y='Erlotinib_ActArea')
-
-df_x = df.loc[:, ['hsa-miR-216a_nmiR00244.1', 'Erlotinib_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-216a_nmiR00244.1', y='Erlotinib_ActArea')
-
+genelist = ['hsa-miR-216a_nmiR00244.1']
+title = 'miR-216a'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
 ############################# Irinotecan ####################################
 
+genelist = ['HLA-DRB6_AMP', 'HLA-DRB1_AMP', 'HLA-DRB5_AMP']
+druglist = ['Irinotecan_ActArea']
+title = 'HLA-DRB1/5/6'
+labels = ['No CNV', 'Amplified']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['HLA-DRB6_AMP', 'HLA-DRB1_AMP', 'HLA-DRB5_AMP', 'Irinotecan_ActArea']].dropna()
-df_x['HLA_AMP'] = (df_x.iloc[:, :-1]).sum(axis=1) > 0
-plt.figure()
-sns.swarmplot(data=df_x, x='HLA_AMP', y='Irinotecan_ActArea')
-x1 = [df_x.loc[x, 'Irinotecan_ActArea'] for x in df_x.index if df_x.loc[x, 'HLA_AMP']]
-x2 = [df_x.loc[x, 'Irinotecan_ActArea'] for x in df_x.index if not df_x.loc[x, 'HLA_AMP']]
-t, p = sp.stats.ttest_ind(x1, x2)
-ax = plt.gca()
-ax.text(0.35, 5.5, 't-test: p={:.2g}'.format(p))
+genelist = ['KRAS.G12_13_MUT', 'KRAS_MUT']
+title = 'KRAS'
+labels = ['WT', 'Mutated']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-
-df_x = df.loc[:, ['KRAS.G12_13_MUT', 'KRAS_MUT', 'Irinotecan_ActArea']].dropna()
-df_x['KRAS_MUT'] = (df_x.iloc[:, :-1]).sum(axis=1) > 0
-plt.figure()
-sns.swarmplot(data=df_x, x='KRAS_MUT', y='Irinotecan_ActArea')
-x1 = [df_x.loc[x, 'Irinotecan_ActArea'] for x in df_x.index if df_x.loc[x, 'KRAS_MUT']]
-x2 = [df_x.loc[x, 'Irinotecan_ActArea'] for x in df_x.index if not df_x.loc[x, 'KRAS_MUT']]
-t, p = sp.stats.ttest_ind(x1, x2)
-ax = plt.gca()
-ax.text(0.35, 5.5, 't-test: p={:.2g}'.format(p))
+genelist = ['FBXL7_DEL']
+title = 'FBXL7'
+labels = ['Normal', 'Deleted']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
 
-df_x = df.loc[:, ['FBXL7_DEL', 'Irinotecan_ActArea']].dropna()
-plt.figure()
-sns.swarmplot(data=df_x, x='FBXL7_DEL', y='Irinotecan_ActArea')
-x1 = [df_x.loc[x, 'Irinotecan_ActArea'] for x in df_x.index if df_x.loc[x, 'FBXL7_DEL']]
-x2 = [df_x.loc[x, 'Irinotecan_ActArea'] for x in df_x.index if not df_x.loc[x, 'FBXL7_DEL']]
-t, p = sp.stats.ttest_ind(x1, x2)
-ax = plt.gca()
-ax.text(0.35, 5.5, 't-test: p={:.2g}'.format(p))
+genelist = ['SLFN11_ENSG00000172716.12']
+title = 'SLFN11'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
+genelist = ['XIST_ENSG00000229807.5']
+title = 'XIST'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['SLFN11_ENSG00000172716.12', 'Irinotecan_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='SLFN11_ENSG00000172716.12', y='Irinotecan_ActArea')
-ax = plt.gca()
-r, p = sp.stats.pearsonr(df_x['SLFN11_ENSG00000172716.12'], df_x['Irinotecan_ActArea'])
-ax.text(2.5, 1, 'r={:.2f}, p={:.2g}'.format(r, p))
+genelist = ['HNRNPA1_ENSG00000135486.13']
+title = 'HNRNPA1'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
+genelist = ['Chk1_Caution']
+title = 'Chk1'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['XIST_ENSG00000229807.5', 'Irinotecan_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='XIST_ENSG00000229807.5', y='Irinotecan_ActArea')
-ax = plt.gca()
-r, p = sp.stats.pearsonr(df_x['XIST_ENSG00000229807.5'], df_x['Irinotecan_ActArea'])
-ax.text(0.35, 6.5, 'r={:.2f}, p={:.2g}'.format(r, p))
+genelist = ['alpha-hydroxybutyrate']
+title = 'alpha-hydroxybutyrate'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
+genelist = [' JAK-STAT']
+title = 'JAK-STAT_pathway'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['HNRNPA1_ENSG00000135486.13', 'Irinotecan_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='HNRNPA1_ENSG00000135486.13', y='Irinotecan_ActArea')
-ax = plt.gca()
-r, p = sp.stats.pearsonr(df_x['HNRNPA1_ENSG00000135486.13'], df_x['Irinotecan_ActArea'])
-ax.text(0.35, 6.5, 'r={:.2f}, p={:.2g}'.format(r, p))
+genelist = ['hsa-miR-574-5p_nmiR00526.1']
+title = 'miR-574-5p'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
+genelist = ['hsa-miR-608_nmiR00562.1']
+title = 'miR-608'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['Chk1_Caution', 'Irinotecan_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='Chk1_Caution', y='Irinotecan_ActArea')
-ax = plt.gca()
-r, p = sp.stats.pearsonr(df_x['Chk1_Caution'], df_x['Irinotecan_ActArea'])
-ax.text(0.7, 2.1, 'r={:.2f}, p={:.2g}'.format(r, p))
-
-
-df_x = df.loc[:, ['alpha-hydroxybutyrate', 'Irinotecan_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='alpha-hydroxybutyrate', y='Irinotecan_ActArea')
-ax = plt.gca()
-r, p = sp.stats.pearsonr(df_x['alpha-hydroxybutyrate'], df_x['Irinotecan_ActArea'])
-ax.text(0.58, 1, 'r={:.2f}, p={:.2g}'.format(r, p))
-
-
-df_x = df.loc[:, [' JAK-STAT', 'Irinotecan_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x=' JAK-STAT', y='Irinotecan_ActArea')
-ax = plt.gca()
-r, p = sp.stats.pearsonr(df_x[' JAK-STAT'], df_x['Irinotecan_ActArea'])
-ax.text(1.2, 1.65, 'r={:.2f}, p={:.2g}'.format(r, p))
-
-
-df_x = df.loc[:, ['hsa-miR-574-5p_nmiR00526.1', 'Irinotecan_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-574-5p_nmiR00526.1', y='Irinotecan_ActArea')
-ax = plt.gca()
-r, p = sp.stats.pearsonr(df_x['hsa-miR-574-5p_nmiR00526.1'], df_x['Irinotecan_ActArea'])
-ax.text(0.35, 6.5, 'r={:.2f}, p={:.2g}'.format(r, p))
-
-
-df_x = df.loc[:, ['hsa-miR-608_nmiR00562.1', 'Irinotecan_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-608_nmiR00562.1', y='Irinotecan_ActArea')
-ax = plt.gca()
-r, p = sp.stats.pearsonr(df_x['hsa-miR-608_nmiR00562.1'], df_x['Irinotecan_ActArea'])
-ax.text(0.35, 6.5, 'r={:.2f}, p={:.2g}'.format(r, p))
-
-
-df_x = df.loc[:, ['hsa-miR-22_nmiR00251.1', 'Irinotecan_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-22_nmiR00251.1', y='Irinotecan_ActArea')
-ax = plt.gca()
-r, p = sp.stats.pearsonr(df_x['hsa-miR-22_nmiR00251.1'], df_x['Irinotecan_ActArea'])
-ax.text(0.35, 5.5, 'r={:.2f}, p={:.2g}'.format(r, p))
-
-
+genelist = ['hsa-miR-22_nmiR00251.1']
+title = 'miR-22'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
 
 ############################### Paclitaxel ####################################
 
+genelist = ['EP300_MUT']
+druglist = ['Paclitaxel_ActArea']
+title = 'EP300'
+labels = ['WT', 'Mutated']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['EP300_MUT', 'Paclitaxel_ActArea']].dropna()
-plt.figure()
-sns.swarmplot(data=df_x, x='EP300_MUT', y='Paclitaxel_ActArea')
+genelist = ['ADAM5_DEL', 'ADAM3A_DEL']
+title = 'ADAM5/ADAM3A'
+labels = ['Normal', 'Deleted']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['ADAM5_DEL', 'ADAM3A_DEL', 'Paclitaxel_ActArea']].dropna()
-df_x['ADAM_DEL'] = (df_x.iloc[:, :-1]).sum(axis=1) > 0
-plt.figure()
-sns.swarmplot(data=df_x, x='ADAM_DEL', y='Paclitaxel_ActArea')
+genelist = ['ABCB1_ENSG00000085563.10']
+title = 'ABCB1'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['ABCB1_ENSG00000085563.10', 'Paclitaxel_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='ABCB1_ENSG00000085563.10', y='Paclitaxel_ActArea')
+genelist = ['LEPREL2_ENSG00000110811.15']
+title = 'LEPREL2'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
+genelist = ['XBP1_Caution']
+title = 'XBP1'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['LEPREL2_ENSG00000110811.15', 'Paclitaxel_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='LEPREL2_ENSG00000110811.15', y='Paclitaxel_ActArea')
+genelist = ['Bcl-xL']
+title = 'Bcl-xL'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-
-df_x = df.loc[:, ['XBP1_Caution', 'Paclitaxel_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='XBP1_Caution', y='Paclitaxel_ActArea')
-
-
-df_x = df.loc[:, ['Bcl-xL', 'Paclitaxel_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='Bcl-xL', y='Paclitaxel_ActArea')
-
-
-df_x = df.loc[:, ['AMPK_alpha_Caution', 'Paclitaxel_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='AMPK_alpha_Caution', y='Paclitaxel_ActArea')
+genelist = ['AMPK_alpha_Caution']
+title = 'AMPK_alpha'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
 
-df_x = df.loc[:, ['beta-alanine', 'Paclitaxel_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='beta-alanine', y='Paclitaxel_ActArea')
+genelist = ['hsa-miR-30a_nmiR00287.1']
+title = 'miR-30a'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
 
-df_x = df.loc[:, ['hsa-miR-30a_nmiR00287.1', 'Paclitaxel_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-30a_nmiR00287.1', y='Paclitaxel_ActArea')
+genelist = ['hsa-miR-607_nmiR00561.1']
+title = 'miR-607'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['hsa-miR-607_nmiR00561.1', 'Paclitaxel_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-607_nmiR00561.1', y='Paclitaxel_ActArea')
 
-df_x = df.loc[:, ['hsa-miR-22_nmiR00251.1', 'Paclitaxel_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-22_nmiR00251.1', y='Paclitaxel_ActArea')
+genelist = ['hsa-miR-22_nmiR00251.1']
+title = 'miR-22'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['hsa-let-7e_nmiR00005.1', 'Paclitaxel_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-let-7e_nmiR00005.1', y='Paclitaxel_ActArea')
+
+genelist = ['hsa-let-7e_nmiR00005.1']
+title = 'let-7e'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
 
 ############################# Panobinostat ######################################
 
+genelist = ['LINC00226_AMP']
+druglist = ['Panobinostat_ActArea']
+title = 'LINC00226'
+labels = ['Normal', 'Amplified']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
+
+genelist = ['PRODH_DEL']
+title = 'PRODH'
+labels = ['Normal', 'Deleted']
+plot_swarm(genelist, druglist, title, labels)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
 
-df_x = df.loc[:, ['LINC00226_AMP', 'Panobinostat_ActArea']].dropna()
-plt.figure()
-sns.swarmplot(data=df_x, x='LINC00226_AMP', y='Panobinostat_ActArea')
 
-df_x = df.loc[:, ['PRODH_DEL', 'Panobinostat_ActArea']].dropna()
-plt.figure()
-sns.swarmplot(data=df_x, x='PRODH_DEL', y='Panobinostat_ActArea')
-# ax = plt.gca()
-# sns.boxplot(data=df_x, x='PRODH_DEL', y='Panobinostat_ActArea', ax=ax)
+genelist = ['beta-Catenin_pT41_S45']
+title = 'phospho-beta-Catenin'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['beta-Catenin_pT41_S45', 'Panobinostat_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='beta-Catenin_pT41_S45', y='Panobinostat_ActArea')
+genelist = ['Akt_pS473']
+title = 'phospho-Akt'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['Akt_pS473', 'Panobinostat_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='Akt_pS473', y='Panobinostat_ActArea')
+genelist = ['1-methylnicotinamide']
+title = '1-methylnicotinamide'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['1-methylnicotinamide', 'Panobinostat_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='1-methylnicotinamide', y='Panobinostat_ActArea')
+genelist = ['alpha-glycerophosphate']
+title = 'alpha-glycerophosphate'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['alpha-glycerophosphate', 'Panobinostat_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='alpha-glycerophosphate', y='Panobinostat_ActArea')
+genelist = ['pantothenate']
+title = 'pantothenate'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['C22:6 CE', 'Panobinostat_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='C22:6 CE', y='Panobinostat_ActArea')
+genelist = ['hsa-miR-24_nmiR00261.1']
+title = 'miR-24'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['pantothenate', 'Panobinostat_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='pantothenate', y='Panobinostat_ActArea')
+genelist = ['hsa-let-7i_nmiR00008.1']
+title = 'let-7i'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['hsa-miR-24_nmiR00261.1', 'Panobinostat_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-24_nmiR00261.1', y='Panobinostat_ActArea')
+genelist = ['hsa-miR-320d_nmiR00297.2']
+title = 'miR-320d'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['hsa-let-7i_nmiR00008.1', 'Panobinostat_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-let-7i_nmiR00008.1', y='Panobinostat_ActArea')
+genelist = ['hsa-miR-22_nmiR00251.1']
+title = 'miR-22'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
 
-df_x = df.loc[:, ['hsa-miR-320d_nmiR00297.2', 'Panobinostat_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-320d_nmiR00297.2', y='Panobinostat_ActArea')
-
-df_x = df.loc[:, ['hsa-miR-22_nmiR00251.1', 'Panobinostat_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-miR-22_nmiR00251.1', y='Panobinostat_ActArea')
-
-df_x = df.loc[:, ['hsa-let-7e_nmiR00005.1', 'SKIN', 'Panobinostat_ActArea']].dropna()
-plt.figure()
-sns.regplot(data=df_x, x='hsa-let-7e_nmiR00005.1', y='Panobinostat_ActArea')
+genelist = ['hsa-let-7e_nmiR00005.1']
+title = 'let-7e'
+plot_linreg(genelist, druglist, title)
+plt.savefig(f'Result_{druglist[0]}_{title}')
