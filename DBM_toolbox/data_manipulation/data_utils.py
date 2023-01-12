@@ -3,6 +3,7 @@ import numpy as np
 import logging
 import _pickle
 
+
 def merge_and_clean(dataframe, series, axis=0):
     """
     Removes all rows that contain NaN values in either the dataframe or series
@@ -31,3 +32,21 @@ def recurse_to_float(weird_object):
             return recurse_to_float(weird_object[1])
         except:  # TODO: specify exception
             return recurse_to_float(weird_object[0])
+
+
+def pickle_objects(objects, location):
+    """pickle objects at location"""
+    with open(location, "wb") as f:
+        _pickle.dump(objects, f)
+    f.close()
+    return None
+
+
+def unpickle_objects(location):
+    """pickle objects at location"""
+    with open(location, "rb") as f:
+        try:
+            loaded_objects = _pickle.load(f)
+        except AttributeError:
+            loaded_objects = pd.read_pickle(f)
+    return loaded_objects

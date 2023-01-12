@@ -15,7 +15,6 @@
 ####################
 
 import logging
-from functions import unpickle_objects
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -57,7 +56,7 @@ logging.info("Merging engineered features")
 engineered_data = filtered_data.merge_with(engineered_features)
 
 logging.info("Quantizing targets")
-quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
+quantized_data = config.quantize(engineered_data, target_omic="DRUGS", ic50s=IC50s)
 
 final_data = quantized_data.normalize().optimize_formats()
 config.save(to_save=final_data, name="f_testmin_2_data")
