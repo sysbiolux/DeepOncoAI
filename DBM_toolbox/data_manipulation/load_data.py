@@ -9,7 +9,7 @@ from DBM_toolbox.data_manipulation import preprocessing
 
 def read_data(folder: str, omic: str, database: str, nrows: int = None):
     omic_root = omic.split("_")[0]
-    print(f'omic_root = {omic_root}')
+    print(f'omic = {omic_root}')
     if database == "CCLE":
         filename = {
             "RNA": "CCLE_RNAseq_genes_rpkm_20180929.csv",
@@ -42,7 +42,7 @@ def read_data(folder: str, omic: str, database: str, nrows: int = None):
             #             insert more here
         }[omic_root]
     else:
-        logging.info(f"Database not recognized: {database}")
+        logging.info(f"load_data.py/read_data: Database not recognized: {database}")
     file_string, file_extension = os.path.splitext(filename)
 
     print(f"file: {filename}")
@@ -62,7 +62,7 @@ def read_data(folder: str, omic: str, database: str, nrows: int = None):
     if omic_root == "DRUGS":
         dataset = preprocessing.reformat_drugs(dataset)
     else:
-        logging.info(f"Dataset loaded, pre-processing...")
+        logging.info(f"load_data.py/read_data: Dataset loaded, pre-processing...")
         dataset = preprocessing.preprocess_data(dataset)
-        logging.info(f"Dataset pre-processed")
+        logging.info(f"load_data.py/read_data: Dataset pre-processed")
     return dataset

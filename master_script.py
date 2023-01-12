@@ -1,3 +1,15 @@
+###################################################################################################################
+# DEEP-ONCO-AI is an analysis pipeline that trains a metaclassifier on the predictions of machine-learning algos  #
+# in order to predict the chemosensitivity of cell lines in the CCLE dataset. The first-level algos are trained   #
+# independently for each drug and omic type. Most important features of the most contributing algos are retrieved #
+# and used to form explainable classifiers. The contributions of the different omics is systematically examined.  #
+###################################################################################################################
+
+# Authors: Sebastien De Landtsheer: sebdelandtsheer@gmail.com
+#          Prof Thomas Sauter, University of Luxembourg
+
+# This version: January 2023
+
 ####################
 ### HOUSEKEEPING ###
 ####################
@@ -5,13 +17,10 @@
 import logging
 from functions import unpickle_objects
 import pandas as pd
-#import seaborn as sns
-#from matplotlib import pyplot as plt
+import seaborn as sns
+from matplotlib import pyplot as plt
 
-from config import Config
-
-# from DBM_toolbox.data_manipulation import dataset_class
-# from DBM_toolbox.interpretation import gsea
+from config import Config  # many operations are conducted from the Config class, as it has access to the config file
 
 logging.basicConfig(
     filename="run_repro.log",
@@ -21,7 +30,7 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 
-config = Config("testall/config.yaml")
+config = Config("testall/config.yaml")  # here is the path to the config file to be used in the analysis
 
 ###################################
 ### READING AND PROCESSING DATA ###

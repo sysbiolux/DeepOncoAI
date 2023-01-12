@@ -41,7 +41,7 @@ parse_selection_dict = {
     ),
 }
 
-parse_transformation_dict = {
+parse_transformation_dict = {  #TODO: remove this unnecessary part, we don't use transformations anymore
     "PCA": lambda dataframe, transformation, omic: components.get_PCs(
         dataframe, n_components=transformation["n_components"]
     ),
@@ -92,7 +92,7 @@ def parse_selection(selection: dict, omic: str, database: str):
         )
 
 
-def parse_transformations(dataframe, transformation: dict, omic: str, database: str):
+def parse_transformations(dataframe, transformation: dict, omic: str, database: str):  #TODO: remove this, no transformations anymore
     """
     Generates and computes a transformation if the option is enabled in the config file
     """
@@ -116,14 +116,13 @@ class Config:
 
     def read_data(self):
         """
-        Reads the data (omics and targets) according to the config file and assembles a Dataset
-        This method is called by 'load.py' which is called by the snakefile
+        Reads the data (omics and targets) according to the config file and assembles a Dataset class
         """
         nrows = self.raw_dict["data"].get("maximum_rows", None)
-        omic = self.raw_dict["data"]["omics"][0]
-        logging.info(f"Loading {omic['name']} from {omic['database']}:")
+        first_omic = self.raw_dict["data"]["omics"][0]
+        logging.info(f"config.py/read_data: Loading {first_omic['name']} from {first_omic['database']}")
         full_dataset = load_data.read_data(
-            "data", omic=omic["name"], database=omic["database"]
+            "data", omic=first_omic["name"], database=first_omic["database"]
         )
         logging.info(
             f"{full_dataset.dataframe.shape[0]} samples and {full_dataset.dataframe.shape[1]} features"
@@ -139,7 +138,7 @@ class Config:
             full_dataset = full_dataset.merge_with(additional_dataset)
 
         targets = self.raw_dict["data"]["targets"]
-        # logging.info(targets)
+        logging.info(targets)
         list_target_names_IC50 = []
         list_target_names_dr = []
         if targets is not None:
@@ -157,7 +156,7 @@ class Config:
                     # keywords=[target_name, target_metric],
                 )
                 # TODO: IC50s,ActAreas and dose_responses are computed for all additional datasets, is this not redundant?
-                IC50s = preprocessing.extract_IC50s(additional_dataset)
+                ic50s = preprocessing.extract_IC50s(additional_dataset)
                 ActAreas = preprocessing.extract_ActAreas(additional_dataset)
                 dose_responses = preprocessing.extract_dr(additional_dataset)
                 additional_dataset = preprocessing.select_drug_metric(
@@ -167,12 +166,13 @@ class Config:
                     f"{additional_dataset.dataframe.shape[0]} samples and {additional_dataset.dataframe.shape[1]} features"
                 )
                 full_dataset = full_dataset.merge_with(additional_dataset)
-            cols = [x for x in IC50s.columns if x in list_target_names_IC50]
-            IC50s = IC50s[cols]
+            cols = [x for x in ic50s.columns if x in list_target_names_IC50]
+            ic50s = ic50s[cols]
             cols = [x for x in dose_responses.columns if x in list_target_names_dr]
             dose_responses = dose_responses[cols]
             logging.info("Data fully loaded!")
-        return full_dataset, ActAreas, IC50s, dose_responses
+            print('...done...')
+        return full_dataset, ActAreas, ic50s, dose_responses
 
     def quantize(self, dataset, target_omic: str, quantiles=None, IC50s=None):
 
