@@ -185,26 +185,26 @@ class Dataset:
 
         return Dataset(dataframe=quantized_dataframe, omic=omic, database=database)
 
-    def data_threshold_quantize(self, target_omic: str, IC50s, thresholds):
+    def data_threshold_quantize(self, target_omic: str, ic50s, thresholds):
         omic = self.omic
         database = self.database
         dataframe = self.dataframe
-        binarized_IC50s = IC50s.copy()
+        binarized_ic50s = ic50s.copy()
         t_dataframe = self.to_pandas(omic="DRUGS")
         final_dataframe = t_dataframe.copy()
 
-        for target in IC50s.columns:
+        for target in ic50s.columns:
             print(target)
             this_threshold = thresholds[target.split("_")[0]]
             if not pd.isna(this_threshold):
-                binarized_IC50s[target] = 0.5
+                binarized_ic50s[target] = 0.5
                 # if -log(IC50) is higher than threshold, then the IC50 is low (sensitive) :
-                binarized_IC50s[target].mask(
-                    IC50s[target] > this_threshold, 1, inplace=True
+                binarized_ic50s[target].mask(
+                    ic50s[target] > this_threshold, 1, inplace=True
                 )
                 # if -log(IC50) is lower than threshold (resistant) :
-                binarized_IC50s[target].mask(
-                    IC50s[target] < this_threshold, 0, inplace=True
+                binarized_ic50s[target].mask(
+                    ic50s[target] < this_threshold, 0, inplace=True
                 )
 
         for target in t_dataframe.columns:

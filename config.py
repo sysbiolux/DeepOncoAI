@@ -202,7 +202,7 @@ class Config:
         )
 
         dataset = dataset.data_threshold_quantize(
-            target_omic=target_omic, IC50s=ic50s, thresholds=thresholds
+            target_omic=target_omic, ic50s=ic50s, thresholds=thresholds
         )
 
         return dataset

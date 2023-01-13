@@ -298,9 +298,9 @@ def impute_missing_data(dataframe, method: str = "average", threshold: float = N
     assert isinstance(dataframe, pd.DataFrame), "dataframe must be a pandas DataFrame"
     valid_methods = ["average", "null", "median", "neighbor", "zeros"]
     assert method in valid_methods, f"method must be one of {valid_methods}"
-    assert isinstance(threshold, float) and 0 <= threshold <= 1, "threshold must be a float between 0 and 1"
 
     if threshold is not None:
+        assert isinstance(threshold, float) and 0 <= threshold <= 1, "threshold must be a float between 0 and 1"
         df_copy = dataframe.copy()
         df_sum_missing = df_copy.isna().sum(axis=1)
         df_shape = df_copy.shape[1]
@@ -480,6 +480,11 @@ def extract_dr(dataset):
     new_dataframe = dataframe.loc[:, cols]
 
     # split the strings of values into numpy arrays
-    new_dataframe = new_dataframe.apply(lambda x: x.str.split(',').apply(lambda x: list(map(float, x)) if x.dtype == object else x))
+    for j, col in enumerate(new_dataframe.columns):
+        for i, idx in enumerate(new_dataframe.index):
+            this_item = new_dataframe.iloc[i, j]
+            if type(this_item) is str:
+                this_array = [float(x) for x in this_item.split(",")]
+                new_dataframe.iloc[i, j] = this_array
 
     return new_dataframe

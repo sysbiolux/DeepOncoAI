@@ -29,14 +29,14 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 
-config = Config("testall/config.yaml")  # here is the path to the config file to be used in the analysis
+config = Config("testall/config_toy.yaml")  # here is the path to the config file to be used in the analysis
 
 ###################################
 ### READING AND PROCESSING DATA ###
 ###################################
 
 logging.info("Reading data")
-data, ActAreas, IC50s, dose_responses = config.read_data()
+data, ActAreas, ic50s, dose_responses = config.read_data()
 
 # logging.info("Creating visualizations")
 # config.visualize_dataset(data, ActAreas, IC50s, dose_responses, mode="pre")
@@ -56,7 +56,7 @@ logging.info("Merging engineered features")
 engineered_data = filtered_data.merge_with(engineered_features)
 
 logging.info("Quantizing targets")
-quantized_data = config.quantize(engineered_data, target_omic="DRUGS", ic50s=IC50s)
+quantized_data = config.quantize(engineered_data, target_omic="DRUGS", ic50s=ic50s)
 
 final_data = quantized_data.normalize().optimize_formats()
 config.save(to_save=final_data, name="f_testmin_2_data")
@@ -67,7 +67,7 @@ missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axi
 
 logging.info("Getting optimized models")
 
-# trained_models = config.get_models(dataset=final_data, method="standard")
+trained_models = config.get_models(dataset=final_data, method="standard")
 # config.save(to_save=trained_models, name="f_test67_2_models")
 # preds = config.loo(final_data)
 # config.save(to_save=preds, name="f_test77_preds")
