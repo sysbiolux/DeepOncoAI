@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
-from DBM_toolbox.data_manipulation import data_utils
+from DBM_toolbox.data_manipulation import data_utils, dataset_class
 
 from config import Config  # many operations are conducted from the Config class, as it has access to the config file
 
@@ -77,6 +77,12 @@ logging.info("Getting optimized models")
 trained_models = config.get_models(dataset=final_data, method="standard")
 config.save(to_save=trained_models, name="f_test_toy_models")
 
+########################## to load previous data
+
+final_data = data_utils.unpickle_objects('f_test_toy_data_2023-01-13-14-12-26-332386.pkl')
+trained_models = data_utils.unpickle_objects('f_test_toy_models_2023-01-13-15-06-40-285899.pkl')
+
+
 final_results = dict()
 feature_importances = dict()
 base_models = dict()
@@ -85,11 +91,17 @@ tprs = dict()
 roc_aucs = dict()
 
 data = [x for x in final_data.dataframe.columns if 'ActArea' not in x]
+l = len(data)
 targets = [x for x in final_data.dataframe.columns if 'ActArea' in x]
+omics = final_data.omic[data]
+
 
 for target in targets:
     base_models[target] = dict()
-    this_df = pd.concat([final_data.dataframe[data], final_data.dataframe[target]], axis=1).to_binary(target=target)
+    omics[target] = 'DRUGS'
+    this_df = pd.concat([final_data.dataframe[data], final_data.dataframe[target]], axis=1)
+    this_df = dataset_class.Dataset(this_df, omic=omics, database='x')
+    this_df = this_df.to_binary(target=target)
 
     n_samples = len(this_df.dataframe.index)
     split_size = np.floor(n_samples / outer_folds)
@@ -100,9 +112,7 @@ for target in targets:
     inner_train_idx = dict()
     inner_test_idx = dict()
     feature_importances[target] = dict()
-    final_results[target] = pd.DataFrame(this_df[target].copy())  # truth
-
-    # trained_models = config.get_models(dataset=final_data, method="standard")
+    final_results[target] = pd.DataFrame(this_df.dataframe[target].copy())  # truth
 
     for outer_loop in range(outer_folds):
         feature_importances[target][outer_loop] = dict()
@@ -123,7 +133,7 @@ for target in targets:
         inner_test_idx[outer_loop] = dict()
         base_models[target][outer_loop] = dict()
 
-        first_level_preds = pd.DataFrame(this_df[target].copy())  # truth
+        first_level_preds = pd.DataFrame(this_df.dataframe[target].copy())  # truth
 
         for inner_loop in range(inner_folds):
             print(f"target: {target}, out: {outer_loop+1}/{outer_folds}, in: {inner_loop+1}/{inner_folds}")
@@ -190,6 +200,24 @@ for target in targets:
         test_labels = first_level_preds.loc[outer_test_idx[outer_loop], cols[0]]
         train_features, train_labels = data_utils.merge_and_clean(train_features, train_labels)
 
+        for algo in trained_models[target][omic].keys():
+            this_model = trained_models[target][omic][algo]['estimator']
+            this_model.fit(train_features, train_labels)
+            try:
+                this_predictions = this_model.predict_proba(test_features)
+                this_predictions = this_predictions[:, 1]
+            except:
+                this_predictions = this_model.predict(test_features)
+            try:
+                f_imp = this_model.feature_importances_
+            except:
+                f_imp = np.nan
+            feature_importances[target][outer_loop][algo] = pd.DataFrame(f_imp, index=this_model.feature_names_in_, columns=[algo])
+            final_results[target].loc[outer_test_idx[outer_loop], 'pred2_' + algo] = this_predictions
 
+    omics = omics.drop(target)
 
+config.save(to_save=final_results, name="f_test_toy_final_results")
+config.save(to_save=feature_importances, name="f_test_toy_features")
+config.save(to_save=base_models, name="f_test_toy_base_models")
 
