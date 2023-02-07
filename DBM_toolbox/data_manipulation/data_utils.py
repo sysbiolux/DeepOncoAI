@@ -4,18 +4,22 @@ import logging
 import _pickle
 
 
-def merge_and_clean(dataframe, series, axis=0):
+def merge_and_clean(dataframe, series):
     """
     Removes all rows that contain NaN values in either the dataframe or series
     and returns the cleaned dataframe and series.
     """
     # drop na values
-    new_df = dataframe.dropna(axis=axis)
+    new_df = dataframe.dropna(axis=0)
     new_series = series.dropna()
 
+    common_index = new_df.index.intersection(new_series.index)
+    new_df = new_df.loc[common_index]
+    new_series = new_series.loc[common_index]
+
     # print log
-    npos = sum(series == 1)
-    nneg = sum(series == 0)
+    npos = sum(new_series == 1)
+    nneg = sum(new_series == 0)
     n_dropped = dataframe.shape[0] - new_df.shape[0]
     logging.info(f"X: {new_df.shape[0]} samples and {new_df.shape[1]} features")
     logging.info(f"y: {new_series.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")

@@ -8,7 +8,7 @@
 # Authors: Sebastien De Landtsheer: sebdelandtsheer@gmail.com
 #          Prof Thomas Sauter, University of Luxembourg
 
-# This version: January 2023
+# This version: February 2023
 
 ####################
 ### HOUSEKEEPING ###
@@ -24,7 +24,7 @@ from DBM_toolbox.data_manipulation import data_utils, dataset_class
 from config import Config  # many operations are conducted from the Config class, as it has access to the config file
 
 logging.basicConfig(
-    filename="run_repro.log",
+    filename="run_toy_feb_01.log",
     level=logging.INFO,
     filemode="w",
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -36,7 +36,7 @@ rng = np.random.default_rng(42)
 outer_folds = 10
 inner_folds = 10
 
-config = Config("testall/config_toy.yaml")  # here is the path to the config file to be used in the analysis
+config = Config("testall/config_toy2.yaml")  # here is the path to the config file to be used in the analysis
 
 ###################################
 ### READING AND PROCESSING DATA ###
@@ -45,6 +45,10 @@ config = Config("testall/config_toy.yaml")  # here is the path to the config fil
 logging.info("Reading data")
 data, ActAreas, ic50s, dose_responses = config.read_data()
 
+lung_samples = [x for x in data.dataframe.index if 'LUNG' in x]
+not_lung_samples = [x for x in data.dataframe.index if 'LUNG' not in x]
+
+actual_data, not_necessary = data.split(train_index= lung_samples, test_index=not_lung_samples)
 # logging.info("Creating visualizations")
 # config.visualize_dataset(data, ActAreas, IC50s, dose_responses, mode="pre")
 
@@ -66,7 +70,7 @@ logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", ic50s=ic50s)
 
 final_data = quantized_data.normalize().optimize_formats()
-config.save(to_save=final_data, name="f_test_toy_data")
+config.save(to_save=final_data, name="f_test_toy_Apurva_data")
 
 missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axis=0)]
 
@@ -79,8 +83,8 @@ config.save(to_save=trained_models, name="f_test_toy_models")
 
 ########################## to load previous data
 
-final_data = data_utils.unpickle_objects('f_test_toy_data_2023-01-13-14-12-26-332386.pkl')
-trained_models = data_utils.unpickle_objects('f_test_toy_models_2023-01-13-15-06-40-285899.pkl')
+final_data = data_utils.unpickle_objects('f_test_toy_data_2023-02-07-10-38-42-399466.pkl')
+trained_models = data_utils.unpickle_objects('f_test_toy_models_2023-02-07-11-01-43-480178.pkl')
 
 
 final_results = dict()
@@ -201,19 +205,20 @@ for target in targets:
         train_features, train_labels = data_utils.merge_and_clean(train_features, train_labels)
 
         for algo in trained_models[target][omic].keys():
-            this_model = trained_models[target][omic][algo]['estimator']
-            this_model.fit(train_features, train_labels)
-            try:
-                this_predictions = this_model.predict_proba(test_features)
-                this_predictions = this_predictions[:, 1]
-            except:
-                this_predictions = this_model.predict(test_features)
-            try:
-                f_imp = this_model.feature_importances_
-            except:
-                f_imp = np.nan
-            feature_importances[target][outer_loop][algo] = pd.DataFrame(f_imp, index=this_model.feature_names_in_, columns=[algo])
-            final_results[target].loc[outer_test_idx[outer_loop], 'pred2_' + algo] = this_predictions
+            if algo == 'RFC':
+                this_model = trained_models[target][omic][algo]['estimator']
+                this_model.fit(train_features, train_labels)
+                try:
+                    this_predictions = this_model.predict_proba(test_features)
+                    this_predictions = this_predictions[:, 1]
+                except:
+                    this_predictions = this_model.predict(test_features)
+                try:
+                    f_imp = this_model.feature_importances_
+                except:
+                    f_imp = np.nan
+                feature_importances[target][outer_loop][algo] = pd.DataFrame(f_imp, index=this_model.feature_names_in_, columns=[algo])
+                final_results[target].loc[outer_test_idx[outer_loop], 'pred2_' + algo] = this_predictions
 
     omics = omics.drop(target)
 

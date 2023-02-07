@@ -128,6 +128,7 @@ class Config:
             f"{full_dataset.dataframe.shape[0]} samples and {full_dataset.dataframe.shape[1]} features"
         )
         for omic in self.raw_dict["data"]["omics"][1:]:
+            print(omic)
             logging.info(f"Loading {omic['name']} from {omic['database']}:")
             additional_dataset = load_data.read_data(
                 "data", omic=omic["name"], database=omic["database"], nrows=nrows

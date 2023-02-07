@@ -34,11 +34,11 @@ def read_data(folder: str, omic: str, database: str, nrows: int = None):
     elif database == "OWN":
         filename = {
             "PATHWAYS": "SPEED_Scores_namechange.csv",
-            "EIGENVECTOR": "LungColonSkin_EigenvectorHPC.csv",
-            "BETWEENNESS": "LungColonSkin_Bet_cent_HPC.csv",
+            "EIGENVECTOR": "LUNG_eigen.csv",
+            "BETWEENNESS": "LUNG_betweenness.csv",
             "CLOSENESS": "LungColonSkin_ClosenessHPC.csv",
             "PAGERANK": "LungColonSkin_PageRankHPC.csv",
-            "AVNEIGHBOUR": "LungColonSkin_Av_neighbour.csv",
+            "AVNEIGHBOUR": "LUNG_Avg_neighbor.csv",
             #             insert more here
         }[omic_root]
     else:

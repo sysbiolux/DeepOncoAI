@@ -4,7 +4,7 @@ import numpy as np
 
 from config import Config
 from sklearn.metrics import roc_curve, auc
-from functions import pickle_objects, unpickle_objects
+# from functions import pickle_objects, unpickle_objects
 from DBM_toolbox.data_manipulation import data_utils
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
@@ -194,8 +194,8 @@ for n in [0, 1, 2, 3, 4, 5, 22]:
 
 #################################################
 
-base_models = unpickle_objects('base_models_2022-09-21-06-48-52-057051.pkl')
-final_data = unpickle_objects('f_testall_data_' + '01' + '.pkl')
+# base_models = data_utils.unpickle_objects('base_models_2022-09-21-06-48-52-057051.pkl')
+# final_data = data_utils.unpickle_objects('f_testall_data_' + '01' + '.pkl')
 
 res = dict()
 for target in base_models.keys():

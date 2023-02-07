@@ -224,12 +224,12 @@ def preprocess_features_pathway(dataset, flag: str = None):
 
 def preprocess_features_eigenvector(dataset, flag: str = None):
     df = dataset.dataframe
-    df = df.drop("Unnamed: 0", axis=1).set_index(["Gene"]).transpose()
+    df = df.set_index(["Gene"]).transpose()
     #    df.index = [idx[6:-11] for idx in df.index]
-    df.index = [idx.rsplit("_", 1)[0].split("_", 1)[1] for idx in df.index]
+    # df.index = [idx.rsplit("_", 1)[0] for idx in df.index]
     df = df.add_suffix("_topo_eig")
     df = impute_missing_data(df, method="zeros")
-    df = impute_missing_data(df, method="zeros", threshold=0.9)
+    # df = impute_missing_data(df, method="zeros", threshold=0.9)
 
     # additional steps if necessary
     return dataset_class.Dataset(df, omic="EIGENVECTOR", database="OWN")
@@ -238,11 +238,11 @@ def preprocess_features_eigenvector(dataset, flag: str = None):
 def preprocess_features_betweenness(dataset, flag: str = None):
     # @Apurva
     df = dataset.dataframe
-    df = df.drop("Unnamed: 0", axis=1).set_index(["Gene"]).transpose()
-    df.index = [idx[12:-11] for idx in df.index]
-    df.index = [idx.rsplit("_", 1)[0].split("_", 1)[1] for idx in df.index]
+    df = df.set_index(["Gene"]).transpose()
+    # df.index = [idx[12:-11] for idx in df.index]
+    # df.index = [idx.rsplit("_", 1)[0].split("_", 1)[1] for idx in df.index]
     df = df.add_suffix("_topo_bet")
-    df = impute_missing_data(df, method="zeros", threshold=0.9)
+    df = impute_missing_data(df, method="zeros")
     # additional steps if necessary
     return dataset_class.Dataset(df, omic="BETWEENNESS", database="OWN")
 
@@ -254,7 +254,7 @@ def preprocess_features_closeness(dataset, flag: str = None):
     #     df.index = [idx[10:-11] for idx in df.index]
     df.index = [idx.rsplit("_", 1)[0].split("_", 1)[1] for idx in df.index]
     df = df.add_suffix("_topo_clo")
-    #     df = impute_missing_data(df, method='zeros')
+    df = impute_missing_data(df, method='zeros')
     # additional steps if necessary
     return dataset_class.Dataset(df, omic="CLOSENESS", database="OWN")
 
@@ -274,11 +274,11 @@ def preprocess_features_pagerank(dataset, flag: str = None):
 def preprocess_features_avneighbour(dataset, flag: str = None):
     # @Apurva
     df = dataset.dataframe
-    df = df.drop("Unnamed: 0", axis=1).set_index(["Gene"]).transpose()
+    df = df.set_index(["Gene"]).transpose()
     #     df.index = [idx[10:-11] for idx in df.index]
-    df.index = [idx.split("_", 2)[2].rsplit("_", 1)[0] for idx in df.index]
+    # df.index = [idx.split("_", 2)[2].rsplit("_", 1)[0] for idx in df.index]
     df = df.add_suffix("_topo_avngb")
-    #     df = impute_missing_data(df, method='zeros')
+    df = impute_missing_data(df, method='zeros')
     # additional steps if necessary
     return dataset_class.Dataset(df, omic="AVNEIGHBOUR", database="OWN")
 
@@ -309,7 +309,7 @@ def impute_missing_data(dataframe, method: str = "average", threshold: float = N
         new_dataframe = df_copy[df_copy["frac"] > threshold].drop(columns=["frac"])
         df_unselected = df_copy[df_copy["frac"] <= threshold].drop(columns=["frac"])
     else:
-        new_dataframe = dataframe
+        new_dataframe = dataframe.copy()
         df_unselected = None
     if method == 'average':
         new_dataframe = new_dataframe.fillna(new_dataframe.mean())
