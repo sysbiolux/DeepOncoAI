@@ -70,7 +70,7 @@ logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", ic50s=ic50s)
 
 final_data = quantized_data.normalize().optimize_formats()
-config.save(to_save=final_data, name="f_test_toy_Apurva_data")
+config.save(to_save=final_data, name="f_test_topo_1")
 
 missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axis=0)]
 
