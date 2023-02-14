@@ -24,7 +24,7 @@ from DBM_toolbox.data_manipulation import data_utils, dataset_class
 from config import Config  # many operations are conducted from the Config class, as it has access to the config file
 
 logging.basicConfig(
-    filename="run_toy_feb_01.log",
+    filename="run_paper.log",
     level=logging.INFO,
     filemode="w",
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -36,7 +36,7 @@ rng = np.random.default_rng(42)
 outer_folds = 10
 inner_folds = 10
 
-config = Config("testall/config_toy2.yaml")  # here is the path to the config file to be used in the analysis
+config = Config("testall/config_paper.yaml")  # here is the path to the config file to be used in the analysis
 
 ###################################
 ### READING AND PROCESSING DATA ###
@@ -44,13 +44,6 @@ config = Config("testall/config_toy2.yaml")  # here is the path to the config fi
 
 logging.info("Reading data")
 data, ActAreas, ic50s, dose_responses = config.read_data()
-
-lung_samples = [x for x in data.dataframe.index if 'LUNG' in x]
-not_lung_samples = [x for x in data.dataframe.index if 'LUNG' not in x]
-
-actual_data, not_necessary = data.split(train_index= lung_samples, test_index=not_lung_samples)
-# logging.info("Creating visualizations")
-# config.visualize_dataset(data, ActAreas, IC50s, dose_responses, mode="pre")
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
@@ -70,7 +63,7 @@ logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", ic50s=ic50s)
 
 final_data = quantized_data.normalize().optimize_formats()
-config.save(to_save=final_data, name="f_test_toy_Apurva_data")
+config.save(to_save=final_data, name="FINAL_preprocessed_data")
 
 missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axis=0)]
 
@@ -79,12 +72,12 @@ missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axi
 logging.info("Getting optimized models")
 
 trained_models = config.get_models(dataset=final_data, method="standard")
-config.save(to_save=trained_models, name="f_test_toy_models")
+config.save(to_save=trained_models, name="FINAL_pre-models")
 
 ########################## to load previous data
 
-final_data = data_utils.unpickle_objects('f_test_toy_data_2023-02-07-10-38-42-399466.pkl')
-trained_models = data_utils.unpickle_objects('f_test_toy_models_2023-02-07-11-01-43-480178.pkl')
+# final_data = data_utils.unpickle_objects('f_test_toy_data_2023-02-07-10-38-42-399466.pkl')
+# trained_models = data_utils.unpickle_objects('f_test_toy_models_2023-02-07-11-01-43-480178.pkl')
 
 
 final_results = dict()
@@ -222,7 +215,7 @@ for target in targets:
 
     omics = omics.drop(target)
 
-config.save(to_save=final_results, name="f_test_toy_final_results")
-config.save(to_save=feature_importances, name="f_test_toy_features")
-config.save(to_save=base_models, name="f_test_toy_base_models")
+config.save(to_save=final_results, name="FINAL_results")
+config.save(to_save=feature_importances, name="FINAL_featimp")
+config.save(to_save=base_models, name="FINAL_base-models")
 
