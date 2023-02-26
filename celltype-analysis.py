@@ -8,7 +8,6 @@ from matplotlib import pyplot as plt
 from DBM_toolbox.data_manipulation.data_utils import pickle_objects, unpickle_objects
 from sklearn.metrics import roc_curve, auc
 import seaborn as sns
-import colorlover as cl
 
 
 
@@ -144,7 +143,6 @@ for target_name in targets_names:
 ###################################################################
 
 fi = unpickle_objects('FINAL_featimp_2023-02-20-12-35-21-592650.pkl')
-base_models = unpickle_objects('FINAL_base-models_2023-02-20-12-35-21-611629.pkl')
 
 fi_names = fi['Lapatinib_ActArea'][0]['RFC'].index
 
@@ -159,13 +157,54 @@ for target_name, target_dict in fi.items():
 
 colnames = res_fi.columns
 colnames = ['+'.join(x.split('_')[1:]) for x in colnames]
+indexnames = res_fi.index
+indexnames = [x.split('_')[0] for x in indexnames]
 
 res_fi.columns = colnames
+res_fi.index = indexnames
 
-palette = cl.scales['10']['div']['Spectral']
+res_fi.to_csv('FINAL_RFC_contributions_table.csv')
 
-# Create the heatmap using seaborn
-sns.heatmap(res_fi, cmap=palette, annot=True, fmt='.2f')
+fig, ax = plt.subplots(figsize=(20, 11))
+sns.heatmap(res_fi, cmap=sns.color_palette("rocket", as_cmap=True), annot=False, fmt='.2f', ax=ax)
+plt.savefig('FINAL_RFC_contributions')
+plt.close()
 
-# Display the heatmap
-plt.show()
+
+sns.clustermap(res_fi, cmap=sns.color_palette("rocket", as_cmap=True), figsize=(20, 11))
+plt.savefig('FINAL_RFC_contributions_cluster')
+plt.close()
+
+#############################################################################
+
+base_models = unpickle_objects('FINAL_base-models_2023-02-20-12-35-21-611629.pkl')
+dataset = unpickle_objects('FINAL_preprocessed_data_2023-02-16-10-30-39-935233.pkl')
+omics_list = ['RPPA', 'RNA', 'MIRNA', 'META', 'DNA', 'PATHWAYS', 'TYPE']
+features_names_dict = {}
+for omic in omics_list:
+    features_names_dict[omic] = list(dataset.to_pandas(omic=omic).columns)
+all_features_names = list(dataset.extract(omics_list=omics_list).dataframe.columns)
+targets_names = base_models.keys()
+
+fi_dict = {}
+
+for target_name, target_dict in base_models.items():
+    rr = pd.DataFrame(columns=all_features_names)
+    idx = 0
+    for loop1_number, loop1_dict in target_dict.items():
+        for loop2_number, loop2_dict in loop1_dict.items():
+            for omic_name, omic_dict in loop2_dict.items():
+                for algo_name, algo_data in omic_dict.items():
+                    if not algo_name in ['Ridge', 'KNN', 'SVC']:
+                        if algo_name in ['SVM', 'Logistic', 'EN']:
+                            algo_data = algo_data[0]
+                        print(f'{target_name}/{loop1_number}/{loop2_number}/{omic_name}/{algo_name}')
+
+                        sorted_indices = np.argsort(-algo_data)
+                        ranks = np.empty_like(sorted_indices)
+                        ranks[sorted_indices] = np.arange(len(algo_data))
+                        rr.loc[idx, features_names_dict[omic_name]] = ranks
+                        idx += 1
+
+    rr.loc['average', :] = rr.mean(axis=0)
+    fi_dict[target_name] = rr
