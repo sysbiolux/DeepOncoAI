@@ -54,9 +54,9 @@ exp = [x + '_N' for x in drugs_list]
 df_all = pd.DataFrame(index=tumors_list, columns=drugs_list + exp)
 df_pos = pd.DataFrame(index=tumors_list, columns=drugs_list + exp)
 df_neg = pd.DataFrame(index=tumors_list, columns=drugs_list + exp)
-df_mcc = pd.DataFrame(index=tumors_list, columns=drugs_list + exp)
 df_prec = pd.DataFrame(index=tumors_list, columns=drugs_list + exp)
 df_recall = pd.DataFrame(index=tumors_list, columns=drugs_list + exp)
+df_ba = pd.DataFrame(index=tumors_list, columns=drugs_list + exp)
 
 for drug in drugs_list:
     for tumor in tumors_list:
@@ -85,18 +85,34 @@ for drug in drugs_list:
                 df_prec.loc[tumor, drug] = res.loc[:, 'tp'].sum().sum().astype(int) / (res.loc[:, 'pp'].astype(int)).sum().sum()
                 df_recall.loc[tumor, drug] = res.loc[:, 'tp'].sum().sum().astype(int) / (res.loc[:, 'tp'].astype(int) + res.loc[:, 'fn'].astype(int)).sum().sum()
                 df_all.loc[tumor, drug] = res.loc[:, ['tp', 'tn']].sum().sum().astype(int) / N_all
-                # df_mcc.loc[tumor, drug] = res['tp']*res['tn'] - res['fp']*res['fn'] / np.sqrt()
+                tpr = (res.loc[:, 'tp'].sum().sum().astype(int) / res.loc[:, ['tp', 'fn']].sum().sum().astype(int))
+                tnr = (res.loc[:, 'tn'].sum().sum().astype(int) / res.loc[:, ['tn', 'fp']].sum().sum().astype(int))
+                df_ba.loc[tumor, drug] = (tpr + tnr) / 2
+
 df_pos = df_pos.dropna(how='all')
 df_neg = df_neg.dropna(how='all')
 df_all = df_all.dropna(how='all')
 df_prec = df_prec.dropna(how='all')
 df_recall = df_recall.dropna(how='all')
+df_ba = df_ba.dropna(axis=1, how='all')
 
 df_pos.to_csv('FINAL_celltype_results_pos.csv')
 df_neg.to_csv('FINAL_celltype_results_neg.csv')
 df_all.to_csv('FINAL_celltype_results_all.csv')
 df_prec.to_csv('FINAL_celltype_results_prec.csv')
 df_recall.to_csv('FINAL_celltype_results_recall.csv')
+df_ba.to_csv('FINAL_celltype_results_bal-accuracy.csv')
+
+df_ba = df_ba.apply(pd.to_numeric, errors='coerce')
+
+fig, ax = plt.subplots(figsize=(25, 15))
+sns.heatmap(df_ba, cmap=sns.color_palette("rocket", as_cmap=True), annot=True, fmt='.2f', linewidths=.1, ax=ax)
+plt.xlabel('')
+plt.savefig('FINAL_balanced_accuracy')
+plt.close()
+
+
+
 
 #####################################################################
 ##################| ROC Curves
@@ -141,20 +157,23 @@ for target_name in targets_names:
 
 
 ###################################################################
+### clustergrams
 
 fi = unpickle_objects('FINAL_featimp_2023-02-20-12-35-21-592650.pkl')
 
 fi_names = fi['Lapatinib_ActArea'][0]['RFC'].index
 
 res_fi = pd.DataFrame(0, columns=fi_names, index=fi.keys())
+res_sd = pd.DataFrame(0, columns=fi_names, index=fi.keys())
 
 for target_name, target_dict in fi.items():
     these_means = pd.Series()
     for loop_number, loop_dict in target_dict.items():
         these_means = pd.concat([these_means, loop_dict['RFC']], axis=1)
     this_mean = these_means.mean(axis=1)
+    this_sd = these_means.std(axis=1)
     res_fi.loc[target_name, :] = this_mean
-
+    res_sd.loc[target_name, :] = this_sd
 colnames = res_fi.columns
 colnames = ['+'.join(x.split('_')[1:]) for x in colnames]
 indexnames = res_fi.index
@@ -162,17 +181,56 @@ indexnames = [x.split('_')[0] for x in indexnames]
 
 res_fi.columns = colnames
 res_fi.index = indexnames
+res_sd.columns = colnames
+res_sd.index = indexnames
+
 
 res_fi.to_csv('FINAL_RFC_contributions_table.csv')
+res_sd.to_csv('FINAL_RFC_contributions_sd_table.csv')
 
 fig, ax = plt.subplots(figsize=(20, 11))
 sns.heatmap(res_fi, cmap=sns.color_palette("rocket", as_cmap=True), annot=False, fmt='.2f', ax=ax)
 plt.savefig('FINAL_RFC_contributions')
 plt.close()
 
-
 sns.clustermap(res_fi, cmap=sns.color_palette("rocket", as_cmap=True), figsize=(20, 11))
 plt.savefig('FINAL_RFC_contributions_cluster')
+plt.close()
+
+fig, axs = plt.subplots(nrows=len(indexnames), figsize=(10, 50), sharex='all')
+
+for i, (mean_row, std_row) in enumerate(zip(res_fi.iterrows(), res_sd.iterrows())):
+    index = mean_row[0]
+    means = mean_row[1]
+    stds = std_row[1]
+
+    axs[i].bar(means.index, means, yerr=stds, capsize=5)
+    axs[i].set_xlabel(colnames)
+    axs[i].set_xticklabels(axs[i].get_xticklabels(), rotation=90)
+    axs[i].set_ylabel(f'{index}')
+
+fig.tight_layout()
+fig.savefig("FINAL_contributions_bar_plots.png")
+plt.close()
+
+fig, axs = plt.subplots(nrows=23, figsize=(15, 50), sharex=True, gridspec_kw={"bottom": 0.2})
+
+for i, (mean_row, std_row) in enumerate(zip(res_fi.iterrows(), res_sd.iterrows())):
+    index = mean_row[0]
+    data = mean_row[1]
+    errors = std_row[1]
+
+    ax = sns.barplot(x=data.index, y=data.values, ax=axs[i], capsize=.2, ci="sd", color="grey")
+    ax.errorbar(x=data.index, y=data.values, yerr=errors.values, fmt='none', ecolor='black', capsize=2)
+
+    axs[i].set_xlabel("")
+    axs[i].set_ylabel(index)
+    axs[i].tick_params(axis='x', rotation=90)
+
+axs[0].xaxis.set_ticks_position('top')
+axs[0].xaxis.set_label_position('top')
+
+fig.savefig("FINAL_contributions_bar_plots.png")
 plt.close()
 
 #############################################################################
