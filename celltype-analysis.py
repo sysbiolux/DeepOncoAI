@@ -1,4 +1,4 @@
-# analyse 10x nested x-val data by cell type:
+# analyse 10x10 nested x-val data by cell type:
 
 
 import numpy as np
@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 from DBM_toolbox.data_manipulation.data_utils import pickle_objects, unpickle_objects
 from sklearn.metrics import roc_curve, auc
 import seaborn as sns
+import glob
 
 
 
@@ -188,7 +189,8 @@ targets_names = base_models.keys()
 
 fi_dict = {}
 
-for target_name, target_dict in base_models.items():
+for target_name in list(targets_names)[16:]:
+    target_dict = base_models[target_name]
     rr = pd.DataFrame(columns=all_features_names)
     idx = 0
     for loop1_number, loop1_dict in target_dict.items():
@@ -208,3 +210,80 @@ for target_name, target_dict in base_models.items():
 
     rr.loc['average', :] = rr.mean(axis=0)
     fi_dict[target_name] = rr
+
+config.save(to_save=fi_dict, name='fi_dict2')
+
+
+for t, df in fi_dict.items():
+    df.to_csv(f'fi_{t}')
+
+######################################
+
+filenames_list = glob.glob('fi_*')
+algos_list = ['RFC', 'SVM', 'Logistic', 'EN', 'ET', 'XGB', 'Ada']
+dataset = unpickle_objects('FINAL_preprocessed_data_2023-02-16-10-30-39-935233.pkl')
+omics_list = ['RPPA', 'RNA', 'MIRNA', 'META', 'DNA', 'PATHWAYS', 'TYPE']
+omics_biglist = dataset.omic
+
+# final_fi = {}
+
+for filename in filenames_list:
+    drug_name = filename.split('_')[1]
+    df = pd.read_csv(filename).set_index('Unnamed: 0')
+    df.drop('average', axis=0, inplace=True)
+    # final_fi[drug_name] = {}
+    for omic in omics_list:
+        # final_fi[drug_name][omic] = {}
+        features_names = omics_biglist[omics_biglist == omic].index
+        # final_fi[drug_name][omic] = {}
+        fig, axs = plt.subplots(nrows=len(algos_list)+1, figsize=(10, 50))
+        df_reduced = df.loc[:, features_names]
+        col_means = df_reduced.mean()
+        sorted_cols = col_means.sort_values()
+        sorted_cols = sorted_cols.index[:50]
+        sorted_df = df_reduced[sorted_cols]
+        sorted_df.columns = [x.split('_Cautio')[0] for x in sorted_df.columns]
+        sns.boxplot(data=sorted_df, color='white', ax=axs[0])
+        for line in axs[0].lines:
+            if line.get_linestyle() == '-':
+                line.set_color('black')
+        axs[0].set_title('All Algorithms')
+        axs[0].set_xticklabels(axs[0].get_xticklabels(), rotation=90)
+
+        for i, algo in enumerate(algos_list):
+            print(f'{filename}/{omic}/{algo}')
+            idx = list(range(i, df.shape[0], len(algos_list)))
+            this_df = df_reduced.iloc[idx, :]
+            # final_fi[drug_name][omic][algo] = df_reduced
+            col_means = this_df.mean()
+            sorted_cols = col_means.sort_values()
+            sorted_cols = sorted_cols.index[:50]
+            sorted_df = this_df[sorted_cols]
+            sorted_df.columns = [x.split('_Cautio')[0] for x in sorted_df.columns]
+            sns.boxplot(data=sorted_df, color='white', ax=axs[i+1])
+            for line in axs[i+1].lines:
+                if line.get_linestyle() == '-':
+                    line.set_color('black')
+            axs[i+1].set_title(algo)
+            axs[i+1].set_xticklabels(axs[i+1].get_xticklabels(), rotation=90)
+        plt.tight_layout()
+        plt.savefig(f'FINAL_FI_{drug_name}_{omic}')
+        plt.close()
+
+
+# config.save(to_save=final_fi, name='final_fi')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
