@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from DBM_toolbox.data_manipulation.data_utils import pickle_objects, unpickle_objects
 from sklearn.metrics import roc_curve, auc
 import seaborn as sns
-
+import glob
 
 
 ###############################################################################
@@ -266,3 +266,12 @@ for target_name, target_dict in base_models.items():
 
     rr.loc['average', :] = rr.mean(axis=0)
     fi_dict[target_name] = rr
+
+#############################################################
+
+file_list = glob.glob('fi_*')
+omics_list = ['RPPA', 'RNA', 'MIRNA', 'META', 'DNA', 'PATHWAYS', 'TYPE']
+algos_list = ['Logistic', 'EN', 'SVM', 'RFC', 'ET', 'Ada', 'XGB']
+
+for file in file_list:
+    df = pd.read
