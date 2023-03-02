@@ -292,7 +292,7 @@ for file in file_list:
         colnames = sorted_df.columns
         colnames = colnames.split('_ENS')[0].split('_Cautio')[0].split('_nmiR')[0].split('/isoval')[0].split('/tauro')[0]
         sorted_df.columns = colnames
-        sns.boxplot(data=sorted_df + 1, ax=ax, color='white')  # plot the boxplot on the axis
+        sns.boxplot(data=sorted_df + 1, ax=ax, color='white', orient='h')  # plot the boxplot on the axis
         sns.set_context('paper')
         for line in ax.lines:
             if line.get_linestyle() == '-':
@@ -311,7 +311,7 @@ for file in file_list:
             colnames = sorted_df.columns
             colnames = colnames.split('_ENS')[0].split('_Cautio')[0].split('_nmiR')[0].split('/isoval')[0].split('/tauro')[0]
             sorted_df.columns = colnames
-            sns.boxplot(data=sorted_df + 1, ax=ax, color='white')  # plot the boxplot on the axis
+            sns.boxplot(data=sorted_df + 1, ax=ax, color='white', orient='v')  # plot the boxplot on the axis
             sns.set_context('paper')
             for line in ax.lines:
                 if line.get_linestyle() == '-':
