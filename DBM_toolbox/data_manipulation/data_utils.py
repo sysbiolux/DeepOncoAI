@@ -1,23 +1,28 @@
 import pandas as pd
 import numpy as np
 import logging
+import _pickle
 
 
 def merge_and_clean(dataframe, series):
-    index1 = series.index[series.apply(np.isnan)]
-    index2 = dataframe.index[dataframe.apply(np.isnan).any(axis=1)]
-    indices_to_drop = index1.union(index2)
-    n_dropped = len(indices_to_drop)
-    npos = sum(series == 1)
-    nneg = sum(series == 0)
+    """
+    Removes all rows that contain NaN values in either the dataframe or series
+    and returns the cleaned dataframe and series.
+    """
+    # drop na values
+    new_df = dataframe.dropna(axis=0)
+    new_series = series.dropna()
 
-    new_df = dataframe.drop(indices_to_drop)
-    new_series = series.drop(indices_to_drop)
+    common_index = new_df.index.intersection(new_series.index)
+    new_df = new_df.loc[common_index]
+    new_series = new_series.loc[common_index]
 
-    logging.info(
-        f"X: {dataframe.shape[0]} samples and {dataframe.shape[1]} features"
-    )
-    logging.info(f"y: {series.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
+    # print log
+    npos = sum(new_series == 1)
+    nneg = sum(new_series == 0)
+    n_dropped = dataframe.shape[0] - new_df.shape[0]
+    logging.info(f"X: {new_df.shape[0]} samples and {new_df.shape[1]} features")
+    logging.info(f"y: {new_series.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
 
     return new_df, new_series
 
@@ -29,5 +34,23 @@ def recurse_to_float(weird_object):
     else:
         try:
             return recurse_to_float(weird_object[1])
-        except:
+        except:  # TODO: specify exception
             return recurse_to_float(weird_object[0])
+
+
+def pickle_objects(objects, location):
+    """pickle objects at location"""
+    with open(location, "wb") as f:
+        _pickle.dump(objects, f)
+    f.close()
+    return None
+
+
+def unpickle_objects(location):
+    """pickle objects at location"""
+    with open(location, "rb") as f:
+        try:
+            loaded_objects = _pickle.load(f)
+        except AttributeError:
+            loaded_objects = pd.read_pickle(f)
+    return loaded_objects

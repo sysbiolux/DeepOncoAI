@@ -1,37 +1,49 @@
+###################################################################################################################
+# DEEP-ONCO-AI is an analysis pipeline that trains a metaclassifier on the predictions of machine-learning algos  #
+# in order to predict the chemosensitivity of cell lines in the CCLE dataset. The first-level algos are trained   #
+# independently for each drug and omic type. Most important features of the most contributing algos are retrieved #
+# and used to form explainable classifiers. The contributions of the different omics is systematically examined.  #
+###################################################################################################################
+
+# Authors: Sebastien De Landtsheer: sebdelandtsheer@gmail.com
+#          Prof Thomas Sauter, University of Luxembourg
+
+# This version: February 2023
+
 ####################
 ### HOUSEKEEPING ###
 ####################
 
 import logging
-from functions import unpickle_objects
+import numpy as np
 import pandas as pd
-#import seaborn as sns
-#from matplotlib import pyplot as plt
+import seaborn as sns
+from matplotlib import pyplot as plt
+from DBM_toolbox.data_manipulation import data_utils, dataset_class
 
-from config import Config
-
-# from DBM_toolbox.data_manipulation import dataset_class
-# from DBM_toolbox.interpretation import gsea
+from config import Config  # many operations are conducted from the Config class, as it has access to the config file
 
 logging.basicConfig(
-    filename="run_repro.log",
+    filename="run_paper.log",
     level=logging.INFO,
     filemode="w",
     format="%(asctime)s %(levelname)-8s %(message)s",
     datefmt="%H:%M:%S",
 )
 
-config = Config("testall/config.yaml")
+rng = np.random.default_rng(42)
+
+outer_folds = 10
+inner_folds = 10
+
+config = Config("testall/config_paper.yaml")  # here is the path to the config file to be used in the analysis
 
 ###################################
 ### READING AND PROCESSING DATA ###
 ###################################
 
 logging.info("Reading data")
-data, ActAreas, IC50s, dose_responses = config.read_data()
-
-# logging.info("Creating visualizations")
-# config.visualize_dataset(data, ActAreas, IC50s, dose_responses, mode="pre")
+data, ActAreas, ic50s, dose_responses = config.read_data()
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
@@ -48,10 +60,10 @@ logging.info("Merging engineered features")
 engineered_data = filtered_data.merge_with(engineered_features)
 
 logging.info("Quantizing targets")
-quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
+quantized_data = config.quantize(engineered_data, target_omic="DRUGS", ic50s=ic50s)
 
 final_data = quantized_data.normalize().optimize_formats()
-config.save(to_save=final_data, name="f_testmin_2_data")
+config.save(to_save=final_data, name="FINAL_preprocessed_data")
 
 missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axis=0)]
 
@@ -59,68 +71,151 @@ missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axi
 
 logging.info("Getting optimized models")
 
-# trained_models = config.get_models(dataset=final_data, method="standard")
-# config.save(to_save=trained_models, name="f_test67_2_models")
-# preds = config.loo(final_data)
-# config.save(to_save=preds, name="f_test77_preds")
+trained_models = config.get_models(dataset=final_data, method="standard")
+config.save(to_save=trained_models, name="FINAL_pre-models")
 
-# # build models based on primary predictions:
-# trained_sec_models = config.get_models(dataset=preds, method="standard")
-#
-# logging.info("Creating best stacks")
-# results_sec = config.get_stacks(dataset=final_data, models_dict=trained_models)
-# config.save(to_save=results_sec, name="f_test77_stack_results")
+########################## to load previous data
 
-###
-########################
-logging.info("single-loo")
-loo_preds = config.loo(final_data)
-config.save(to_save=loo_preds, name="f_testsmall_preds")
-loo_preds = unpickle_objects("f_testsmall_preds_2022-07-18-09-54-08-286211.pkl")
-#############
-
-logging.info("final validation")
-results_valid = config.get_valid_loo(original_dataset=final_data)
-config.save(to_save=results_valid, name="f_testsmall_valid")
+# final_data = data_utils.unpickle_objects('f_test_toy_data_2023-02-07-10-38-42-399466.pkl')
+# trained_models = data_utils.unpickle_objects('f_test_toy_models_2023-02-07-11-01-43-480178.pkl')
 
 
+final_results = dict()
+feature_importances = dict()
+base_models = dict()
+fprs = dict()
+tprs = dict()
+roc_aucs = dict()
+
+data = [x for x in final_data.dataframe.columns if 'ActArea' not in x]
+l = len(data)
+targets = [x for x in final_data.dataframe.columns if 'ActArea' in x]
+omics = final_data.omic[data]
 
 
+for target in targets:
+    base_models[target] = dict()
+    omics[target] = 'DRUGS'
+    this_df = pd.concat([final_data.dataframe[data], final_data.dataframe[target]], axis=1)
+    this_df = dataset_class.Dataset(this_df, omic=omics, database='x')
+    this_df = this_df.to_binary(target=target)
 
+    n_samples = len(this_df.dataframe.index)
+    split_size = np.floor(n_samples / outer_folds)
+    outer_mixed = rng.choice(this_df.dataframe.index, size=n_samples, replace=False)
 
+    outer_train_idx = dict()
+    outer_test_idx = dict()
+    inner_train_idx = dict()
+    inner_test_idx = dict()
+    feature_importances[target] = dict()
+    final_results[target] = pd.DataFrame(this_df.dataframe[target].copy())  # truth
 
-######################################################################
-### rerun from saved data
+    for outer_loop in range(outer_folds):
+        feature_importances[target][outer_loop] = dict()
+        if outer_loop == outer_folds - 1:  # if it is the last split, put all remaining samples in
+            outer_test_idx[outer_loop] = outer_mixed[int(outer_loop * split_size): -1]
+        else:
+            outer_test_idx[outer_loop] = outer_mixed[int(outer_loop * split_size): int((outer_loop + 1) * split_size)]
+        outer_train_idx[outer_loop] = [x for x in outer_mixed if x not in outer_test_idx[outer_loop]]
 
-# final_data = unpickle_objects("f_test2_data_2022-06-29-15-36-18-152559.pkl")
-# trained_models = unpickle_objects("f_test2_models_2022-06-29-17-20-07-296704.pkl")
-# results_sec = unpickle_objects("f_test2_stack_results_2022-07-04-10-37-53-902000.pkl")
+        rest_dataset, valid_dataset = this_df.split(train_index=outer_train_idx[outer_loop],
+                                                       test_index=outer_test_idx[outer_loop])
 
-######################################################################
+        n_inner_samples = len(rest_dataset.dataframe.index)
+        split_inner_size = np.floor(n_inner_samples / inner_folds)
+        inner_mixed = rng.choice(rest_dataset.dataframe.index, size=n_inner_samples, replace=False)
 
-expl_dict = config.retrieve_features(trained_models=trained_models, dataset=final_data)
-config.save(to_save=expl_dict, name="f_testsmall_expl_dict")
+        inner_train_idx[outer_loop] = dict()
+        inner_test_idx[outer_loop] = dict()
+        base_models[target][outer_loop] = dict()
 
-print("DONE")
+        first_level_preds = pd.DataFrame(this_df.dataframe[target].copy())  # truth
 
-##############################################################################
+        for inner_loop in range(inner_folds):
+            print(f"target: {target}, out: {outer_loop+1}/{outer_folds}, in: {inner_loop+1}/{inner_folds}")
+            if inner_loop == inner_folds - 1:
+                inner_test_idx[outer_loop][inner_loop] = inner_mixed[int(inner_loop * split_inner_size): -1]
+            else:
+                inner_test_idx[outer_loop][inner_loop] = inner_mixed[int(inner_loop * split_inner_size): int((inner_loop + 1) * split_inner_size)]
+            inner_train_idx[outer_loop][inner_loop] = [x for x in inner_mixed if x not in inner_test_idx[outer_loop][inner_loop]]
 
-models, algos_dict = config.get_best_algos(trained_models)
-# config.show_results(config, algos_dict)
+            train_dataset, test_dataset = rest_dataset.split(train_index=inner_train_idx[outer_loop][inner_loop], test_index=inner_test_idx[outer_loop][inner_loop])
 
-results = pd.DataFrame(index=list(trained_models.keys()))
-x = ["TYPE only", "RPPA", "RNA", "DNA", "PATHWAYS", "META", "MIRNA"]
+            base_models[target][outer_loop][inner_loop] = dict()
 
-for target in trained_models.keys():
-    print(target)
-    df = algos_dict[algos_dict["target"] == target]
-    df_best_type = df[df["omic"] == "TYPE"].sort_values(by="perf", ascending=False)
-    results.loc[target, "best_type_algo"] = df_best_type.iloc[0, 2]
-    results.loc[target, "best_type_perf"] = df_best_type.iloc[0, -3]
-    stacks_add = results_sec[target].loc[:, "TYPE_" + df_best_type.iloc[0, 2]].sort_values(ascending=False) # - df_best_type.iloc[0, -3]
+            for omic in trained_models[target].keys():  # for each omic type
+                if omic != 'complete':
+                    print(f'omic: {omic}')
+                    train_features = train_dataset.to_pandas(omic=omic)
+                    train_labels = train_dataset.to_pandas(omic='DRUGS').values.ravel()
+                    test_features = test_dataset.to_pandas(omic=omic)
+                    test_labels = test_dataset.to_pandas(omic='DRUGS').values.ravel()
 
-    for omic in x[1:]:
-        spec_df = stacks_add[stacks_add.index.str.startswith(omic)]
-        results.loc[target, omic + "_best_stack_algo"] = spec_df.index[0].split('_')[-1]
-        results.loc[target, omic + "_best_stack_add"] = spec_df[0]
+                    base_models[target][outer_loop][inner_loop][omic] = dict()
+
+                    for algo in trained_models[target][omic].keys():  # for each algo
+                        print(f'algo: {algo}')
+                        this_model = trained_models[target][omic][algo]['estimator']
+                        this_model.fit(train_features, train_labels)
+                        try:
+                            this_predictions = this_model.predict_proba(test_features)
+                            this_predictions = this_predictions[:, 1]
+                        except:
+                            this_predictions = this_model.predict(test_features)
+                        first_level_preds.loc[inner_test_idx[outer_loop][inner_loop], 'pred_' + omic + '_' + algo] = this_predictions
+                        try:
+                            base_models[target][outer_loop][inner_loop][omic][algo] = this_model.feature_importances_
+                        except:
+                            try:
+                                base_models[target][outer_loop][inner_loop][omic][algo] = this_model.coef_
+                            except:
+                                base_models[target][outer_loop][inner_loop][omic][algo] = 'None'
+
+        for omic in trained_models[target].keys():  # for each omic type
+            if omic != 'complete':
+                print(f'omic: {omic}')
+                train_features = rest_dataset.to_pandas(omic=omic)
+                train_labels = rest_dataset.to_pandas(omic='DRUGS').values.ravel()
+                test_features = valid_dataset.to_pandas(omic=omic)
+                test_labels = valid_dataset.to_pandas(omic='DRUGS').values.ravel()
+                for algo in trained_models[target][omic].keys():  # for each algo
+                    print(f'algo: {algo}')
+                    this_model = trained_models[target][omic][algo]['estimator']
+                    this_model.fit(train_features, train_labels)
+                    try:
+                        this_predictions = this_model.predict_proba(test_features)
+                        this_predictions = this_predictions[:, 1]
+                    except:
+                        this_predictions = this_model.predict(test_features)
+                    first_level_preds.loc[outer_test_idx[outer_loop], 'pred_' + omic + '_' + algo] = this_predictions
+
+        cols = first_level_preds.columns
+        train_features = first_level_preds.loc[outer_train_idx[outer_loop], cols[1:]]
+        train_labels = first_level_preds.loc[outer_train_idx[outer_loop], cols[0]]
+        test_features = first_level_preds.loc[outer_test_idx[outer_loop], cols[1:]]
+        test_labels = first_level_preds.loc[outer_test_idx[outer_loop], cols[0]]
+        train_features, train_labels = data_utils.merge_and_clean(train_features, train_labels)
+
+        for algo in trained_models[target][omic].keys():
+            if algo == 'RFC':
+                this_model = trained_models[target][omic][algo]['estimator']
+                this_model.fit(train_features, train_labels)
+                try:
+                    this_predictions = this_model.predict_proba(test_features)
+                    this_predictions = this_predictions[:, 1]
+                except:
+                    this_predictions = this_model.predict(test_features)
+                try:
+                    f_imp = this_model.feature_importances_
+                except:
+                    f_imp = np.nan
+                feature_importances[target][outer_loop][algo] = pd.DataFrame(f_imp, index=this_model.feature_names_in_, columns=[algo])
+                final_results[target].loc[outer_test_idx[outer_loop], 'pred2_' + algo] = this_predictions
+
+    omics = omics.drop(target)
+
+config.save(to_save=final_results, name="FINAL_results")
+config.save(to_save=feature_importances, name="FINAL_featimp")
+config.save(to_save=base_models, name="FINAL_base-models")
 

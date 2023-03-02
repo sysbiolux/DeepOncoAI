@@ -41,7 +41,7 @@ parse_selection_dict = {
     ),
 }
 
-parse_transformation_dict = {
+parse_transformation_dict = {  #TODO: remove this unnecessary part, we don't use transformations anymore
     "PCA": lambda dataframe, transformation, omic: components.get_PCs(
         dataframe, n_components=transformation["n_components"]
     ),
@@ -92,7 +92,7 @@ def parse_selection(selection: dict, omic: str, database: str):
         )
 
 
-def parse_transformations(dataframe, transformation: dict, omic: str, database: str):
+def parse_transformations(dataframe, transformation: dict, omic: str, database: str):  #TODO: remove this, no transformations anymore
     """
     Generates and computes a transformation if the option is enabled in the config file
     """
@@ -116,19 +116,19 @@ class Config:
 
     def read_data(self):
         """
-        Reads the data (omics and targets) according to the config file and assembles a Dataset
-        This method is called by 'load.py' which is called by the snakefile
+        Reads the data (omics and targets) according to the config file and assembles a Dataset class
         """
         nrows = self.raw_dict["data"].get("maximum_rows", None)
-        omic = self.raw_dict["data"]["omics"][0]
-        logging.info(f"Loading {omic['name']} from {omic['database']}:")
+        first_omic = self.raw_dict["data"]["omics"][0]
+        logging.info(f"config.py/read_data: Loading {first_omic['name']} from {first_omic['database']}")
         full_dataset = load_data.read_data(
-            "data", omic=omic["name"], database=omic["database"]
+            "data", omic=first_omic["name"], database=first_omic["database"]
         )
         logging.info(
             f"{full_dataset.dataframe.shape[0]} samples and {full_dataset.dataframe.shape[1]} features"
         )
         for omic in self.raw_dict["data"]["omics"][1:]:
+            print(omic)
             logging.info(f"Loading {omic['name']} from {omic['database']}:")
             additional_dataset = load_data.read_data(
                 "data", omic=omic["name"], database=omic["database"], nrows=nrows
@@ -139,7 +139,7 @@ class Config:
             full_dataset = full_dataset.merge_with(additional_dataset)
 
         targets = self.raw_dict["data"]["targets"]
-        # logging.info(targets)
+        logging.info(targets)
         list_target_names_IC50 = []
         list_target_names_dr = []
         if targets is not None:
@@ -157,7 +157,7 @@ class Config:
                     # keywords=[target_name, target_metric],
                 )
                 # TODO: IC50s,ActAreas and dose_responses are computed for all additional datasets, is this not redundant?
-                IC50s = preprocessing.extract_IC50s(additional_dataset)
+                ic50s = preprocessing.extract_IC50s(additional_dataset)
                 ActAreas = preprocessing.extract_ActAreas(additional_dataset)
                 dose_responses = preprocessing.extract_dr(additional_dataset)
                 additional_dataset = preprocessing.select_drug_metric(
@@ -167,14 +167,15 @@ class Config:
                     f"{additional_dataset.dataframe.shape[0]} samples and {additional_dataset.dataframe.shape[1]} features"
                 )
                 full_dataset = full_dataset.merge_with(additional_dataset)
-            cols = [x for x in IC50s.columns if x in list_target_names_IC50]
-            IC50s = IC50s[cols]
+            cols = [x for x in ic50s.columns if x in list_target_names_IC50]
+            ic50s = ic50s[cols]
             cols = [x for x in dose_responses.columns if x in list_target_names_dr]
             dose_responses = dose_responses[cols]
             logging.info("Data fully loaded!")
-        return full_dataset, ActAreas, IC50s, dose_responses
+            print('...done...')
+        return full_dataset, ActAreas, ic50s, dose_responses
 
-    def quantize(self, dataset, target_omic: str, quantiles=None, IC50s=None):
+    def quantize(self, dataset, target_omic: str, quantiles=None, ic50s=None):
 
         names = dataset.to_pandas(omic=target_omic).columns
         names = [x.split("_")[0] for x in names]
@@ -202,7 +203,7 @@ class Config:
         )
 
         dataset = dataset.data_threshold_quantize(
-            target_omic=target_omic, IC50s=IC50s, thresholds=thresholds
+            target_omic=target_omic, ic50s=ic50s, thresholds=thresholds
         )
 
         return dataset
@@ -226,7 +227,7 @@ class Config:
             raise ValueError('split type should be either "outer" or "inner"')
         try:
             n_splits = self.raw_dict["modeling"]["general"][split_txt]["value"]
-        except:
+        except:  # TODO: specify exception
             logging.info("split not recognized")
             raise ValueError("split type not recognized")
         dataframe = dataset.to_pandas()
@@ -263,7 +264,7 @@ class Config:
                                 new_filter = new_rule
                                 filters.insert(
                                     0, new_filter
-                                )  # appending sanple-level filters at the beginning
+                                )  # appending sample-level filters at the beginning
                             else:
                                 new_filter = new_rule.create_filter(dataset)
                                 filters.append(new_filter)  # other filters at the end
@@ -472,11 +473,6 @@ class Config:
         omics_list = list(dict.fromkeys(dataset.omic.tolist()))
         for target in targets_list:
             omics_list.remove(target)
-        modeling_options = self.raw_dict["modeling"]["general"]["search_depth"]
-        if modeling_options["enabled"]:
-            depth = modeling_options["value"]
-        else:
-            depth = None
 
         targets_colnames = []
         for root in targets_list:
@@ -496,132 +492,35 @@ class Config:
             complete_dataframe = complete_dataset.to_pandas()
             if complete_dataset.omic.unique()[0] == 'prediction':
                 complete_dataframe = complete_dataframe.loc[:, complete_dataframe.columns.str.contains(this_target_name)]
-            if method == "optimize":
-                logging.info(
-                    f"*** Optimizing models for {this_target_name} with the complete set of predictors"
-                )
-                this_dataframe = complete_dataframe
-                targets = this_dataset.dataframe[this_target_name]
 
-                index1 = targets.index[
-                    targets.apply(np.isnan)
-                ]
-                index2 = this_dataframe.index[
-                    this_dataframe.apply(np.isnan).any(axis=1)
-                ]
-                indices_to_drop = index1.union(index2)
-                n_dropped = len(indices_to_drop)
-                npos = sum(targets == 1)
-                nneg = sum(targets == 0)
-                logging.info(
-                    f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
-                )
-                logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
+            logging.info(
+                f"*** Computing standard models for {this_target_name} with the complete set of predictors"
+            )
+            this_dataframe = complete_dataframe.astype('float')
+            targets = this_dataset.dataframe[this_target_name]
 
-                this_dataframe = this_dataframe.drop(indices_to_drop)
-                targets = targets.drop(indices_to_drop)
+            this_dataframe, targets = data_utils.merge_and_clean(this_dataframe, targets)
 
-                this_result = optimized_models.bayes_optimize_models(
-                    data=this_dataframe,
-                    targets=targets,
-                    n_trials=depth,
-                    algos=algos,
-                    metric=metric,
-                )
-                results[this_target_name]["complete"] = this_result
+            this_result = optimized_models.get_standard_models(
+                data=this_dataframe, targets=targets, algos=algos, metric=metric
+            )
+            results[this_target_name]["complete"] = this_result
 
+            if len(list(set(omics_list))) > 1:
                 for this_omic in omics_list:
                     this_dataframe = this_dataset.to_pandas(omic=this_omic)
                     targets = this_dataset.dataframe[this_target_name]
                     logging.info(
-                        f"*** Optimizing models for {this_target_name} with {this_omic}"
-                    )
-                    index1 = targets.index[
-                        targets.apply(np.isnan)
-                    ]
-                    index2 = this_dataframe.index[
-                        this_dataframe.apply(np.isnan).any(axis=1)
-                    ]
-                    indices_to_drop = index1.union(index2)
-
-                    this_dataframe = this_dataframe.drop(indices_to_drop)
-                    targets = targets.drop(indices_to_drop)
-                    n_dropped = len(indices_to_drop)
-                    npos = sum(targets == 1)
-                    nneg = sum(targets == 0)
-                    logging.info(
-                        f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
-                    )
-                    logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
-                    this_result = optimized_models.bayes_optimize_models(
-                        data=this_dataframe,
-                        targets=targets,
-                        n_trials=depth,
-                        algos=algos,
-                        metric=metric,
+                        f"*** Computing standard models for {this_target_name} with {this_omic}"
                     )
 
+                    this_dataframe, targets = data_utils.merge_and_clean(this_dataframe, targets)
+
+                    this_result = optimized_models.get_standard_models(
+                        data=this_dataframe, targets=targets, algos=algos, metric=metric
+                    )
                     if this_omic not in results[this_target_name]:
                         results[this_target_name][this_omic] = this_result
-            elif method == "standard":
-                logging.info(
-                    f"*** Computing standard models for {this_target_name} with the complete set of predictors"
-                )
-                this_dataframe = complete_dataframe.astype('float')
-                targets = this_dataset.dataframe[this_target_name]
-                index1 = targets.index[
-                    targets.apply(np.isnan)
-                ]
-                index2 = this_dataframe.index[
-                    this_dataframe.apply(np.isnan).any(axis=1)
-                ]
-                indices_to_drop = index1.union(index2)
-                # TODO: log number of dropped here
-                n_dropped = len(indices_to_drop)
-                npos = sum(targets == 1)
-                nneg = sum(targets == 0)
-                this_dataframe = this_dataframe.drop(indices_to_drop)
-                targets = targets.drop(indices_to_drop)
-
-                # TODO: log nr of positive vs negative
-                logging.info(
-                    f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
-                )
-                logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
-                this_result = optimized_models.get_standard_models(
-                    data=this_dataframe, targets=targets, algos=algos, metric=metric
-                )
-                results[this_target_name]["complete"] = this_result
-
-                if len(list(set(omics_list))) > 1:
-                    for this_omic in omics_list:
-                        this_dataframe = this_dataset.to_pandas(omic=this_omic)
-                        targets = this_dataset.dataframe[this_target_name]
-                        logging.info(
-                            f"*** Computing standard models for {this_target_name} with {this_omic}"
-                        )
-                        index1 = targets.index[
-                            targets.apply(np.isnan)
-                        ]
-                        index2 = this_dataframe.index[
-                            this_dataframe.apply(np.isnan).any(axis=1)
-                        ]
-                        indices_to_drop = index1.union(index2)
-                        n_dropped = len(indices_to_drop)
-                        npos = sum(targets == 1)
-                        nneg = sum(targets == 0)
-                        this_dataframe = this_dataframe.drop(indices_to_drop)
-                        targets = targets.drop(indices_to_drop)
-                        logging.info(
-                            f"X: {this_dataframe.shape[0]} samples and {this_dataframe.shape[1]} features"
-                        )
-                        logging.info(f"y: {targets.size} samples, with {npos} positives and {nneg} negatives ({n_dropped} dropped)")
-
-                        this_result = optimized_models.get_standard_models(
-                            data=this_dataframe, targets=targets, algos=algos, metric=metric
-                        )
-                        if this_omic not in results[this_target_name]:
-                            results[this_target_name][this_omic] = this_result
 
         return results
 
@@ -635,9 +534,7 @@ class Config:
         options = self.raw_dict["modeling"]["ensembling"]
         models = dict()
         targets = trained_models.keys()
-        results_df = pd.DataFrame(
-            columns=["target", "omic", "algo", "perf", "estim", "N"]
-        )
+        results_df = pd.DataFrame(columns=["target", "omic", "algo", "perf", "estim", "N"])
         for target in targets:  # for each target
             logging.info(target)
             models[target] = dict()
@@ -648,6 +545,8 @@ class Config:
             elif mode == "over":
                 omics = ["complete"]
                 n_models = len(trained_models[target]["complete"].keys())
+            else:
+                raise ValueError("mode should be either 'standard' or 'over'")
             for omic in omics:
                 algos = trained_models[target][omic]
                 models[target][omic] = []
@@ -659,7 +558,7 @@ class Config:
                         result = i["result"]
                         if type(result) is dict:
                             result = result["target"]
-                    except:
+                    except:  # TODO: specify exception
                         result = np.nan
                     results_df = results_df.append(
                         pd.Series(

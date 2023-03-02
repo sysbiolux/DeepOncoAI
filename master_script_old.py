@@ -43,7 +43,7 @@ logging.info("Merging engineered features")
 engineered_data = filtered_data.merge_with(engineered_features)
 
 logging.info("Quantizing targets")
-quantized_data = config.quantize(engineered_data, target_omic="DRUGS", IC50s=IC50s)
+quantized_data = config.quantize(engineered_data, target_omic="DRUGS", ic50s=IC50s)
 
 final_data = quantized_data.normalize().optimize_formats()
 config.save(to_save=final_data, name="f_test2_data")

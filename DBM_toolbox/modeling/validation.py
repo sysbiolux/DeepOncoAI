@@ -12,13 +12,13 @@ import logging
 from DBM_toolbox.modeling import optimized_models
 from DBM_toolbox.data_manipulation import data_utils, dataset_class
 # import numpy as np
-logging.basicConfig(
-        filename="preds.log",
-        level=logging.INFO,
-        filemode="a",
-        format="%(asctime)s %(levelname)-8s %(message)s",
-        datefmt="%H:%M:%S",
-    )
+# logging.basicConfig(
+#         filename="preds.log",
+#         level=logging.INFO,
+#         filemode="a",
+#         format="%(asctime)s %(levelname)-8s %(message)s",
+#         datefmt="%H:%M:%S",
+#     )
 
 
 def loo(dataset, algos, metric, targets_list):

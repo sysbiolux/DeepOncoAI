@@ -3,6 +3,7 @@ import pandas as pd
 import logging
 from DBM_toolbox.data_manipulation.filter_class import KeepFeaturesFilter
 from DBM_toolbox.data_manipulation import dataset_class
+from DBM_toolbox.data_manipulation.data_utils import merge_and_clean
 import xgboost as xgb
 
 from sklearn.metrics import mean_squared_error
@@ -27,7 +28,7 @@ class HighestVarianceRule(Rule):
         variances = dataframe.var().sort_values(ascending=False)
         number_of_features_to_keep = int(round(len(variances) * self.fraction))
         features_to_keep = variances.iloc[:number_of_features_to_keep].index
-        print(f"Keeping {len(features_to_keep)} features out of {dataframe.shape[1]}")
+        logging.info(f"Keeping {len(features_to_keep)} features out of {dataframe.shape[1]}")
         return KeepFeaturesFilter(
             ftype="HighestVariance",
             features=features_to_keep,
@@ -48,14 +49,10 @@ class ColumnDensityRule(Rule):
 
     def create_filter(self, dataset):
         dataframe = dataset.to_pandas(omic=self.omic, database=self.database)
-        # print(f"oooooooooooooooooooo {dataframe.shape[0]}")
         dataframe = dataframe.dropna(how="all")
-        # print(f"oooooooooooooooooooo {dataframe.shape[0]}")
         completeness = 1 - dataframe.isna().mean(axis=0)
-        features_to_keep = completeness[
-            completeness >= self.completeness_threshold
-        ].index
-        print(f"Keeping {len(features_to_keep)} features out of {dataframe.shape[1]}")
+        features_to_keep = completeness[completeness >= self.completeness_threshold].index
+        logging.info(f"Keeping {len(features_to_keep)} features out of {dataframe.shape[1]}")
         return KeepFeaturesFilter(
             ftype="ColumnDensity",
             features=features_to_keep,
@@ -67,19 +64,15 @@ class ColumnDensityRule(Rule):
 class CrossCorrelationRule(Rule):
     def __init__(self, correlation_threshold, omic, database):
         if correlation_threshold < 0 or correlation_threshold > 1:
-            raise ValueError(
-                "CrossCorrelationRule correlation_threshold should be in [0, 1]"
-            )
+            raise ValueError("CrossCorrelationRule correlation_threshold should be in [0, 1]")
         self.correlation_threshold = correlation_threshold
         self.omic = omic
         self.database = database
 
     def create_filter(self, dataset):
         dataframe = dataset.to_pandas(omic=self.omic, database=self.database)
-        this_dataset = dataset_class.Dataset(
-            dataframe=dataframe, omic=self.omic, database=self.database
-        )
-        dataframe - this_dataset.remove_constants().normalize().impute().to_pandas()
+        this_dataset = dataset_class.Dataset(dataframe=dataframe, omic=self.omic, database=self.database)
+        dataframe = this_dataset.remove_constants().normalize().impute().to_pandas()
         counter = 0
         for this_feature in dataframe.columns:
             counter += 1
@@ -95,9 +88,9 @@ class CrossCorrelationRule(Rule):
                     logging.info(f"Found high-correlation features: {high_corr}")
                     A = dataframe.drop(high_corr, axis=1)
                     B = dataframe[high_corr]
+                    # efficient way to compute cross-correlations?
                     Az = A - A.mean()
                     Bz = B - B.mean()
-                    # efficient way to compute cross-correlations?
                     x = (
                         Az.T.dot(Bz)
                         .div(len(A))
@@ -108,7 +101,7 @@ class CrossCorrelationRule(Rule):
                     scores = (corr_mult * corr_mult).mean()
                     most_correl = scores[scores != max(scores)].index
                     dataframe = dataframe.drop(most_correl, axis=1)
-            except:
+            except:  # TODO: specify exception
                 print("Feature not present")
         return KeepFeaturesFilter(
             ftype="CrossCorrelation",
@@ -130,18 +123,11 @@ class FeatureImportanceRule(Rule):
     def create_filter(self, dataset, target_dataframe):
         dataframe = dataset.to_pandas(omic=self.omic, database=self.database)
         if len(target_dataframe.shape) == 1:
-            index1 = target_dataframe.index[
-                target_dataframe.apply(np.isnan)
-            ]  ### TODO: this does not work as expected, if there are missing target values this is a problem for xgboost
-            index2 = dataframe.index[dataframe.apply(np.isnan).any(axis=1)]  ## SOLVED?
-            indices_to_drop = index1.union(index2)
-
-            dataframe = dataframe.drop(indices_to_drop)
-            target_dataframe = target_dataframe.drop(indices_to_drop)
+            dataframe, target_dataframe = merge_and_clean(dataframe, target_dataframe)
 
         importances = pd.DataFrame()
         model = xgb.XGBClassifier(
-            max_depth=4, n_estimators=100, colsample_bytree=0.5
+            max_depth=5, n_estimators=1000, colsample_bytree=0.5
         )  ### deeper?
         target_dataframe_bin = target_dataframe >= target_dataframe.mean()
 
@@ -186,9 +172,7 @@ class FeaturePredictivityRule(Rule):
         #         target_dataframe = target_dataframe.drop(to_drop)
         predictivities = pd.DataFrame()
         for this_target in target_dataframe.columns:
-            model = xgb.XGBRegressor(
-                max_depth=4, n_estimators=100, colsample_bytree=0.5
-            )  ### deeper?
+            model = xgb.XGBRegressor(max_depth=5, n_estimators=1000, colsample_bytree=0.5)
             model.fit(dataframe, target_dataframe[this_target])
             predicted = model.predict(dataframe)
             base_error = mean_squared_error(target_dataframe[this_target], predicted)
@@ -196,17 +180,11 @@ class FeaturePredictivityRule(Rule):
             this_target_predictivity = []
             for this_feature in dataframe.columns:
                 shuffled_df = base_df.copy()
-                shuffled_df[this_feature] = np.random.permutation(
-                    shuffled_df[this_feature].values
-                )
-                model = xgb.XGBRegressor(
-                    max_depth=4, n_estimators=100, colsample_bytree=0.5
-                )  ### deeper?
+                shuffled_df[this_feature] = np.random.permutation(shuffled_df[this_feature].values)
+                model = xgb.XGBRegressor(max_depth=5, n_estimators=1000, colsample_bytree=0.5)
                 model.fit(dataframe, target_dataframe[this_target])
                 shuffled_predicted = model.predict(shuffled_df)
-                shuffled_error = mean_squared_error(
-                    target_dataframe[this_target], shuffled_predicted
-                )
+                shuffled_error = mean_squared_error(target_dataframe[this_target], shuffled_predicted)
                 this_target_predictivity.append(base_error - shuffled_error)
             target_predictivity = pd.Series(
                 data=this_target_predictivity, name=this_target, index=dataframe.columns
