@@ -320,5 +320,5 @@ for file in file_list:
             ax.set_ylabel('rank')
 
         plt.suptitle(f'{drugname}/{omic}')
-        plt.tight_layout
-
+        plt.tight_layout()
+        plt.savefig(f'FINAL_FI_{drugname}_{omic}.tif')
