@@ -279,46 +279,49 @@ for file in file_list:
     df = pd.read_csv(file)
     drugname = file.split('_')[1]
     for omic in omics_list:
-        fig, axs = plt.subplots(8, 1, figsize=(10, 50))
+        fig, axs = plt.subplots(nrows=8, figsize=(8, 30))
         these_features = omics_biglist[omics_biglist == omic].index
         idxs = [x for x in df.columns if x in these_features]
         this_df = df.loc[:, idxs]
-        this_df.drop('average', axis=0)
-        col_means = this_df.mean()  # calculate the mean of each column
-        sorted_cols = col_means.sort_values()  # sort the columns by their mean
-        sorted_cols = sorted_cols.index[:50]  # select the first 50 columns
-        sorted_df = this_df[sorted_cols]  # create a new DataFrame with the sorted columns
-        ax = axs[0]  # select the axis for the current key
+        this_df = this_df.iloc[:-1, :]
+        col_means = this_df.mean()
+        sorted_cols = col_means.sort_values()
+        sorted_cols = sorted_cols.index[:30]
+        sorted_df = this_df[sorted_cols].dropna()
+        ax = axs[0]
         colnames = sorted_df.columns
-        colnames = colnames.split('_ENS')[0].split('_Cautio')[0].split('_nmiR')[0].split('/isoval')[0].split('/tauro')[0]
+        colnames = [x.split('_ENS')[0].split('_Cautio')[0].split('_nmiR')[0].split('/isoval')[0].split('/tauro')[0] for x in colnames]
         sorted_df.columns = colnames
-        sns.boxplot(data=sorted_df + 1, ax=ax, color='white', orient='h')  # plot the boxplot on the axis
-        sns.set_context('paper')
+        sns.boxplot(data=sorted_df + 1, ax=ax, color='white')
+        # sns.set_context('paper')
         for line in ax.lines:
             if line.get_linestyle() == '-':
                 line.set_color('black')
-        ax.set_title('All Algorithms')  # set the title of the axis
-        ax.set_ylabel('rank')
+        ax.set_title('All Algorithms')
+        # ax.set_xticklabels(ax.get_xticks(), rotation=90)
+        # ax.set_ylabel('rank')
 
         for i, algo in enumerate(algos_list):
-            idxs = list(range(i, 7, this_df.shape[0]))
+            idxs = list(range(i, this_df.shape[0], 7))
             algo_df = this_df.iloc[idxs, :]
             col_means = algo_df.mean()
             sorted_cols = col_means.sort_values()
-            sorted_cols = sorted_cols.index[:50]
-            sorted_df = algo_df[sorted_cols]
+            sorted_cols = sorted_cols.index[:30]
+            sorted_df = algo_df[sorted_cols].dropna()
             ax = axs[i+1]
             colnames = sorted_df.columns
-            colnames = colnames.split('_ENS')[0].split('_Cautio')[0].split('_nmiR')[0].split('/isoval')[0].split('/tauro')[0]
+            colnames = [x.split('_ENS')[0].split('_Cautio')[0].split('_nmiR')[0].split('/isoval')[0].split('/tauro')[0] for x in colnames]
             sorted_df.columns = colnames
-            sns.boxplot(data=sorted_df + 1, ax=ax, color='white', orient='v')  # plot the boxplot on the axis
-            sns.set_context('paper')
+            sns.boxplot(data=sorted_df + 1, ax=ax, color='white')
+
+            # sns.set_context('paper')
             for line in ax.lines:
                 if line.get_linestyle() == '-':
                     line.set_color('black')
-            ax.set_title({algo})
-            ax.set_ylabel('rank')
+            ax.set_title(algo)
+            # ax.set_xticklabels(ax.get_xticks(), rotation=90)
+            # ax.set_ylabel('rank')
 
-        plt.suptitle(f'{drugname}/{omic}')
+        plt.suptitle(f'Distribution of features ranks: {drugname} / {omic}')
         plt.tight_layout()
         plt.savefig(f'FINAL_FI_{drugname}_{omic}.tif')
