@@ -106,7 +106,14 @@ df_ba.to_csv('FINAL_celltype_results_bal-accuracy.csv')
 df_ba = df_ba.apply(pd.to_numeric, errors='coerce')
 
 fig, ax = plt.subplots(figsize=(25, 15))
-sns.heatmap(df_ba, cmap=sns.color_palette("rocket", as_cmap=True), annot=True, fmt='.2f', linewidths=.1, ax=ax)
+cmap = sns.cm.rocket_r
+sns.set(font_scale=1.4)
+sns.heatmap(df_ba, cmap=cmap, annot=True, fmt='.2f', linewidths=.1, ax=ax, annot_kws={
+                'fontsize': 16,
+                'fontweight': 'bold',
+                'fontfamily': 'serif'
+            })
+#cmap=sns.color_palette("rocket", as_cmap=True)
 plt.xlabel('')
 plt.savefig('FINAL_balanced_accuracy')
 plt.close()
@@ -117,6 +124,7 @@ plt.close()
 #####################################################################
 ##################| ROC Curves
 
+hfont = {'fontname':'Comic Sans MS'}
 targets_names = list(final_results.keys())
 fprs = dict()
 tprs = dict()
@@ -135,14 +143,14 @@ for target_name in targets_names:
         y_true = y_true.loc[y_score.index]
         fpr[global_model], tpr[global_model], _ = roc_curve(y_true, y_score)
         roc_auc[global_model] = auc(fpr[global_model], tpr[global_model])
-        plt.plot(fpr[global_model], tpr[global_model], label=f"AUC: {round(roc_auc[global_model], 3)}")
+        plt.plot(fpr[global_model], tpr[global_model], linewidth=3, label=f"AUC: {round(roc_auc[global_model], 3)}")
     plt.plot([0, 1], [0, 1], color="black", linestyle="--")
     plt.xlim([0.0, 1.05])
     plt.ylim([0.0, 1.05])
-    plt.xlabel("False Positive Rate")
-    plt.ylabel("True Positive Rate")
-    plt.title(f"{target_name.split('_')[0]}")
-    plt.legend(loc="lower right")
+    plt.xlabel("False Positive Rate",fontsize=20, **hfont)
+    plt.ylabel("True Positive Rate",fontsize=20, **hfont)
+    plt.title(f"{target_name.split('_')[0]}",fontsize=20, **hfont)
+    plt.legend(loc="lower right",fontsize=20)
     plt.savefig(f'FINAL_ROC_{target_name}')
 
     fprs[target_name] = fpr
