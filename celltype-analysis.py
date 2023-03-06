@@ -124,7 +124,7 @@ plt.close()
 #####################################################################
 ##################| ROC Curves
 
-hfont = {'fontname':'Comic Sans MS'}
+hfont = {'fontname':'Times New Roman'}
 targets_names = list(final_results.keys())
 fprs = dict()
 tprs = dict()
@@ -197,11 +197,13 @@ res_fi.to_csv('FINAL_RFC_contributions_table.csv')
 res_sd.to_csv('FINAL_RFC_contributions_sd_table.csv')
 
 fig, ax = plt.subplots(figsize=(20, 11))
-sns.heatmap(res_fi, cmap=sns.color_palette("rocket", as_cmap=True), annot=False, fmt='.2f', ax=ax)
+cmap = sns.cm.rocket_r
+sns.heatmap(res_fi, cmap = cmap, annot=False, fmt='.2f', ax=ax)
 plt.savefig('FINAL_RFC_contributions')
 plt.close()
 
-sns.clustermap(res_fi, cmap=sns.color_palette("rocket", as_cmap=True), figsize=(20, 11))
+sns.clustermap(res_fi, cmap=cmap, figsize=(20, 11))
+#sns.color_palette("rocket", as_cmap=True)
 plt.savefig('FINAL_RFC_contributions_cluster')
 plt.close()
 
