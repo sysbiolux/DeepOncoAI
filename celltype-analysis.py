@@ -94,7 +94,7 @@ df_neg = df_neg.dropna(how='all')
 df_all = df_all.dropna(how='all')
 df_prec = df_prec.dropna(how='all')
 df_recall = df_recall.dropna(how='all')
-df_ba = df_ba.dropna(axis=1, how='all')
+df_ba = df_ba.dropna(how='all')
 
 df_pos.to_csv('FINAL_celltype_results_pos.csv')
 df_neg.to_csv('FINAL_celltype_results_neg.csv')
@@ -135,7 +135,7 @@ for target_name in targets_names:
     tpr = dict()
     roc_auc = dict()
     global_models = [x for x in final_results[target_name].columns if x.startswith('pred2')]
-    plt.figure()
+    plt.subplots(figsize=(8, 8))
     for global_model in global_models:
         y_score = final_results[target_name].loc[:, global_model]
         y_score = y_score[y_score.isna() == False]
@@ -152,6 +152,7 @@ for target_name in targets_names:
     plt.title(f"{target_name.split('_')[0]}",fontsize=20, **hfont)
     plt.legend(loc="lower right",fontsize=20)
     plt.savefig(f'FINAL_ROC_{target_name}')
+    plt.close()
 
     fprs[target_name] = fpr
     tprs[target_name] = tpr
