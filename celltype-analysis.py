@@ -95,6 +95,7 @@ df_all = df_all.dropna(how='all')
 df_prec = df_prec.dropna(how='all')
 df_recall = df_recall.dropna(how='all')
 df_ba = df_ba.dropna(how='all')
+df_ba = df_ba.dropna(axis=1, how='all')
 
 df_pos.to_csv('FINAL_celltype_results_pos.csv')
 df_neg.to_csv('FINAL_celltype_results_neg.csv')
@@ -105,7 +106,7 @@ df_ba.to_csv('FINAL_celltype_results_bal-accuracy.csv')
 
 df_ba = df_ba.apply(pd.to_numeric, errors='coerce')
 
-fig, ax = plt.subplots(figsize=(25, 15))
+fig, ax = plt.subplots(figsize=(30, 15))
 cmap = sns.cm.rocket_r
 sns.set(font_scale=1.4)
 sns.heatmap(df_ba, cmap=cmap, annot=True, fmt='.2f', linewidths=.1, ax=ax, annot_kws={
@@ -197,34 +198,34 @@ res_sd.index = indexnames
 res_fi.to_csv('FINAL_RFC_contributions_table.csv')
 res_sd.to_csv('FINAL_RFC_contributions_sd_table.csv')
 
-fig, ax = plt.subplots(figsize=(20, 11))
+fig, ax = plt.subplots(figsize=(25, 11))
 cmap = sns.cm.rocket_r
 sns.heatmap(res_fi, cmap = cmap, annot=False, fmt='.2f', ax=ax)
 plt.savefig('FINAL_RFC_contributions')
 plt.close()
 
-sns.clustermap(res_fi, cmap=cmap, figsize=(20, 11))
+sns.clustermap(res_fi, cmap=cmap, xticklabels=True, figsize=(25, 11))
 #sns.color_palette("rocket", as_cmap=True)
 plt.savefig('FINAL_RFC_contributions_cluster')
 plt.close()
+#
+# fig, axs = plt.subplots(nrows=len(indexnames), figsize=(10, 50), sharex='all')
+#
+# for i, (mean_row, std_row) in enumerate(zip(res_fi.iterrows(), res_sd.iterrows())):
+#     index = mean_row[0]
+#     means = mean_row[1]
+#     stds = std_row[1]
+#
+#     axs[i].bar(means.index, means, yerr=stds, capsize=5)
+#     # axs[i].set_xlabel(colnames)
+#     axs[i].set_xticklabels(axs[i].get_xticklabels(), rotation=90)
+#     axs[i].set_ylabel(f'{index}')
+#
+# fig.tight_layout()
+# fig.savefig("FINAL_contributions_bar_plots.png")
+# plt.close()
 
-fig, axs = plt.subplots(nrows=len(indexnames), figsize=(10, 50), sharex='all')
-
-for i, (mean_row, std_row) in enumerate(zip(res_fi.iterrows(), res_sd.iterrows())):
-    index = mean_row[0]
-    means = mean_row[1]
-    stds = std_row[1]
-
-    axs[i].bar(means.index, means, yerr=stds, capsize=5)
-    axs[i].set_xlabel(colnames)
-    axs[i].set_xticklabels(axs[i].get_xticklabels(), rotation=90)
-    axs[i].set_ylabel(f'{index}')
-
-fig.tight_layout()
-fig.savefig("FINAL_contributions_bar_plots.png")
-plt.close()
-
-fig, axs = plt.subplots(nrows=23, figsize=(15, 50), sharex=True, gridspec_kw={"bottom": 0.2})
+fig, axs = plt.subplots(nrows=23, figsize=(20, 50), sharex=True, sharey=True, gridspec_kw={"bottom": 0.2})
 
 for i, (mean_row, std_row) in enumerate(zip(res_fi.iterrows(), res_sd.iterrows())):
     index = mean_row[0]
@@ -286,53 +287,62 @@ omics_list = ['RPPA', 'RNA', 'MIRNA', 'META', 'DNA', 'PATHWAYS', 'TYPE']
 algos_list = ['SVC', 'RFC', 'Logistic', 'EN', 'ET', 'XGB', 'Ada']
 omics_biglist = dataset.omic
 
+all_col_meds = pd.DataFrame(index=dataset.dataframe.columns)
+
 for file in file_list:
     df = pd.read_csv(file)
     drugname = file.split('_')[1]
     for omic in omics_list:
-        fig, axs = plt.subplots(nrows=8, figsize=(8, 30))
+        # fig, axs = plt.subplots(nrows=8, figsize=(8, 90))
         these_features = omics_biglist[omics_biglist == omic].index
         idxs = [x for x in df.columns if x in these_features]
         this_df = df.loc[:, idxs]
         this_df = this_df.iloc[:-1, :]
-        col_means = this_df.mean()
-        sorted_cols = col_means.sort_values()
+        # col_means = this_df.mean()
+        col_meds = this_df.median()
+        # all_col_meds = pd.concat([all_col_meds, col_meds], axis=1)
+        # sorted_cols = col_means.sort_values()
+        sorted_cols = col_meds.sort_values()
         sorted_cols = sorted_cols.index[:30]
         sorted_df = this_df[sorted_cols].dropna()
-        ax = axs[0]
+        # ax = axs[0]
         colnames = sorted_df.columns
         colnames = [x.split('_ENS')[0].split('_Cautio')[0].split('_nmiR')[0].split('/isoval')[0].split('/tauro')[0] for x in colnames]
         sorted_df.columns = colnames
-        sns.boxplot(data=sorted_df + 1, ax=ax, color='white')
+        # sns.boxplot(data=sorted_df + 1, ax=ax, color='white', orient='h')
         # sns.set_context('paper')
-        for line in ax.lines:
-            if line.get_linestyle() == '-':
-                line.set_color('black')
-        ax.set_title('All Algorithms')
+        # for line in ax.lines:
+        #     if line.get_linestyle() == '-':
+        #         line.set_color('black')
+        # ax.set_title('All Algorithms')
         # ax.set_xticklabels(ax.get_xticks(), rotation=90)
         # ax.set_ylabel('rank')
 
         for i, algo in enumerate(algos_list):
             idxs = list(range(i, this_df.shape[0], 7))
             algo_df = this_df.iloc[idxs, :]
-            col_means = algo_df.mean()
-            sorted_cols = col_means.sort_values()
+            col_meds = algo_df.median()
+            all_col_meds = pd.concat([all_col_meds, col_meds], axis=1)
+            sorted_cols = col_meds.sort_values()
             sorted_cols = sorted_cols.index[:30]
             sorted_df = algo_df[sorted_cols].dropna()
-            ax = axs[i+1]
+            # ax = axs[i+1]
             colnames = sorted_df.columns
             colnames = [x.split('_ENS')[0].split('_Cautio')[0].split('_nmiR')[0].split('/isoval')[0].split('/tauro')[0] for x in colnames]
             sorted_df.columns = colnames
-            sns.boxplot(data=sorted_df + 1, ax=ax, color='white')
-
+            # sns.boxplot(data=sorted_df + 1, ax=ax, color='white', orient='h')
+            # sorted_df.to_csv(f"FINAL_FI_med_{drugname}_{omic}_{algo}")
             # sns.set_context('paper')
-            for line in ax.lines:
-                if line.get_linestyle() == '-':
-                    line.set_color('black')
-            ax.set_title(algo)
+            # for line in ax.lines:
+            #     if line.get_linestyle() == '-':
+            #         line.set_color('black')
+            # ax.set_title(algo)
             # ax.set_xticklabels(ax.get_xticks(), rotation=90)
             # ax.set_ylabel('rank')
 
-        plt.suptitle(f'Distribution of features ranks: {drugname} / {omic}')
-        plt.tight_layout()
-        plt.savefig(f'FINAL_FI_{drugname}_{omic}.tif')
+        # plt.suptitle(f'Distribution of features ranks: {drugname} / {omic}')
+        # plt.tight_layout()
+        # plt.savefig(f'FINAL_FI_med_{drugname}_{omic}.tif', format='tif', dpi=300)
+        # plt.close()
+
+all_col_meds.to_csv("all_col_meds.csv")
