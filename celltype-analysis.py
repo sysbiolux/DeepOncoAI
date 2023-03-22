@@ -14,7 +14,7 @@ import glob
 ###############################################################################
 ### 1 Tables with performances per cell type
 
-final_results = unpickle_objects('FINAL_results_2023-02-20-12-35-21-577662.pkl')
+final_results = unpickle_objects('FINAL_restrict_META_results_2023-03-14-13-22-14-057919.pkl')
 config = Config("testall/config_paper.yaml")
 
 
@@ -148,21 +148,16 @@ for target_name in targets_names:
     plt.plot([0, 1], [0, 1], color="black", linestyle="--")
     plt.xlim([0.0, 1.05])
     plt.ylim([0.0, 1.05])
-    plt.xlabel("False Positive Rate",fontsize=20, **hfont)
-    plt.ylabel("True Positive Rate",fontsize=20, **hfont)
+    plt.xlabel("False Positive Rate", fontsize=20, **hfont)
+    plt.ylabel("True Positive Rate", fontsize=20, **hfont)
     plt.title(f"{target_name.split('_')[0]}",fontsize=20, **hfont)
-    plt.legend(loc="lower right",fontsize=20)
-    plt.savefig(f'FINAL_ROC_{target_name}')
+    plt.legend(loc="lower right", fontsize=20)
+    plt.savefig(f'FINAL_ROC_META_{target_name}')
     plt.close()
 
     fprs[target_name] = fpr
     tprs[target_name] = tpr
     roc_aucs[target_name] = roc_auc
-
-
-
-
-
 
 
 
