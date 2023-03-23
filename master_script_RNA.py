@@ -148,7 +148,7 @@ for target in targets:
             base_models[target][outer_loop][inner_loop] = dict()
 
             for omic in trained_models[target].keys():  # for each omic type
-                if omic == 'RNA':
+                if omic == 'PATHWAYS':
                     print(f'omic: {omic}')
                     train_features = train_dataset.to_pandas(omic=omic)
                     train_labels = train_dataset.to_pandas(omic='DRUGS').values.ravel()
@@ -177,7 +177,7 @@ for target in targets:
                                 base_models[target][outer_loop][inner_loop][omic][algo] = 'None'
 
         for omic in trained_models[target].keys():  # for each omic type
-            if omic == 'RNA':
+            if omic == 'PATHWAYS':
                 print(f'omic: {omic}')
                 train_features = rest_dataset.to_pandas(omic=omic)
                 train_labels = rest_dataset.to_pandas(omic='DRUGS').values.ravel()
@@ -220,6 +220,6 @@ for target in targets:
 
     omics = omics.drop(target)
 
-config.save(to_save=final_results, name="FINAL_restrict_results")
-config.save(to_save=feature_importances, name="FINAL_restrict_featimp")
-config.save(to_save=base_models, name="FINAL_restrict_base-models")
+config.save(to_save=final_results, name="FINAL_restrict_PATHWAYS_results")
+config.save(to_save=feature_importances, name="FINAL_restrict_PATHWAYS_featimp")
+config.save(to_save=base_models, name="FINAL_restrict_PATHWAYS_base-models")
