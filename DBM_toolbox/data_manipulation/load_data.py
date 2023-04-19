@@ -34,13 +34,17 @@ def read_data(folder: str, omic: str, database: str, nrows: int = None):
     elif database == "OWN":
         filename = {
             "PATHWAYS": "SPEED_Scores_namechange.csv",
-            "EIGENVECTOR": "LUNG_eigen.csv",
-            "BETWEENNESS": "LUNG_betweenness.csv",
-            "CLOSENESS": "LungColonSkin_ClosenessHPC.csv",
-            "PAGERANK": "LungColonSkin_PageRankHPC.csv",
-            "AVNEIGHBOUR": "LUNG_Avg_neighbor.csv",
-            #             insert more here
+            "EIGENVECTOR": "Combined_eigen_T_5.csv",
+            "BETWEENNESS": "Combined_betweenness_T_5.csv",
+            "CLOSENESS": "Combined_Closeness_T_5.csv",
+            "PAGERANK": "Combined_PageRank_T_5.csv",
+            "AVNEIGHBOUR": "Combined_Avg_neighbor_T_5.csv",
+           # "HARMONIC": "Colon_Avg_neighbor_25.csv",
+           # "INFORMATION": "Colon_Avg_neighbor_25.csv",
+           # "CONSTRAINT": "Colon_Avg_neighbor_25.csv",
+            "DISCRETIZED": "SKIN_discretized_0.5.csv"
         }[omic_root]
+       
     else:
         logging.info(f"load_data.py/read_data: Database not recognized: {database}")
     file_string, file_extension = os.path.splitext(filename)

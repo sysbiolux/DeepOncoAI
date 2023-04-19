@@ -94,27 +94,27 @@ class Dataset:
             database=resulting_database,
         )
 
-    def merge_with(self, other_datasets: list):
+    def merge_with(self, other_datasets: list, join_type='outer'):
         if isinstance(other_datasets, list):
             for single_dataset in other_datasets:
-                self = self.merge_two_datasets(single_dataset)
+                self = self.merge_two_datasets(single_dataset, join_type=join_type)
         else:
             if isinstance(other_datasets, Dataset):
-                self = self.merge_two_datasets(other_datasets)
+                self = self.merge_two_datasets(other_datasets, join_type=join_type)
             else:
                 raise ValueError("Merging is only allowed between Datasets")
         return self
 
-    def merge_two_datasets(self, other_dataset):
+    def merge_two_datasets(self, other_dataset, join_type='outer'):
 
         dataframe = self.dataframe
         other_dataframe = other_dataset.dataframe
 
         cols = dataframe.columns
 
-        merged_dataframe = pd.concat([dataframe, other_dataframe], axis=1)
-        merged_omic = pd.concat([self.omic, other_dataset.omic])
-        merged_database = pd.concat([self.database, other_dataset.database])
+        merged_dataframe = pd.concat([dataframe, other_dataframe], join=join_type, axis=1)
+        merged_omic = pd.concat([self.omic, other_dataset.omic], join=join_type)
+        merged_database = pd.concat([self.database, other_dataset.database], join=join_type)
 
         merged_dataframe = merged_dataframe.dropna(how="all", subset=cols)
 

@@ -33,8 +33,8 @@ logging.basicConfig(
 
 rng = np.random.default_rng(42)
 
-outer_folds = 2
-inner_folds = 2
+outer_folds = 5
+inner_folds = 5
 
 config = Config("testall/config_test_topo_1.yaml")  # here is the path to the config file to be used in the analysis
 
@@ -43,7 +43,7 @@ config = Config("testall/config_test_topo_1.yaml")  # here is the path to the co
 ###################################
 
 # logging.info("Reading data")
-# data, ActAreas, ic50s, dose_responses = config.read_data()
+data, ActAreas, ic50s, dose_responses = config.read_data(join_type='inner')
 
 # #### Uncomment if running for individual cancers
 # lung_samples = [x for x in data.dataframe.index if 'LARGE_INTESTINE' in x]
@@ -107,13 +107,21 @@ config.save(to_save=selected_final_3, name='Filtered_all_cancers_RNA_only')
 
 # final_data = data_utils.unpickle_objects('f_test_toy_data_2023-02-07-10-38-42-399466.pkl')
 # trained_models = data_utils.unpickle_objects('f_test_toy_models_2023-02-07-11-01-43-480178.pkl')
-final_data = data_utils.unpickle_objects('Filtered_all_cancers_RNA_only_2023-04-13-17-09-28-952013.pkl')
+final_data = data_utils.unpickle_objects('Filtered_all_cancers_RNA_only_2023-04-14-12-07-40-497559.pkl')
 
 
 
-trained_models = config.get_models(dataset=selected_final, method="standard")
+trained_models = config.get_models(dataset=selected_final_3, method="standard")
 config.save(to_save=trained_models, name="f_test_toy_models")
 
+
+ff = pd.DataFrame.from_dict(trained_models)
+ff2 = ff.T
+ff2.columns = ['RNA']
+ff3 = ff2.T
+final_ff = pd.DataFrame.to_dict(ff3)
+
+trained_models = final_ff
 
 final_results = dict()
 feature_importances = dict()
@@ -181,7 +189,7 @@ for target in targets:
             base_models[target][outer_loop][inner_loop] = dict()
 
             for omic in trained_models[target].keys():  # for each omic type
-                if omic != 'complete':
+                if omic == 'RNA':
                     print(f'omic: {omic}')
                     train_features = train_dataset.to_pandas(omic=omic)
                     train_labels = train_dataset.to_pandas(omic='DRUGS').values.ravel()
@@ -209,7 +217,7 @@ for target in targets:
                                 base_models[target][outer_loop][inner_loop][omic][algo] = 'None'
 
         for omic in trained_models[target].keys():  # for each omic type
-            if omic != 'complete':
+            if omic == 'RNA':
                 print(f'omic: {omic}')
                 train_features = rest_dataset.to_pandas(omic=omic)
                 train_labels = rest_dataset.to_pandas(omic='DRUGS').values.ravel()

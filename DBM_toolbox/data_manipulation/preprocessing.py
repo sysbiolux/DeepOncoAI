@@ -119,6 +119,15 @@ def preprocess_data(dataset, flag: str = None):
                 dataset = preprocess_features_pagerank(dataset, flag=flag)
             if omic[0] == "AVNEIGHBOUR":
                 dataset = preprocess_features_avneighbour(dataset, flag=flag)
+#            if omic[0] == "HARMONIC":
+#                dataset = preprocess_features_harmonic(dataset, flag=flag)
+#            if omic[0] == "INFORMATION":
+#                dataset = preprocess_features_information(dataset, flag=flag)
+#            if omic[0] == "CONSTRAINT":
+#                dataset = preprocess_features_constraint(dataset, flag=flag)
+            if omic[0] == "DISCRETIZED":
+                dataset = preprocess_features_discretized(dataset, flag=flag)
+
 
     return dataset
 
@@ -250,9 +259,10 @@ def preprocess_features_betweenness(dataset, flag: str = None):
 def preprocess_features_closeness(dataset, flag: str = None):
     # @Apurva
     df = dataset.dataframe
-    df = df.drop("Unnamed: 0", axis=1).set_index(["Gene"]).transpose()
+    #df = df.drop("Unnamed: 0", axis=1).set_index(["Gene"]).transpose()
     #     df.index = [idx[10:-11] for idx in df.index]
-    df.index = [idx.rsplit("_", 1)[0].split("_", 1)[1] for idx in df.index]
+    df = df.set_index(["Gene"]).transpose()
+  #  df.index = [idx.rsplit("_", 1)[0].split("_", 1)[1] for idx in df.index]
     df = df.add_suffix("_topo_clo")
     df = impute_missing_data(df, method='zeros')
     # additional steps if necessary
@@ -262,11 +272,12 @@ def preprocess_features_closeness(dataset, flag: str = None):
 def preprocess_features_pagerank(dataset, flag: str = None):
     # @Apurva
     df = dataset.dataframe
-    df = df.drop("Unnamed: 0", axis=1).set_index(["Gene"]).transpose()
+   # df = df.drop("Unnamed: 0", axis=1).set_index(["Gene"]).transpose()
     #     df.index = [idx[10:-11] for idx in df.index]
-    df.index = [idx.rsplit("_", 1)[0].split("_", 1)[1] for idx in df.index]
+    df = df.set_index(["Gene"]).transpose()
+   # df.index = [idx.rsplit("_", 1)[0].split("_", 1)[1] for idx in df.index]
     df = df.add_suffix("_topo_pgrk")
-    #     df = impute_missing_data(df, method='zeros')
+    df = impute_missing_data(df, method='zeros')
     # additional steps if necessary
     return dataset_class.Dataset(df, omic="PAGERANK", database="OWN")
 
@@ -282,6 +293,53 @@ def preprocess_features_avneighbour(dataset, flag: str = None):
     # additional steps if necessary
     return dataset_class.Dataset(df, omic="AVNEIGHBOUR", database="OWN")
 
+def preprocess_features_harmonic(dataset, flag: str = None):
+    df = dataset.dataframe
+    df = df.set_index(["Gene"]).transpose()
+    #    df.index = [idx[6:-11] for idx in df.index]
+    # df.index = [idx.rsplit("_", 1)[0] for idx in df.index]
+    df = df.add_suffix("_topo_harmonic")
+    df = impute_missing_data(df, method="zeros")
+    # df = impute_missing_data(df, method="zeros", threshold=0.9)
+
+    # additional steps if necessary
+    return dataset_class.Dataset(df, omic="HARMONIC", database="OWN")
+
+def preprocess_features_information(dataset, flag: str = None):
+    df = dataset.dataframe
+    df = df.set_index(["Gene"]).transpose()
+    #    df.index = [idx[6:-11] for idx in df.index]
+    # df.index = [idx.rsplit("_", 1)[0] for idx in df.index]
+    df = df.add_suffix("_topo_info")
+    df = impute_missing_data(df, method="zeros")
+    # df = impute_missing_data(df, method="zeros", threshold=0.9)
+
+    # additional steps if necessary
+    return dataset_class.Dataset(df, omic="INFORMATION", database="OWN")
+
+def preprocess_features_constraint(dataset, flag: str = None):
+    df = dataset.dataframe
+    df = df.set_index(["Gene"]).transpose()
+    #    df.index = [idx[6:-11] for idx in df.index]
+    # df.index = [idx.rsplit("_", 1)[0] for idx in df.index]
+    df = df.add_suffix("_topo_cons")
+    df = impute_missing_data(df, method="zeros")
+    # df = impute_missing_data(df, method="zeros", threshold=0.9)
+
+    # additional steps if necessary
+    return dataset_class.Dataset(df, omic="CONSTRAINT", database="OWN")
+
+def preprocess_features_discretized(dataset, flag: str = None):
+    df = dataset.dataframe
+    df = df.set_index(["Gene"]).transpose()
+    #    df.index = [idx[6:-11] for idx in df.index]
+    # df.index = [idx.rsplit("_", 1)[0] for idx in df.index]
+    df = df.add_suffix("_topo_disc")
+    df = impute_missing_data(df, method="zeros")
+    # df = impute_missing_data(df, method="zeros", threshold=0.9)
+
+    # additional steps if necessary
+    return dataset_class.Dataset(df, omic="DISCRETIZED", database="OWN")
 
 # add more functions here for each dataset
 

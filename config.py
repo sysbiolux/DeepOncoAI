@@ -114,7 +114,7 @@ class Config:
         with open(config) as f:
             self.raw_dict = yaml.load(f, Loader=yaml.FullLoader)
 
-    def read_data(self):
+    def read_data(self, join_type='outer'):
         """
         Reads the data (omics and targets) according to the config file and assembles a Dataset class
         """
@@ -136,7 +136,7 @@ class Config:
             logging.info(
                 f"{additional_dataset.dataframe.shape[0]} samples and {additional_dataset.dataframe.shape[1]} features"
             )
-            full_dataset = full_dataset.merge_with(additional_dataset)
+            full_dataset = full_dataset.merge_with(additional_dataset, join_type=join_type)
 
         targets = self.raw_dict["data"]["targets"]
         logging.info(targets)
