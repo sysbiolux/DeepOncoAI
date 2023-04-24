@@ -289,5 +289,28 @@ class Dataset:
             previous = self.database
             self.database = pd.Series(new_database, index=previous.columns)
 
+    def filter_att(self, target_omic: str = None, reference_omic: str = None, separator: str = None):
+        if target_omic is not None and reference_omic is not None and separator is not None:
+            full_df = self.dataframe
+            omic = self.omic
+            database = self.database
+            ref_df = self.to_pandas(omic=reference_omic)
+            target_df = self.to_pandas(omic=target_omic)
+            ref_colnames = [x.split(separator)[0] for x in ref_df.columns]
+            target_colnames = [x.split(separator)[0] for x in target_df.columns]
 
+            cols_to_remove = [x for x in target_colnames if x not in ref_colnames]
+            idx_in_full = []
+            for element in cols_to_remove:
+                indices = [index for index, value in enumerate(full_df.columns) if value.startswith(element)]
+                idx_in_full.extend(indices)
+
+            idx_to_keep = [x for x in range(full_df.columns) if x not in idx_in_full]
+
+            filtered_dataset = Dataset(
+                dataframe=full_df.iloc[:, idx_to_keep],
+                omic= omic[idx_to_keep],
+                database= database[idx_to_keep]
+            )
+        return filtered_dataset
 
