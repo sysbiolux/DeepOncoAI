@@ -36,14 +36,14 @@ rng = np.random.default_rng(42)
 outer_folds = 5
 inner_folds = 5
 
-config = Config("testall/config_topo.yaml")  # here is the path to the config file to be used in the analysis
+config = Config("testall/config_test_topo_2.yaml")  # here is the path to the config file to be used in the analysis
 
 ###################################
 ### READING AND PROCESSING DATA ###
 ###################################
 
 # logging.info("Reading data")
-data, ActAreas, ic50s, dose_responses = config.read_data(join_type='inner')
+# data, ActAreas, ic50s, dose_responses = config.read_data()
 
 # #### Uncomment if running for individual cancers
 # lung_samples = [x for x in data.dataframe.index if 'LARGE_INTESTINE' in x]
@@ -90,7 +90,7 @@ data, ActAreas, ic50s, dose_responses = config.read_data(join_type='inner')
 
 # ########################## to load previous data
 load_failed_file = data_utils.unpickle_objects('f_test_topo_1_2023-04-12-05-08-36-398079_FAILED.pkl')
-cancer_types = ['LUNG','LARGE_INTESTINE','CENTRAL_NERVOUS_SYSTEM', 'BREAST', 'SKIN']
+cancer_types = ['LUNG', 'LARGE_INTESTINE', 'CENTRAL_NERVOUS_SYSTEM', 'BREAST', 'SKIN']
 
 all_nans = load_failed_file.dataframe[load_failed_file.dataframe.isnull().any(axis=1)]
 nan_samples = [j for j in load_failed_file.dataframe.index if j in all_nans.index]
@@ -102,30 +102,30 @@ not_selected_data = [x for x in load_failed_file.dataframe.index for y in cancer
 not_selected_total = nan_samples + not_selected_data
 selected_final, not_needed = load_failed_file.split(train_index = selected_data_p2, test_index = not_selected_total)
 
-final_data = selected_final.filter_att(target_omic = 'DISCRETIZED', reference_omic= 'RNA', separator='_')
-
-
-selected_final_3 = selected_final.extract(omics_list=['RNA','DRUGS'])
-config.save(to_save=selected_final_3, name='Filtered_all_cancers_RNA_only')
+# final_data = selected_final.filter_att(target_omic='DISCRETIZED', reference_omic='RNA', separator='_')
+final_data = selected_final
+#
+# selected_final_3 = selected_final.extract(omics_list=['RNA','DRUGS'])
+# config.save(to_save=selected_final_3, name='Filtered_all_cancers_RNA_only')
 
 
 # final_data = data_utils.unpickle_objects('f_test_toy_data_2023-02-07-10-38-42-399466.pkl')
 # trained_models = data_utils.unpickle_objects('f_test_toy_models_2023-02-07-11-01-43-480178.pkl')
-final_data = data_utils.unpickle_objects('Filtered_all_cancers_RNA_only_2023-04-14-12-07-40-497559.pkl')
+# final_data = data_utils.unpickle_objects('Filtered_all_cancers_RNA_only_2023-04-14-12-07-40-497559.pkl')
 
 
 
-trained_models = config.get_models(dataset=selected_final_3, method="standard")
-config.save(to_save=trained_models, name="f_test_toy_models")
+trained_models = config.get_models(dataset=final_data, method="standard")
+config.save(to_save=trained_models, name="f_test_topo2_models")
 
-
-ff = pd.DataFrame.from_dict(trained_models)
-ff2 = ff.T
-ff2.columns = ['RNA']
-ff3 = ff2.T
-final_ff = pd.DataFrame.to_dict(ff3)
-
-trained_models = final_ff
+#
+# ff = pd.DataFrame.from_dict(trained_models)
+# ff2 = ff.T
+# ff2.columns = ['RNA']
+# ff3 = ff2.T
+# final_ff = pd.DataFrame.to_dict(ff3)
+#
+# trained_models = final_ff
 
 final_results = dict()
 feature_importances = dict()
@@ -193,7 +193,7 @@ for target in targets:
             base_models[target][outer_loop][inner_loop] = dict()
 
             for omic in trained_models[target].keys():  # for each omic type
-                if omic == 'RNA':
+                if omic == 'RNA' or omic == 'EIGENVECTOR':
                     print(f'omic: {omic}')
                     train_features = train_dataset.to_pandas(omic=omic)
                     train_labels = train_dataset.to_pandas(omic='DRUGS').values.ravel()
@@ -221,7 +221,7 @@ for target in targets:
                                 base_models[target][outer_loop][inner_loop][omic][algo] = 'None'
 
         for omic in trained_models[target].keys():  # for each omic type
-            if omic == 'RNA':
+            if omic == 'RNA' or omic == 'EIGENVECTOR':
                 print(f'omic: {omic}')
                 train_features = rest_dataset.to_pandas(omic=omic)
                 train_labels = rest_dataset.to_pandas(omic='DRUGS').values.ravel()
@@ -263,7 +263,7 @@ for target in targets:
 
     omics = omics.drop(target)
 
-config.save(to_save=final_results, name="f_test_toy_final_results")
-config.save(to_save=feature_importances, name="f_test_toy_features")
-config.save(to_save=base_models, name="f_test_toy_base_models")
+config.save(to_save=final_results, name="f_test_topo2_final_results")
+config.save(to_save=feature_importances, name="f_test_topo2_features")
+config.save(to_save=base_models, name="f_test_topo2_base_models")
 

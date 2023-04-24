@@ -506,21 +506,21 @@ class Config:
             )
             results[this_target_name]["complete"] = this_result
 
-            if len(list(set(omics_list))) > 1:
-                for this_omic in omics_list:
-                    this_dataframe = this_dataset.to_pandas(omic=this_omic)
-                    targets = this_dataset.dataframe[this_target_name]
-                    logging.info(
-                        f"*** Computing standard models for {this_target_name} with {this_omic}"
-                    )
 
-                    this_dataframe, targets = data_utils.merge_and_clean(this_dataframe, targets)
+            for this_omic in omics_list:
+                this_dataframe = this_dataset.to_pandas(omic=this_omic)
+                targets = this_dataset.dataframe[this_target_name]
+                logging.info(
+                    f"*** Computing standard models for {this_target_name} with {this_omic}"
+                )
 
-                    this_result = optimized_models.get_standard_models(
-                        data=this_dataframe, targets=targets, algos=algos, metric=metric
-                    )
-                    if this_omic not in results[this_target_name]:
-                        results[this_target_name][this_omic] = this_result
+                this_dataframe, targets = data_utils.merge_and_clean(this_dataframe, targets)
+
+                this_result = optimized_models.get_standard_models(
+                    data=this_dataframe, targets=targets, algos=algos, metric=metric
+                )
+                if this_omic not in results[this_target_name]:
+                    results[this_target_name][this_omic] = this_result
 
         return results
 
