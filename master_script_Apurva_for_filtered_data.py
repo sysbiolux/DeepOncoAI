@@ -36,7 +36,7 @@ rng = np.random.default_rng(42)
 outer_folds = 5
 inner_folds = 5
 
-config = Config("testall/config_test_topo_1.yaml")  # here is the path to the config file to be used in the analysis
+config = Config("testall/config_topo.yaml")  # here is the path to the config file to be used in the analysis
 
 ###################################
 ### READING AND PROCESSING DATA ###
@@ -78,6 +78,7 @@ data, ActAreas, ic50s, dose_responses = config.read_data(join_type='inner')
 
 # missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axis=0)]
 
+
 # ######
 
 # logging.info("Getting optimized models")
@@ -100,6 +101,9 @@ not_selected_data = [x for x in load_failed_file.dataframe.index for y in cancer
 
 not_selected_total = nan_samples + not_selected_data
 selected_final, not_needed = load_failed_file.split(train_index = selected_data_p2, test_index = not_selected_total)
+
+final_data = selected_final.filter_att(target_omic = 'DISCRETIZED', reference_omic= 'RNA', separator='_')
+
 
 selected_final_3 = selected_final.extract(omics_list=['RNA','DRUGS'])
 config.save(to_save=selected_final_3, name='Filtered_all_cancers_RNA_only')

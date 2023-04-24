@@ -14,8 +14,8 @@ import glob
 ###############################################################################
 ### 1 Tables with performances per cell type
 
-final_results = unpickle_objects('FINAL_restrict_META_results_2023-03-14-13-22-14-057919.pkl')
-config = Config("testall/config_paper.yaml")
+final_results = unpickle_objects('f_test_toy_final_results_2023-04-14-03-23-43-046807.pkl')
+config = Config("testall/config_test_topo_1.yaml")
 
 
 drugs_list = list(final_results.keys())
@@ -47,6 +47,7 @@ tumors_list = [
         "LIVER",
         "BILIARY",
         "SMALL_INTESTINE",
+        
     ]
 
 exp = [x + '_N' for x in drugs_list]
@@ -152,19 +153,20 @@ for target_name in targets_names:
     plt.ylabel("True Positive Rate", fontsize=20, **hfont)
     plt.title(f"{target_name.split('_')[0]}",fontsize=20, **hfont)
     plt.legend(loc="lower right", fontsize=20)
-    plt.savefig(f'FINAL_ROC_META_{target_name}')
+    plt.savefig(f'Thresholding_25_breast_{target_name}')
     plt.close()
 
     fprs[target_name] = fpr
     tprs[target_name] = tpr
     roc_aucs[target_name] = roc_auc
 
-
+roc_aucs_df = pd.DataFrame.from_dict(roc_aucs).T
+roc_aucs_df.to_csv('ROC_AUCS_All_meas_all_cancers_RNA.csv')
 
 ###################################################################
 ### clustergrams
 
-fi = unpickle_objects('FINAL_featimp_2023-02-20-12-35-21-592650.pkl')
+fi = unpickle_objects('f_test_toy_features_2023-03-24-13-55-24-586681.pkl')
 
 fi_names = fi['Lapatinib_ActArea'][0]['RFC'].index
 
@@ -242,8 +244,8 @@ plt.close()
 
 #############################################################################
 
-base_models = unpickle_objects('FINAL_base-models_2023-02-20-12-35-21-611629.pkl')
-dataset = unpickle_objects('FINAL_preprocessed_data_2023-02-16-10-30-39-935233.pkl')
+base_models = unpickle_objects('f_test_toy_base_models_2023-03-25-12-32-47-823813.pkl')
+dataset = unpickle_objects('f_test_topo_1_2023-03-25-09-22-01-645884.pkl')
 omics_list = ['RPPA', 'RNA', 'MIRNA', 'META', 'DNA', 'PATHWAYS', 'TYPE']
 features_names_dict = {}
 for omic in omics_list:
@@ -278,7 +280,7 @@ for target_name, target_dict in base_models.items():
 
 file_list = glob.glob('fi_*')
 dataset = unpickle_objects('FINAL_preprocessed_data_2023-02-16-10-30-39-935233.pkl')
-omics_list = ['RPPA', 'RNA', 'MIRNA', 'META', 'DNA', 'PATHWAYS', 'TYPE']
+omics_list = ['RPPA', 'RNA', 'MIRNA', 'META', 'DNA', 'PATHWAYS', 'TYPE', 'EIGENVECTOR', 'BETWEENNESS','PAGERANK', 'CLOSENESS', 'AVNEIGHBOUR']
 algos_list = ['SVC', 'RFC', 'Logistic', 'EN', 'ET', 'XGB', 'Ada']
 omics_biglist = dataset.omic
 
