@@ -106,7 +106,7 @@ selected_final, not_needed = load_failed_file.split(train_index = selected_data_
 final_data = selected_final
 #
 # selected_final_3 = selected_final.extract(omics_list=['RNA','DRUGS'])
-# config.save(to_save=selected_final_3, name='Filtered_all_cancers_RNA_only')
+config.save(to_save=final_data, name='f_test_topo_2_refiltered')
 
 
 # final_data = data_utils.unpickle_objects('f_test_toy_data_2023-02-07-10-38-42-399466.pkl')
