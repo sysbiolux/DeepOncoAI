@@ -34,15 +34,21 @@ def read_data(folder: str, omic: str, database: str, nrows: int = None):
     elif database == "OWN":
         filename = {
             "PATHWAYS": "SPEED_Scores_namechange.csv",
-            "EIGENVECTOR": "Combined_eigen_T_5.csv",
-            "BETWEENNESS": "Combined_betweenness_T_5.csv",
+            "EIGENVECTOR": "Combined_Eigen_T_5.csv",
+            "BETWEENNESS": "Combined_Betweenness_T_5.csv",
             "CLOSENESS": "Combined_Closeness_T_5.csv",
             "PAGERANK": "Combined_PageRank_T_5.csv",
             "AVNEIGHBOUR": "Combined_Avg_neighbor_T_5.csv",
-           # "HARMONIC": "Colon_Avg_neighbor_25.csv",
-           # "INFORMATION": "Colon_Avg_neighbor_25.csv",
-           # "CONSTRAINT": "Colon_Avg_neighbor_25.csv",
-            "DISCRETIZED": "SKIN_discretized_0.5.csv"
+            "HARMONIC": "Combined_Harmonic_T_5.csv",
+            "INFORMATION": "Combined_Information_T_5.csv",
+            "CONSTRAINT": "Combined_Constraint_T_5.csv",
+            "ECCENTRICITY":"Combined_Eccentricity_T_5.csv",
+            "SUBGRAPH": "Combined_Subgraphcentrality_T_5.csv",
+            "APPROXCURRBET": "Combined_Approxcurrbet_T_5.csv",
+            "CLIQUENO": "Combined_Cliqueno_T_5.csv",
+            "SQUARECLUSTERING": "Combined_Squareclustering_T_5.csv",
+            "DEGREECENT":"Combined_DegreeCent_T_5.csv",
+            "DISCRETIZED": "Discretized_combined_T_5_all_cancers.csv"
         }[omic_root]
        
     else:

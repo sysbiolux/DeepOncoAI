@@ -119,12 +119,24 @@ def preprocess_data(dataset, flag: str = None):
                 dataset = preprocess_features_pagerank(dataset, flag=flag)
             if omic[0] == "AVNEIGHBOUR":
                 dataset = preprocess_features_avneighbour(dataset, flag=flag)
-#            if omic[0] == "HARMONIC":
-#                dataset = preprocess_features_harmonic(dataset, flag=flag)
-#            if omic[0] == "INFORMATION":
-#                dataset = preprocess_features_information(dataset, flag=flag)
-#            if omic[0] == "CONSTRAINT":
-#                dataset = preprocess_features_constraint(dataset, flag=flag)
+            if omic[0] == "HARMONIC":
+                dataset = preprocess_features_harmonic(dataset, flag=flag)
+            if omic[0] == "INFORMATION":
+                dataset = preprocess_features_information(dataset, flag=flag)
+            if omic[0] == "CONSTRAINT":
+                dataset = preprocess_features_constraint(dataset, flag=flag)
+            if omic[0] == "ECCENTRICITY":
+                dataset = preprocess_features_eccentricity(dataset, flag=flag)
+            if omic[0] == "SUBGRAPH":
+                dataset = preprocess_features_subgraph(dataset, flag=flag)
+            if omic[0] == "APPROXCURRBET":
+                dataset = preprocess_features_approxcurrbet(dataset, flag=flag)
+            if omic[0] == "CLIQUENO":
+                dataset = preprocess_features_cliqueno(dataset, flag=flag)
+            if omic[0] == "SQUARECLUSTERING":
+                dataset = preprocess_features_squareclustering(dataset, flag=flag)        
+            if omic[0] == "DEGREECENT":
+                dataset = preprocess_features_degreecent(dataset, flag=flag)                                
             if omic[0] == "DISCRETIZED":
                 dataset = preprocess_features_discretized(dataset, flag=flag)
 
@@ -328,6 +340,78 @@ def preprocess_features_constraint(dataset, flag: str = None):
 
     # additional steps if necessary
     return dataset_class.Dataset(df, omic="CONSTRAINT", database="OWN")
+
+def preprocess_features_eccentricity(dataset, flag: str = None):
+    df = dataset.dataframe
+    df = df.set_index(["Gene"]).transpose()
+    #    df.index = [idx[6:-11] for idx in df.index]
+    # df.index = [idx.rsplit("_", 1)[0] for idx in df.index]
+    df = df.add_suffix("_topo_ecc")
+    df = impute_missing_data(df, method="zeros")
+    # df = impute_missing_data(df, method="zeros", threshold=0.9)
+
+    # additional steps if necessary
+    return dataset_class.Dataset(df, omic="ECCENTRICITY", database="OWN")
+
+def preprocess_features_subgraph(dataset, flag: str = None):
+    df = dataset.dataframe
+    df = df.set_index(["Gene"]).transpose()
+    #    df.index = [idx[6:-11] for idx in df.index]
+    # df.index = [idx.rsplit("_", 1)[0] for idx in df.index]
+    df = df.add_suffix("_topo_subgraph")
+    df = impute_missing_data(df, method="zeros")
+    # df = impute_missing_data(df, method="zeros", threshold=0.9)
+
+    # additional steps if necessary
+    return dataset_class.Dataset(df, omic="SUBGRAPH", database="OWN")
+
+def preprocess_features_approxcurrbet(dataset, flag: str = None):
+    df = dataset.dataframe
+    df = df.set_index(["Gene"]).transpose()
+    #    df.index = [idx[6:-11] for idx in df.index]
+    # df.index = [idx.rsplit("_", 1)[0] for idx in df.index]
+    df = df.add_suffix("_topo_apcurbet")
+    df = impute_missing_data(df, method="zeros")
+    # df = impute_missing_data(df, method="zeros", threshold=0.9)
+
+    # additional steps if necessary
+    return dataset_class.Dataset(df, omic="APPROXCURRBET", database="OWN")
+
+def preprocess_features_cliqueno(dataset, flag: str = None):
+    df = dataset.dataframe
+    df = df.set_index(["Gene"]).transpose()
+    #    df.index = [idx[6:-11] for idx in df.index]
+    # df.index = [idx.rsplit("_", 1)[0] for idx in df.index]
+    df = df.add_suffix("_topo_cliqueno")
+    df = impute_missing_data(df, method="zeros")
+    # df = impute_missing_data(df, method="zeros", threshold=0.9)
+
+    # additional steps if necessary
+    return dataset_class.Dataset(df, omic="CLIQUENO", database="OWN")
+
+def preprocess_features_squareclustering(dataset, flag: str = None):
+    df = dataset.dataframe
+    df = df.set_index(["Gene"]).transpose()
+    #    df.index = [idx[6:-11] for idx in df.index]
+    # df.index = [idx.rsplit("_", 1)[0] for idx in df.index]
+    df = df.add_suffix("_topo_sqclst")
+    df = impute_missing_data(df, method="zeros")
+    # df = impute_missing_data(df, method="zeros", threshold=0.9)
+
+    # additional steps if necessary
+    return dataset_class.Dataset(df, omic="SQUARECLUSTERING", database="OWN")
+
+def preprocess_features_degreecent(dataset, flag: str = None):
+    df = dataset.dataframe
+    df = df.set_index(["Gene"]).transpose()
+    #    df.index = [idx[6:-11] for idx in df.index]
+    # df.index = [idx.rsplit("_", 1)[0] for idx in df.index]
+    df = df.add_suffix("_topo_deg")
+    df = impute_missing_data(df, method="zeros")
+    # df = impute_missing_data(df, method="zeros", threshold=0.9)
+
+    # additional steps if necessary
+    return dataset_class.Dataset(df, omic="DEGREECENT", database="OWN")
 
 def preprocess_features_discretized(dataset, flag: str = None):
     df = dataset.dataframe

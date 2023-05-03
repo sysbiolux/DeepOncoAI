@@ -305,7 +305,7 @@ class Dataset:
                 indices = [index for index, value in enumerate(full_df.columns) if value.startswith(element)]
                 idx_in_full.extend(indices)
     
-            idx_to_keep = [x for x in range(full_df.columns) if x not in idx_in_full]
+            idx_to_keep = [x for x in range(len(full_df.columns)) if x not in idx_in_full]
     
             filtered_dataset = Dataset(
                 dataframe=full_df.iloc[:, idx_to_keep],
