@@ -309,8 +309,20 @@ class Dataset:
 
             filtered_dataset = Dataset(
                 dataframe=full_df.iloc[:, idx_to_keep],
-                omic= omic[idx_to_keep],
-                database= database[idx_to_keep]
+                omic=omic[idx_to_keep],
+                database=database[idx_to_keep]
             )
         return filtered_dataset
+
+
+    def shuffle_features(self):
+        df_copy = self.dataframe.copy()
+        cols_to_shuffle = df_copy.columns[:-23]
+        for i, col in enumerate(cols_to_shuffle):
+            print(f'{i}: {col}')
+            df_copy[col] = np.random.permutation(df_copy[col].values)
+
+        return Dataset(dataframe=df_copy, omic=self.omic, database=self.database)
+
+
 
