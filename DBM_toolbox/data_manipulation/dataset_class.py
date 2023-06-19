@@ -94,27 +94,27 @@ class Dataset:
             database=resulting_database,
         )
 
-    def merge_with(self, other_datasets: list):
+    def merge_with(self, other_datasets: list, join_type='outer'):
         if isinstance(other_datasets, list):
             for single_dataset in other_datasets:
-                self = self.merge_two_datasets(single_dataset)
+                self = self.merge_two_datasets(single_dataset, join_type=join_type)
         else:
             if isinstance(other_datasets, Dataset):
-                self = self.merge_two_datasets(other_datasets)
+                self = self.merge_two_datasets(other_datasets, join_type=join_type)
             else:
                 raise ValueError("Merging is only allowed between Datasets")
         return self
 
-    def merge_two_datasets(self, other_dataset):
+    def merge_two_datasets(self, other_dataset, join_type='outer'):
 
         dataframe = self.dataframe
         other_dataframe = other_dataset.dataframe
 
         cols = dataframe.columns
 
-        merged_dataframe = pd.concat([dataframe, other_dataframe], axis=1)
-        merged_omic = pd.concat([self.omic, other_dataset.omic])
-        merged_database = pd.concat([self.database, other_dataset.database])
+        merged_dataframe = pd.concat([dataframe, other_dataframe], join=join_type, axis=1)
+        merged_omic = pd.concat([self.omic, other_dataset.omic], join=join_type)
+        merged_database = pd.concat([self.database, other_dataset.database], join=join_type)
 
         merged_dataframe = merged_dataframe.dropna(how="all", subset=cols)
 
@@ -289,6 +289,7 @@ class Dataset:
             previous = self.database
             self.database = pd.Series(new_database, index=previous.columns)
 
+            
     def filter_att(self, target_omic: str = None, reference_omic: str = None, separator: str = None):
         if target_omic is not None and reference_omic is not None and separator is not None:
             full_df = self.dataframe
@@ -297,32 +298,39 @@ class Dataset:
             ref_df = self.to_pandas(omic=reference_omic)
             target_df = self.to_pandas(omic=target_omic)
             ref_colnames = [x.split(separator)[0] for x in ref_df.columns]
+
+           # ref_colnames_int = [y.replace('LARGE', 'LARGE_INTESTINE') for y in ref_colnames]
+           # ref_colnames_int_brain = [y_brain.replace('NERVOUS', 'CENTRAL_NERVOUS_SYSTEM') for y_brain in ref_colnames_int]
             target_colnames = [x.split(separator)[0] for x in target_df.columns]
-
-            cols_to_remove = [x for x in target_colnames if x not in ref_colnames]
-            idx_in_full = []
-            for element in cols_to_remove:
-                indices = [index for index, value in enumerate(full_df.columns) if value.startswith(element)]
-                idx_in_full.extend(indices)
-
-            idx_to_keep = [x for x in range(full_df.columns) if x not in idx_in_full]
-
+            
+            inter = list(set(ref_colnames).intersection(set(target_colnames)))
+            
+            cols_to_keep = []
+            for col in self.dataframe.columns:
+                print(col)
+                if self.omic[col] in [target_omic, reference_omic]:
+                    for element in inter:
+                        if col.startswith(element + separator):
+                            cols_to_keep.append(col)
+                else:
+                    cols_to_keep.append(col)
+            
+    
+            # cols_to_remove = [x for x in target_colnames if x not in ref_colnames]
+            
+            # idx_in_full = []
+            # for element in cols_to_remove:
+            #     indices = [index for index, value in enumerate(full_df.columns) if value.startswith(element)]
+            #     idx_in_full.extend(indices)
+    
+            # idx_to_keep = [x for x in range(len(full_df.columns)) if x not in idx_in_full]
+    
             filtered_dataset = Dataset(
-                dataframe=full_df.iloc[:, idx_to_keep],
-                omic=omic[idx_to_keep],
-                database=database[idx_to_keep]
+                dataframe=full_df.loc[:, cols_to_keep],
+                omic= omic[cols_to_keep],
+                database= database[cols_to_keep]
             )
         return filtered_dataset
-
-
-    def shuffle_features(self):
-        df_copy = self.dataframe.copy()
-        cols_to_shuffle = df_copy.columns[:-23]
-        for i, col in enumerate(cols_to_shuffle):
-            print(f'{i}: {col}')
-            df_copy[col] = np.random.permutation(df_copy[col].values)
-
-        return Dataset(dataframe=df_copy, omic=self.omic, database=self.database)
 
 
 

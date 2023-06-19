@@ -34,13 +34,23 @@ def read_data(folder: str, omic: str, database: str, nrows: int = None):
     elif database == "OWN":
         filename = {
             "PATHWAYS": "SPEED_Scores_namechange.csv",
-            "EIGENVECTOR": "LUNG_eigen.csv",
-            "BETWEENNESS": "LUNG_betweenness.csv",
-            "CLOSENESS": "LungColonSkin_ClosenessHPC.csv",
-            "PAGERANK": "LungColonSkin_PageRankHPC.csv",
-            "AVNEIGHBOUR": "LUNG_Avg_neighbor.csv",
-            #             insert more here
+            "EIGENVECTOR": "Combined_Eigen_T_5.csv",
+            "BETWEENNESS": "Combined_Betweenness_T_5.csv",
+            "CLOSENESS": "Combined_Closeness_T_5.csv",
+            "PAGERANK": "Combined_PageRank_T_5.csv",
+            "AVNEIGHBOUR": "Combined_Avg_neighbor_T_5.csv",
+            "HARMONIC": "Combined_Harmonic_T_5.csv",
+            "INFORMATION": "Combined_Information_T_5.csv",
+            "CONSTRAINT": "Combined_Constraint_T_5.csv",
+            "ECCENTRICITY":"Combined_Eccentricity_T_5.csv",
+            "SUBGRAPH": "Combined_Subgraphcentrality_T_5.csv",
+            "APPROXCURRBET": "Combined_Approxcurrbet_T_5.csv",
+            "CLIQUENO": "Combined_Cliqueno_T_5.csv",
+            "SQUARECLUSTERING": "Combined_Squareclustering_T_5.csv",
+            "DEGREECENT":"Combined_DegreeCent_T_5.csv",
+            "DISCRETIZED": "Discretized_combined_T_5_all_cancers.csv"
         }[omic_root]
+       
     else:
         logging.info(f"load_data.py/read_data: Database not recognized: {database}")
     file_string, file_extension = os.path.splitext(filename)

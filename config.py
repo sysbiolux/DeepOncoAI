@@ -114,7 +114,7 @@ class Config:
         with open(config) as f:
             self.raw_dict = yaml.load(f, Loader=yaml.FullLoader)
 
-    def read_data(self):
+    def read_data(self, join_type='outer'):
         """
         Reads the data (omics and targets) according to the config file and assembles a Dataset class
         """
@@ -136,7 +136,7 @@ class Config:
             logging.info(
                 f"{additional_dataset.dataframe.shape[0]} samples and {additional_dataset.dataframe.shape[1]} features"
             )
-            full_dataset = full_dataset.merge_with(additional_dataset)
+            full_dataset = full_dataset.merge_with(additional_dataset, join_type=join_type)
 
         targets = self.raw_dict["data"]["targets"]
         logging.info(targets)
@@ -506,21 +506,21 @@ class Config:
             )
             results[this_target_name]["complete"] = this_result
 
-            if len(list(set(omics_list))) > 1:
-                for this_omic in omics_list:
-                    this_dataframe = this_dataset.to_pandas(omic=this_omic)
-                    targets = this_dataset.dataframe[this_target_name]
-                    logging.info(
-                        f"*** Computing standard models for {this_target_name} with {this_omic}"
-                    )
 
-                    this_dataframe, targets = data_utils.merge_and_clean(this_dataframe, targets)
+            for this_omic in omics_list:
+                this_dataframe = this_dataset.to_pandas(omic=this_omic)
+                targets = this_dataset.dataframe[this_target_name]
+                logging.info(
+                    f"*** Computing standard models for {this_target_name} with {this_omic}"
+                )
 
-                    this_result = optimized_models.get_standard_models(
-                        data=this_dataframe, targets=targets, algos=algos, metric=metric
-                    )
-                    if this_omic not in results[this_target_name]:
-                        results[this_target_name][this_omic] = this_result
+                this_dataframe, targets = data_utils.merge_and_clean(this_dataframe, targets)
+
+                this_result = optimized_models.get_standard_models(
+                    data=this_dataframe, targets=targets, algos=algos, metric=metric
+                )
+                if this_omic not in results[this_target_name]:
+                    results[this_target_name][this_omic] = this_result
 
         return results
 

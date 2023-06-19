@@ -14,41 +14,19 @@ import glob
 ###############################################################################
 ### 1 Tables with performances per cell type
 
+final_results = unpickle_objects('f_test_topo2_final_results_2023-04-26-11-20-18-360282.pkl')
+config = Config("testall/config_test_topo_test_integration.yaml")
 
-final_results = unpickle_objects('f_test_toy_final_results_2023-04-14-03-23-43-046807.pkl')
-config = Config("testall/config_test_topo_1.yaml")
-
+######
 
 drugs_list = list(final_results.keys())
 
 tumors_list = [
-        "PROSTATE",
-        "STOMACH",
-        "URINARY",
         "NERVOUS",
-        "OVARY",
-        "HAEMATOPOIETIC",
-        "KIDNEY",
-        "THYROID",
         "SKIN",
-        "SOFT_TISSUE",
-        "SALIVARY",
         "LUNG",
-        "BONE",
-        "PLEURA",
-        "ENDOMETRIUM",
         "BREAST",
-        "PANCREAS",
-        "AERODIGESTIVE",
         "LARGE_INTESTINE",
-        "GANGLIA",
-        "OESOPHAGUS",
-        "FIBROBLAST",
-        "CERVIX",
-        "LIVER",
-        "BILIARY",
-        "SMALL_INTESTINE",
-        
     ]
 
 exp = [x + '_N' for x in drugs_list]
@@ -60,17 +38,15 @@ df_prec = pd.DataFrame(index=tumors_list, columns=drugs_list + exp)
 df_recall = pd.DataFrame(index=tumors_list, columns=drugs_list + exp)
 df_ba = pd.DataFrame(index=tumors_list, columns=drugs_list + exp)
 
-vvs = pd.DataFrame()
 for drug in drugs_list:
     for tumor in tumors_list:
-        vv = pd.DataFrame([[drug, tumor]], columns=['drug', 'tumor'])
         print(f'drug: {drug}, tumor: {tumor}')
         res = final_results[drug].loc[:, [drug, 'pred2_RFC']]
         res = res[res.index.str.contains(tumor)]
         N_pos = sum(res.loc[:, drug] == 1)
         N_neg = sum(res.loc[:, drug] == 0)
         N_all = N_pos + N_neg
-        if N_all > 0:
+        if N_all >= 10:
             res['sum'] = res.sum(axis=1)
             res['tp'] = res['sum'] >= 1.5
             res['tn'] = res['sum'] <= 0.5
@@ -78,55 +54,6 @@ for drug in drugs_list:
             res['fn'] = (res['sum'] > 1) & (res['sum'] <= 1.5)
             res['pp'] = res['pred2_RFC'] > 0.5
             res['pn'] = res['pred2_RFC'] < 0.5
-            try:
-                vv['tpn'] = res['tp'].sum()
-            except:
-                vv['tpn'] = np.nan
-            try:
-                vv['tnn'] = res['tn'].sum()
-            except:
-                vv['tnn'] = np.nan
-            try:
-                vv['fpn'] = res['fp'].sum()
-            except:
-                vv['fpn'] = np.nan
-            try:
-                vv['fnn'] = res['fn'].sum()
-            except:
-                vv['fnn'] = np.nan
-            try:
-                vv['sens'] = res['tp'].sum() / (res['tp'].sum() + res['fn'].sum())
-            except:
-                vv['sens'] = np.nan
-            try:
-                vv['spec'] = res['tn'].sum() / (res['tn'].sum() + res['fp'].sum())
-            except:
-                vv['spec'] = np.nan
-            try:
-                vv['prec'] = res['tp'].sum() / (res['tp'].sum() + res['fp'].sum())
-            except:
-                vv['prec'] = np.nan
-            try:
-                vv['npv'] = res['tn'].sum() / (res['tn'].sum() + res['fp'].sum())
-            except:
-                vv['npv'] = np.nan
-            try:
-                vv['f1'] = 2 * res['tp'].sum() / (2 * res['tp'].sum() + res['fp'].sum() + res['fn'].sum())
-            except:
-                vv['f1'] = np.nan
-            try:
-                vv['ba'] = 0.5 * (vv['sens'] + vv['spec'].sum())
-            except:
-                vv['ba'] = np.nan
-            try:
-                vv['mcc'] = (res['tp'].sum() * res['tn'].sum() - res['fp'].sum() * res['fn'].sum()) / np.sqrt((res['tp'].sum() + res['fp'].sum()) * (res['tp'].sum() + res['fn'].sum()) * (res['tn'].sum() + res['fp'].sum()) * (res['tn'].sum() + res['fn'].sum()))
-            except:
-                vv['mcc'] = np.nan
-            try:
-                vv['dor'] = ((vv['sens']) / (res['fp'].sum())/(res['fp'].sum() + res['tn'].sum())) / ((res['fn'].sum() / (res['fn'].sum() + res['tp'].sum())) / (res['tn'].sum() / (res['tn'].sum() + res['fp'].sum())))
-            except:
-                vv['dor'] = np.nan
-
             df_pos.loc[tumor, drug +'_N'] = N_pos
             df_neg.loc[tumor, drug +'_N'] = N_neg
             df_all.loc[tumor, drug +'_N'] = N_all
@@ -141,7 +68,6 @@ for drug in drugs_list:
                 tpr = (res.loc[:, 'tp'].sum().sum().astype(int) / res.loc[:, ['tp', 'fn']].sum().sum().astype(int))
                 tnr = (res.loc[:, 'tn'].sum().sum().astype(int) / res.loc[:, ['tn', 'fp']].sum().sum().astype(int))
                 df_ba.loc[tumor, drug] = (tpr + tnr) / 2
-            vvs = vvs.append(vv)
 
 df_pos = df_pos.dropna(how='all')
 df_neg = df_neg.dropna(how='all')
@@ -151,19 +77,14 @@ df_recall = df_recall.dropna(how='all')
 df_ba = df_ba.dropna(how='all')
 df_ba = df_ba.dropna(axis=1, how='all')
 
-vvs.to_csv('FINAL_celltype_total_table.csv')
-df_pos.to_csv('FINAL_celltype_results_pos.csv')
-df_neg.to_csv('FINAL_celltype_results_neg.csv')
-df_all.to_csv('FINAL_celltype_results_all.csv')
-df_prec.to_csv('FINAL_celltype_results_prec.csv')
-df_recall.to_csv('FINAL_celltype_results_recall.csv')
-df_ba.to_csv('FINAL_celltype_results_bal-accuracy.csv')
+df_pos.to_csv('Topo_2_celltype_results_pos.csv')
+df_neg.to_csv('Topo_2_celltype_results_neg.csv')
+df_all.to_csv('Topo_2_celltype_results_all.csv')
+df_prec.to_csv('Topo_2_celltype_results_prec.csv')
+df_recall.to_csv('Topo_2_celltype_results_recall.csv')
+df_ba.to_csv('Topo_2_celltype_results_bal-accuracy.csv')
 
 df_ba = df_ba.apply(pd.to_numeric, errors='coerce')
-
-cols = df_ba.columns
-cols = [x.split('_')[0] for x in cols]
-df_ba.columns = [x.split('_')[0] for x in df_ba.columns]
 
 fig, ax = plt.subplots(figsize=(30, 15))
 cmap = sns.cm.rocket_r
@@ -175,7 +96,7 @@ sns.heatmap(df_ba, cmap=cmap, annot=True, fmt='.2f', linewidths=.1, ax=ax, annot
             })
 #cmap=sns.color_palette("rocket", as_cmap=True)
 plt.xlabel('')
-plt.savefig('FINAL_balanced_accuracy')
+plt.savefig('Topo_2_balanced_accuracy')
 plt.close()
 
 
@@ -207,13 +128,11 @@ for target_name in targets_names:
     plt.plot([0, 1], [0, 1], color="black", linestyle="--")
     plt.xlim([0.0, 1.05])
     plt.ylim([0.0, 1.05])
-
     plt.xlabel("False Positive Rate", fontsize=20, **hfont)
     plt.ylabel("True Positive Rate", fontsize=20, **hfont)
     plt.title(f"{target_name.split('_')[0]}",fontsize=20, **hfont)
     plt.legend(loc="lower right", fontsize=20)
-    plt.savefig(f'Thresholding_25_breast_{target_name}')
-
+    plt.savefig(f'Topo_2_{target_name}')
     plt.close()
 
     fprs[target_name] = fpr
@@ -221,12 +140,12 @@ for target_name in targets_names:
     roc_aucs[target_name] = roc_auc
 
 roc_aucs_df = pd.DataFrame.from_dict(roc_aucs).T
-roc_aucs_df.to_csv('ROC_AUCS_All_meas_all_cancers_RNA.csv')
+roc_aucs_df.to_csv('ROC_Topo_2_AUCS_eigen_discretized.csv')
 
 ###################################################################
 ### clustergrams
 
-fi = unpickle_objects('f_test_toy_features_2023-03-24-13-55-24-586681.pkl')
+fi = unpickle_objects('f_test_topo2_features_2023-04-26-11-20-18-361678.pkl')
 
 fi_names = fi['Lapatinib_ActArea'][0]['RFC'].index
 
@@ -252,8 +171,8 @@ res_sd.columns = colnames
 res_sd.index = indexnames
 
 
-res_fi.to_csv('FINAL_RFC_contributions_table.csv')
-res_sd.to_csv('FINAL_RFC_contributions_sd_table.csv')
+res_fi.to_csv('Topo_2_RFC_contributions_table.csv')
+res_sd.to_csv('Topo_2_RFC_contributions_sd_table.csv')
 
 fig, ax = plt.subplots(figsize=(25, 11))
 cmap = sns.cm.rocket_r
@@ -263,7 +182,7 @@ plt.close()
 
 sns.clustermap(res_fi, cmap=cmap, xticklabels=True, figsize=(25, 11))
 #sns.color_palette("rocket", as_cmap=True)
-plt.savefig('FINAL_RFC_contributions_cluster')
+plt.savefig('Topo_2_RFC_contributions_cluster')
 plt.close()
 #
 # fig, axs = plt.subplots(nrows=len(indexnames), figsize=(10, 50), sharex='all')
@@ -299,14 +218,14 @@ for i, (mean_row, std_row) in enumerate(zip(res_fi.iterrows(), res_sd.iterrows()
 axs[0].xaxis.set_ticks_position('top')
 axs[0].xaxis.set_label_position('top')
 
-fig.savefig("FINAL_contributions_bar_plots.png")
+fig.savefig("Topo_2_contributions_bar_plots.png")
 plt.close()
 
 #############################################################################
 
-base_models = unpickle_objects('f_test_toy_base_models_2023-03-25-12-32-47-823813.pkl')
-dataset = unpickle_objects('f_test_topo_1_2023-03-25-09-22-01-645884.pkl')
-omics_list = ['RPPA', 'RNA', 'MIRNA', 'META', 'DNA', 'PATHWAYS', 'TYPE']
+base_models = unpickle_objects('f_test_topo2_base_models_2023-04-26-11-20-18-362453.pkl')
+dataset = unpickle_objects('f_test_topo_integration_2023-04-26-11-29-14-047103.pkl')
+omics_list = ['DISCRETIZED', 'EIGENVECTOR']
 features_names_dict = {}
 for omic in omics_list:
     features_names_dict[omic] = list(dataset.to_pandas(omic=omic).columns)
@@ -336,11 +255,16 @@ for target_name, target_dict in base_models.items():
     rr.loc['average', :] = rr.mean(axis=0)
     fi_dict[target_name] = rr
 
+
+for this_key in fi_dict.keys():
+    fi_dict[this_key].to_csv(f'fi_{this_key}_topo_2.csv')
+
 #############################################################
 
 file_list = glob.glob('fi_*')
-dataset = unpickle_objects('FINAL_preprocessed_data_2023-02-16-10-30-39-935233.pkl')
-omics_list = ['RPPA', 'RNA', 'MIRNA', 'META', 'DNA', 'PATHWAYS', 'TYPE', 'EIGENVECTOR', 'BETWEENNESS','PAGERANK', 'CLOSENESS', 'AVNEIGHBOUR']
+file_list.remove('FI_plots')
+dataset = unpickle_objects('f_test_topo_integration_2023-04-26-11-29-14-047103.pkl')
+omics_list = ['DISCRETIZED', 'EIGENVECTOR']
 algos_list = ['SVC', 'RFC', 'Logistic', 'EN', 'ET', 'XGB', 'Ada']
 omics_biglist = dataset.omic
 
@@ -388,7 +312,7 @@ for file in file_list:
             colnames = [x.split('_ENS')[0].split('_Cautio')[0].split('_nmiR')[0].split('/isoval')[0].split('/tauro')[0] for x in colnames]
             sorted_df.columns = colnames
             sns.boxplot(data=sorted_df + 1, ax=ax, color='white', orient='h')
-            sorted_df.to_csv(f"FINAL_FI_med_{drugname}_{omic}_{algo}")
+            sorted_df.to_csv(f"Topo_2_FI_med_{drugname}_{omic}_{algo}")
             sns.set_context('paper')
             for line in ax.lines:
                 if line.get_linestyle() == '-':
@@ -399,7 +323,7 @@ for file in file_list:
 
         plt.suptitle(f'Distribution of features ranks: {drugname} / {omic}')
         plt.tight_layout()
-        plt.savefig(f'FINAL_FI_med_{drugname}_{omic}.tif', format='tif', dpi=300)
+        plt.savefig(f'Topo_2_FI_med_{drugname}_{omic}.tif', format='tif', dpi=300)
         plt.close()
 
-all_col_meds.to_csv("all_col_meds.csv")
+all_col_meds.to_csv("Topo_2_all_col_meds.csv")
