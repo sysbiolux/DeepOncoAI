@@ -297,20 +297,36 @@ class Dataset:
             ref_df = self.to_pandas(omic=reference_omic)
             target_df = self.to_pandas(omic=target_omic)
             ref_colnames = [x.split(separator)[0] for x in ref_df.columns]
+           # ref_colnames_int = [y.replace('LARGE', 'LARGE_INTESTINE') for y in ref_colnames]
+           # ref_colnames_int_brain = [y_brain.replace('NERVOUS', 'CENTRAL_NERVOUS_SYSTEM') for y_brain in ref_colnames_int]
             target_colnames = [x.split(separator)[0] for x in target_df.columns]
+            
+            inter = list(set(ref_colnames).intersection(set(target_colnames)))
+            
+            cols_to_keep = []
+            for col in self.dataframe.columns:
+                print(col)
+                if self.omic[col] in [target_omic, reference_omic]:
+                    for element in inter:
+                        if col.startswith(element + separator):
+                            cols_to_keep.append(col)
+                else:
+                    cols_to_keep.append(col)
+            
     
-            cols_to_remove = [x for x in target_colnames if x not in ref_colnames]
-            idx_in_full = []
-            for element in cols_to_remove:
-                indices = [index for index, value in enumerate(full_df.columns) if value.startswith(element)]
-                idx_in_full.extend(indices)
+            # cols_to_remove = [x for x in target_colnames if x not in ref_colnames]
+            
+            # idx_in_full = []
+            # for element in cols_to_remove:
+            #     indices = [index for index, value in enumerate(full_df.columns) if value.startswith(element)]
+            #     idx_in_full.extend(indices)
     
-            idx_to_keep = [x for x in range(len(full_df.columns)) if x not in idx_in_full]
+            # idx_to_keep = [x for x in range(len(full_df.columns)) if x not in idx_in_full]
     
             filtered_dataset = Dataset(
-                dataframe=full_df.iloc[:, idx_to_keep],
-                omic= omic[idx_to_keep],
-                database= database[idx_to_keep]
+                dataframe=full_df.loc[:, cols_to_keep],
+                omic= omic[cols_to_keep],
+                database= database[cols_to_keep]
             )
         return filtered_dataset
 

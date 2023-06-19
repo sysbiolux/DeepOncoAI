@@ -14,20 +14,73 @@ from pathlib import Path
 ###############################################################################
 ### 1 Tables with performances per cell type
 
-measures = ['EIGENVECTOR' ]
+#measures = ['EIGENVECTOR','BETWEENNESS','CLOSENESS', 'PAGERANK','AVNEIGHBOUR', 'HARMONIC', 'INFORMATION', 'CONSTRAINT', 'ECCENTRICITY',
+#              'SUBGRAPH', 'APPROXCURRBET','CLIQUENO','SQUARECLUSTERING','DEGREECENT' ]
 #,'BETWEENNESS','CLOSENESS', 'PAGERANK','AVNEIGHBOUR', 'HARMONIC', 'INFORMATION', 'CONSTRAINT', 'ECCENTRICITY',
 #              'SUBGRAPH', 'APPROXCURRBET','CLIQUENO','SQUARECLUSTERING','DEGREECENT'
-disc = ['DISCRETIZED']
-base_omics = ['DNA'] #'RPPA','RNA',
-combinations = base_omics+disc+measures
-name_str = [x[0:3] for x in combinations]
-comb_name = ''.join([y for y in name_str])
-results_folder = f'{comb_name}'
-Path(f"{results_folder}/").mkdir(parents=True, exist_ok=True)
+#disc = ['DISCRETIZED']
+#base_omics = ['RPPA'] #'RPPA','RNA',
+#combinations = base_omics + measures
+#name_str = [x[0:3] for x in combinations]
+#comb_name = ''.join([y for y in name_str])
+#results_folder = f'{comb_name}'
+#Path(f"{results_folder}/").mkdir(parents=True, exist_ok=True)
 
 ############################
 
 ######
+
+def generate_folder_comb(res_filename:str, additional_string=None):
+    filename = res_filename
+    fi1 = filename.split('_')
+    fi2 = fi1[0]
+    x = len(fi2)
+    y = [fi2[i:i+3] for i in range(0,x,3)]
+    base_omics_dict = dict()
+    measures_dict = dict()
+    disc_dict = dict()
+    base_omics_dict['RNA'] = 'RNA'
+    base_omics_dict['RPP'] = 'RPPA'
+    base_omics_dict['DNA'] = 'DNA'
+    measures_dict['EIG'] = 'EIGENVECTOR'
+    measures_dict['BET'] = 'BETWEENNESS'                   
+    measures_dict['CLO'] = 'CLOSENESS'
+    measures_dict['PAG'] = 'PAGERANK'
+    measures_dict['AVN'] = 'AVNEIGHBOUR'
+    measures_dict['HAR'] = 'HARMONIC'
+    measures_dict['INF'] = 'INFORMATION'
+    measures_dict['CON'] = 'CONSTRAINT'
+    measures_dict['ECC'] = 'ECCENTRICITY'
+    measures_dict['SUB'] = 'SUBGRAPH'
+    measures_dict['APP'] = 'APPROXCURRBET'
+    measures_dict['CLI'] = 'CLIQUENO'
+    measures_dict['SQU'] = 'SQUARECLUSTERING'
+    measures_dict['DEG'] = 'DEGREECENT' 
+    disc_dict['DIS'] = 'DISCRETIZED'
+    
+    
+    base_omics_list = []
+    measures_list = []
+    disc_list = []
+    for xi in y:
+        if xi in base_omics_dict:
+            base_omics_list.append(base_omics_dict[xi])
+        elif xi in measures_dict:
+            measures_list.append(measures_dict[xi])
+        elif xi in disc_dict:
+            disc_list.append(disc_dict[xi])
+        else: 
+            pass
+    
+    combinations = base_omics_list + measures_list + disc_list
+    
+    if additional_string is not None:
+        results_folder = fi1[0] + additional_string
+    else:
+        results_folder = fi1[0]
+    Path(f"{results_folder}/").mkdir(parents=True, exist_ok=True)
+    return combinations, results_folder
+
 
 def final_balanced_acc_plot(final_results, comb_name, results_folder):
 
@@ -275,10 +328,12 @@ def extract_contributions(basemodels_file, datafile, comb_name, results_folder, 
     
         rr.loc['average', :] = rr.mean(axis=0)
         fi_dict[target_name] = rr
+        for this_key in fi_dict.keys():
+                fi_dict[this_key].to_csv(f'{results_folder}/fi_{this_key}_{comb_name}.csv')
+        fi_dict = {}
     
-    
-    for this_key in fi_dict.keys():
-        fi_dict[this_key].to_csv(f'{results_folder}/fi_{this_key}_{comb_name}.csv')
+#    for this_key in fi_dict.keys():
+#        fi_dict[this_key].to_csv(f'{results_folder}/fi_{this_key}_{comb_name}.csv')
 
 #############################################################
 
@@ -359,18 +414,22 @@ def extract_features(datafile, comb_name, results_folder, combinations):
 ########################################################
 
 ### features, models, dataset files
-final_results = unpickle_objects('DNADISEIG_final_results_2023-05-03-13-05-36-817829.pkl')
+final_results = unpickle_objects('RPPSQU_partial_final_results_2023-05-21-14-01-00-898299.pkl') #EIGBETCLOPAGAVNHARINFCONECCSUBAPPCLISQUDEG_final_results_2023-05-08-05-33-00-213462
 config = Config("testall/config_test_topo_integrated.yaml")
-base_models = 'DNADISEIG_base_models_2023-05-03-13-06-04-036764.pkl'
-dataset = 'Topo_integration_2023-05-01-06-25-23-229169.pkl'
+base_models = 'RPPSQU_partial_base_models_2023-05-21-14-01-00-903747.pkl' #EIGBETCLOPAGAVNHARINFCONECCSUBAPPCLISQUDEG_base_models_2023-05-08-05-33-00-225061
+#dataset = 'Topo_integration_2023-05-06-19-07-06-236917.pkl'
+dataset        = 'Topo_PARTIAL_2023-05-12-13-32-14-031004.pkl'
 datafile = dataset
-features_file = 'DNADISEIG_features_2023-05-03-13-05-53-233569.pkl'
+features_file = 'RPPSQU_partial_features_2023-05-21-14-01-00-900328.pkl' #EIGBETCLOPAGAVNHARINFCONECCSUBAPPCLISQUDEG_features_2023-05-08-05-33-00-220327
 basemodels_file = base_models
 
 ##### Plots 
-#final_balanced_acc_plot(final_results, comb_name, results_folder)
-#plot_roc_curves(final_results, comb_name, results_folder)
-#plot_clustergram(features_file, comb_name, results_folder)
+comb, results_folder = generate_folder_comb(features_file, 'PARTIAL')
+comb_name = results_folder 
+combinations = comb
+final_balanced_acc_plot(final_results, comb_name, results_folder)
+plot_roc_curves(final_results, comb_name, results_folder)
+plot_clustergram(features_file, comb_name, results_folder)
 extract_contributions(basemodels_file, datafile, comb_name, results_folder, combinations)
 extract_features(datafile, comb_name, results_folder, combinations)    
     

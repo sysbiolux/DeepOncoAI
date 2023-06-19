@@ -14,8 +14,8 @@ import glob
 ###############################################################################
 ### 1 Tables with performances per cell type
 
-final_results = unpickle_objects('f_test_topo2_final_results_2023-04-24-22-15-53-354249.pkl')
-config = Config("testall/config_test_topo_2.yaml")
+final_results = unpickle_objects('f_test_topo2_final_results_2023-04-26-11-20-18-360282.pkl')
+config = Config("testall/config_test_topo_test_integration.yaml")
 
 ######
 
@@ -140,12 +140,12 @@ for target_name in targets_names:
     roc_aucs[target_name] = roc_auc
 
 roc_aucs_df = pd.DataFrame.from_dict(roc_aucs).T
-roc_aucs_df.to_csv('ROC_Topo_2_AUCS_All_meas_all_cancers.csv')
+roc_aucs_df.to_csv('ROC_Topo_2_AUCS_eigen_discretized.csv')
 
 ###################################################################
 ### clustergrams
 
-fi = unpickle_objects('f_test_topo2_features_2023-04-24-22-15-53-361665.pkl')
+fi = unpickle_objects('f_test_topo2_features_2023-04-26-11-20-18-361678.pkl')
 
 fi_names = fi['Lapatinib_ActArea'][0]['RFC'].index
 
@@ -223,9 +223,9 @@ plt.close()
 
 #############################################################################
 
-base_models = unpickle_objects('f_test_topo2_base_models_2023-04-24-22-15-53-364903.pkl')
-dataset = unpickle_objects('f_test_topo_2_refiltered_2023-04-25-10-14-44-013516.pkl')
-omics_list = ['RNA', 'EIGENVECTOR', 'TYPE']
+base_models = unpickle_objects('f_test_topo2_base_models_2023-04-26-11-20-18-362453.pkl')
+dataset = unpickle_objects('f_test_topo_integration_2023-04-26-11-29-14-047103.pkl')
+omics_list = ['DISCRETIZED', 'EIGENVECTOR']
 features_names_dict = {}
 for omic in omics_list:
     features_names_dict[omic] = list(dataset.to_pandas(omic=omic).columns)
@@ -263,8 +263,8 @@ for this_key in fi_dict.keys():
 
 file_list = glob.glob('fi_*')
 file_list.remove('FI_plots')
-dataset = unpickle_objects('f_test_topo_2_refiltered_2023-04-25-10-14-44-013516.pkl')
-omics_list = ['RNA', 'EIGENVECTOR']
+dataset = unpickle_objects('f_test_topo_integration_2023-04-26-11-29-14-047103.pkl')
+omics_list = ['DISCRETIZED', 'EIGENVECTOR']
 algos_list = ['SVC', 'RFC', 'Logistic', 'EN', 'ET', 'XGB', 'Ada']
 omics_biglist = dataset.omic
 
