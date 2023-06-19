@@ -289,8 +289,14 @@ def preprocess_features_avneighbour(dataset, flag: str = None):
 def rescale_data(dataframe):
     """Normalization by mapping to the [0 1] interval (each feature independently)
     this is the same as maxScaler? should we leave it?"""
-    return (dataframe - dataframe.min()) / (dataframe.max() - dataframe.min())
-
+    denominator = (dataframe.max() - dataframe.min())
+    result = (dataframe - dataframe.min()) / denominator
+    idxs = denominator == 0
+    for i, idx in enumerate(idxs):
+        if idx:
+            print(idx)
+            result.iloc[:, i] = 0 ##TODO: list comprehension to simplify
+    return result
 
 def impute_missing_data(dataframe, method: str = "average", threshold: float = None):
     """imputes computed values for missing data according to the specified method

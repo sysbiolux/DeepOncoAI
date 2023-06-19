@@ -82,9 +82,9 @@ trained_models = config.get_models(dataset=final_data, method="standard")
 config.save(to_save=trained_models, name="f_test_toy_models")
 
 ########################## to load previous data
-
-final_data = data_utils.unpickle_objects('f_test_toy_data_2023-02-07-10-38-42-399466.pkl')
-trained_models = data_utils.unpickle_objects('f_test_toy_models_2023-02-07-11-01-43-480178.pkl')
+#
+# final_data = data_utils.unpickle_objects('f_test_toy_data_2023-02-07-10-38-42-399466.pkl')
+# trained_models = data_utils.unpickle_objects('f_test_toy_models_2023-02-07-11-01-43-480178.pkl')
 
 
 final_results = dict()
