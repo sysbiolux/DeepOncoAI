@@ -14,6 +14,7 @@ import glob
 ###############################################################################
 ### 1 Tables with performances per cell type
 
+
 final_results = unpickle_objects('f_test_toy_final_results_2023-04-14-03-23-43-046807.pkl')
 config = Config("testall/config_test_topo_1.yaml")
 
@@ -59,15 +60,17 @@ df_prec = pd.DataFrame(index=tumors_list, columns=drugs_list + exp)
 df_recall = pd.DataFrame(index=tumors_list, columns=drugs_list + exp)
 df_ba = pd.DataFrame(index=tumors_list, columns=drugs_list + exp)
 
+vvs = pd.DataFrame()
 for drug in drugs_list:
     for tumor in tumors_list:
+        vv = pd.DataFrame([[drug, tumor]], columns=['drug', 'tumor'])
         print(f'drug: {drug}, tumor: {tumor}')
         res = final_results[drug].loc[:, [drug, 'pred2_RFC']]
         res = res[res.index.str.contains(tumor)]
         N_pos = sum(res.loc[:, drug] == 1)
         N_neg = sum(res.loc[:, drug] == 0)
         N_all = N_pos + N_neg
-        if N_all >= 10:
+        if N_all > 0:
             res['sum'] = res.sum(axis=1)
             res['tp'] = res['sum'] >= 1.5
             res['tn'] = res['sum'] <= 0.5
@@ -75,6 +78,55 @@ for drug in drugs_list:
             res['fn'] = (res['sum'] > 1) & (res['sum'] <= 1.5)
             res['pp'] = res['pred2_RFC'] > 0.5
             res['pn'] = res['pred2_RFC'] < 0.5
+            try:
+                vv['tpn'] = res['tp'].sum()
+            except:
+                vv['tpn'] = np.nan
+            try:
+                vv['tnn'] = res['tn'].sum()
+            except:
+                vv['tnn'] = np.nan
+            try:
+                vv['fpn'] = res['fp'].sum()
+            except:
+                vv['fpn'] = np.nan
+            try:
+                vv['fnn'] = res['fn'].sum()
+            except:
+                vv['fnn'] = np.nan
+            try:
+                vv['sens'] = res['tp'].sum() / (res['tp'].sum() + res['fn'].sum())
+            except:
+                vv['sens'] = np.nan
+            try:
+                vv['spec'] = res['tn'].sum() / (res['tn'].sum() + res['fp'].sum())
+            except:
+                vv['spec'] = np.nan
+            try:
+                vv['prec'] = res['tp'].sum() / (res['tp'].sum() + res['fp'].sum())
+            except:
+                vv['prec'] = np.nan
+            try:
+                vv['npv'] = res['tn'].sum() / (res['tn'].sum() + res['fp'].sum())
+            except:
+                vv['npv'] = np.nan
+            try:
+                vv['f1'] = 2 * res['tp'].sum() / (2 * res['tp'].sum() + res['fp'].sum() + res['fn'].sum())
+            except:
+                vv['f1'] = np.nan
+            try:
+                vv['ba'] = 0.5 * (vv['sens'] + vv['spec'].sum())
+            except:
+                vv['ba'] = np.nan
+            try:
+                vv['mcc'] = (res['tp'].sum() * res['tn'].sum() - res['fp'].sum() * res['fn'].sum()) / np.sqrt((res['tp'].sum() + res['fp'].sum()) * (res['tp'].sum() + res['fn'].sum()) * (res['tn'].sum() + res['fp'].sum()) * (res['tn'].sum() + res['fn'].sum()))
+            except:
+                vv['mcc'] = np.nan
+            try:
+                vv['dor'] = ((vv['sens']) / (res['fp'].sum())/(res['fp'].sum() + res['tn'].sum())) / ((res['fn'].sum() / (res['fn'].sum() + res['tp'].sum())) / (res['tn'].sum() / (res['tn'].sum() + res['fp'].sum())))
+            except:
+                vv['dor'] = np.nan
+
             df_pos.loc[tumor, drug +'_N'] = N_pos
             df_neg.loc[tumor, drug +'_N'] = N_neg
             df_all.loc[tumor, drug +'_N'] = N_all
@@ -89,6 +141,7 @@ for drug in drugs_list:
                 tpr = (res.loc[:, 'tp'].sum().sum().astype(int) / res.loc[:, ['tp', 'fn']].sum().sum().astype(int))
                 tnr = (res.loc[:, 'tn'].sum().sum().astype(int) / res.loc[:, ['tn', 'fp']].sum().sum().astype(int))
                 df_ba.loc[tumor, drug] = (tpr + tnr) / 2
+            vvs = vvs.append(vv)
 
 df_pos = df_pos.dropna(how='all')
 df_neg = df_neg.dropna(how='all')
@@ -98,6 +151,7 @@ df_recall = df_recall.dropna(how='all')
 df_ba = df_ba.dropna(how='all')
 df_ba = df_ba.dropna(axis=1, how='all')
 
+vvs.to_csv('FINAL_celltype_total_table.csv')
 df_pos.to_csv('FINAL_celltype_results_pos.csv')
 df_neg.to_csv('FINAL_celltype_results_neg.csv')
 df_all.to_csv('FINAL_celltype_results_all.csv')
@@ -106,6 +160,10 @@ df_recall.to_csv('FINAL_celltype_results_recall.csv')
 df_ba.to_csv('FINAL_celltype_results_bal-accuracy.csv')
 
 df_ba = df_ba.apply(pd.to_numeric, errors='coerce')
+
+cols = df_ba.columns
+cols = [x.split('_')[0] for x in cols]
+df_ba.columns = [x.split('_')[0] for x in df_ba.columns]
 
 fig, ax = plt.subplots(figsize=(30, 15))
 cmap = sns.cm.rocket_r
@@ -149,11 +207,13 @@ for target_name in targets_names:
     plt.plot([0, 1], [0, 1], color="black", linestyle="--")
     plt.xlim([0.0, 1.05])
     plt.ylim([0.0, 1.05])
+
     plt.xlabel("False Positive Rate", fontsize=20, **hfont)
     plt.ylabel("True Positive Rate", fontsize=20, **hfont)
     plt.title(f"{target_name.split('_')[0]}",fontsize=20, **hfont)
     plt.legend(loc="lower right", fontsize=20)
     plt.savefig(f'Thresholding_25_breast_{target_name}')
+
     plt.close()
 
     fprs[target_name] = fpr
@@ -290,7 +350,7 @@ for file in file_list:
     df = pd.read_csv(file)
     drugname = file.split('_')[1]
     for omic in omics_list:
-        # fig, axs = plt.subplots(nrows=8, figsize=(8, 90))
+        fig, axs = plt.subplots(nrows=8, figsize=(8, 90))
         these_features = omics_biglist[omics_biglist == omic].index
         idxs = [x for x in df.columns if x in these_features]
         this_df = df.loc[:, idxs]
@@ -302,18 +362,18 @@ for file in file_list:
         sorted_cols = col_meds.sort_values()
         sorted_cols = sorted_cols.index[:30]
         sorted_df = this_df[sorted_cols].dropna()
-        # ax = axs[0]
+        ax = axs[0]
         colnames = sorted_df.columns
         colnames = [x.split('_ENS')[0].split('_Cautio')[0].split('_nmiR')[0].split('/isoval')[0].split('/tauro')[0] for x in colnames]
         sorted_df.columns = colnames
-        # sns.boxplot(data=sorted_df + 1, ax=ax, color='white', orient='h')
-        # sns.set_context('paper')
-        # for line in ax.lines:
-        #     if line.get_linestyle() == '-':
-        #         line.set_color('black')
-        # ax.set_title('All Algorithms')
-        # ax.set_xticklabels(ax.get_xticks(), rotation=90)
-        # ax.set_ylabel('rank')
+        sns.boxplot(data=sorted_df + 1, ax=ax, color='white', orient='h')
+        sns.set_context('paper')
+        for line in ax.lines:
+            if line.get_linestyle() == '-':
+                line.set_color('black')
+        ax.set_title('All Algorithms')
+        ax.set_xticklabels(ax.get_xticks(), rotation=90)
+        ax.set_ylabel('rank')
 
         for i, algo in enumerate(algos_list):
             idxs = list(range(i, this_df.shape[0], 7))
@@ -323,23 +383,23 @@ for file in file_list:
             sorted_cols = col_meds.sort_values()
             sorted_cols = sorted_cols.index[:30]
             sorted_df = algo_df[sorted_cols].dropna()
-            # ax = axs[i+1]
+            ax = axs[i+1]
             colnames = sorted_df.columns
             colnames = [x.split('_ENS')[0].split('_Cautio')[0].split('_nmiR')[0].split('/isoval')[0].split('/tauro')[0] for x in colnames]
             sorted_df.columns = colnames
-            # sns.boxplot(data=sorted_df + 1, ax=ax, color='white', orient='h')
-            # sorted_df.to_csv(f"FINAL_FI_med_{drugname}_{omic}_{algo}")
-            # sns.set_context('paper')
-            # for line in ax.lines:
-            #     if line.get_linestyle() == '-':
-            #         line.set_color('black')
-            # ax.set_title(algo)
-            # ax.set_xticklabels(ax.get_xticks(), rotation=90)
-            # ax.set_ylabel('rank')
+            sns.boxplot(data=sorted_df + 1, ax=ax, color='white', orient='h')
+            sorted_df.to_csv(f"FINAL_FI_med_{drugname}_{omic}_{algo}")
+            sns.set_context('paper')
+            for line in ax.lines:
+                if line.get_linestyle() == '-':
+                    line.set_color('black')
+            ax.set_title(algo)
+            ax.set_xticklabels(ax.get_xticks(), rotation=90)
+            ax.set_ylabel('rank')
 
-        # plt.suptitle(f'Distribution of features ranks: {drugname} / {omic}')
-        # plt.tight_layout()
-        # plt.savefig(f'FINAL_FI_med_{drugname}_{omic}.tif', format='tif', dpi=300)
-        # plt.close()
+        plt.suptitle(f'Distribution of features ranks: {drugname} / {omic}')
+        plt.tight_layout()
+        plt.savefig(f'FINAL_FI_med_{drugname}_{omic}.tif', format='tif', dpi=300)
+        plt.close()
 
 all_col_meds.to_csv("all_col_meds.csv")

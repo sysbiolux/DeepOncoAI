@@ -288,6 +288,7 @@ class Dataset:
         if old_database is not None and new_database is not None:
             previous = self.database
             self.database = pd.Series(new_database, index=previous.columns)
+
             
     def filter_att(self, target_omic: str = None, reference_omic: str = None, separator: str = None):
         if target_omic is not None and reference_omic is not None and separator is not None:
@@ -297,6 +298,7 @@ class Dataset:
             ref_df = self.to_pandas(omic=reference_omic)
             target_df = self.to_pandas(omic=target_omic)
             ref_colnames = [x.split(separator)[0] for x in ref_df.columns]
+
            # ref_colnames_int = [y.replace('LARGE', 'LARGE_INTESTINE') for y in ref_colnames]
            # ref_colnames_int_brain = [y_brain.replace('NERVOUS', 'CENTRAL_NERVOUS_SYSTEM') for y_brain in ref_colnames_int]
             target_colnames = [x.split(separator)[0] for x in target_df.columns]
@@ -329,5 +331,6 @@ class Dataset:
                 database= database[cols_to_keep]
             )
         return filtered_dataset
+
 
 
