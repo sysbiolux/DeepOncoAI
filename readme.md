@@ -1,7 +1,7 @@
 # Deep Onco AI
 
 This analysis pipeline is meant to allow the training of multiple machine-learning models
-on various subsets of the data in the large cell line repositories like the CCLE and GDSC.
+on various subsets of the data in the large cell line repositories like the CCLE and in the future, GDSC.
 Overall predictors can be designed by ensembling the most successful models for each drug.
 
 The goal of the current pipeline is to : 
@@ -11,7 +11,7 @@ The goal of the current pipeline is to :
   * which algorithms are better at which task?
   * are the observations conserved across drugs?
 * build ensemble predictors:
-  * are ensembles of 2 predictors more performant than single algorithms? Which ones and in which case?
+  * are ensembles of multiple predictors more performant than single algorithms? Which ones and in which case?
   * what are the 'best' ensembles for each drug, can a biomarker signature of resistance/sensitivity be formed?
 
 ## Description and rationale
@@ -21,30 +21,7 @@ Cell lines can resume some of the characteristics of the patients original tumor
 can be screened with various drugs. By using the baseline gene and protein expression
 of the cells it is possible to build predictors of response for cell lines and utlimately
 patients before treatment or after relapse.
-The Systems Biology group of the DLSM led by Prof. Thomas Sauter has extensive expertise
-in the fields of network biology and computational modeling, with applications in
-drug repurposing and target identification, among others.
-DeepBioModeling is a young startup with a focus on custom machine-learning solutions for biological
-data analysis and a dedication to professional software engineering.
 
-## Towards a pipeline
-
-The pipeline was separated into primary logical chunks that can be run independently.
-
-Here are aexamples of run configurations
-* load: --overwrite -c input\config.yaml -o testdir -f testdir\raw.pkl
-
-* filter: --overwrite -c input\config.yaml -i testdir\raw.pkl -o testdir -f testdir\filtered.pkl
-
-* preprocess: --overwrite -c input\config.yaml -i testdir\filtered.pkl -r testdir\raw.pkl -o testdir -f testdir\preprocessed.pkl
-
-* model: --overwrite -c input/config.yaml -i testdir\preprocessed.pkl -o testdir -f testdir\trained_models.pkl
-
-* modeling_results: --overwrite -c input\config.yaml -i testdir\trained_models.pkl -o testdir
-
-* stacks: --overwrite -c input/config.yaml -i testdir\preprocessed.pkl -m testdir\trained_models.pkl -o testdir -f testdir\stacks.pkl
-
-* explain: ----overwrite -c input/config.yaml -i testdir\preprocessed.pkl -m testdir\trained_models.pkl -o testdir -f testdir\explanations.pkl
 
 ## Getting Started
 
@@ -128,6 +105,7 @@ The following transformations are available:
 * 'OR gate' combination
   Future updates will include ICA and RPA. The selected features are transformed or
   combined into a new dataset of features.
+They are however not used anymore in the published version of the pipeline
 
 Under each target, the following info is allowed:
 
@@ -183,7 +161,7 @@ Remember the slash is inverted in Unix systems, and your default environment mig
 
 Alright, you want to dig in the code. Here is some useful info: 
 
-* chunks: `load.py`, `filter.py`, `preprocess.py`, `model.py`, `stack.py` 'explain.py'
+* the main code is in 'master_script.py'
 * the highest-level functions are located in `config.py`
 * data is organized with samples as lines and features as columns
 * the `Dataset` class is used throughout the project. It contains a Pandas Dataframe, and two
@@ -249,9 +227,9 @@ a brief list of things yet to implement:
 
 
 ## Version History
+* 0.3 (June 2024): paper finally written, updates pushed
 * 0.2 (May 2022):
   * working pipeline up and to explained models
-
 * 0.1
   * Initial Release April 2021
 
