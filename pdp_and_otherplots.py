@@ -4,20 +4,20 @@ import scipy as sp
 
 from config import Config
 from sklearn.metrics import roc_curve, auc
-from functions import pickle_objects, unpickle_objects
+from DBM_toolbox.data_manipulation.data_utils import pickle_objects, unpickle_objects
 from DBM_toolbox.data_manipulation import data_utils
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 import seaborn as sns
 
-config = Config("testall/config.yaml")
+config = Config("testall/config_paper.yaml")
 algos = config.raw_dict["modeling"]["general"]["algorithms"]
 metric = config.raw_dict["modeling"]["general"]["metric"]
 rng = np.random.default_rng(42)
 
 data, ActAreas, IC50s, dose_responses = config.read_data()
-datat = unpickle_objects('f_testall_01_data_2022-07-21-21-31-08-689557.pkl')
+datat = unpickle_objects('FINAL_preprocessed_data_2023-02-16-10-30-39-935233.pkl')
 ddf = data.dataframe
 t = datat.to_pandas(omic='TYPE')
 df = ddf.join(t)
@@ -57,10 +57,11 @@ plot_swarm(genelist, druglist, title, labels)
 plt.savefig(f'Result_{druglist[0]}_{title}')
 
 
-genelist = ['OR4M2_DEL', 'OR4N4_DEL', 'OR2A7_AMP', 'OR2T10_DEL']
-title = 'OR_various'
-labels = ['No CNV', 'Amp or Del']
-plot_swarm(genelist, druglist, title, labels)
+genelist = ['ETV4_ENSG00000175832.8']
+druglist = ['AZD6244_ActArea']
+title = 'ETV4'
+labels = ['Res', 'Sens']
+plot_linreg(genelist, druglist, title)
 plt.savefig(f'Result_{druglist[0]}_{title}')
 
 genelist = ['GSTM1_DEL']

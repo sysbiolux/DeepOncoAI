@@ -403,3 +403,31 @@ for file in file_list:
         plt.close()
 
 all_col_meds.to_csv("all_col_meds.csv")
+
+##########################################################################################
+
+# Read the CSV file into a pandas DataFrame
+df = pd.read_csv('Results_all_omics_for_plot.csv')
+
+# Create a Seaborn scatterplot
+sns.set(style="whitegrid")
+scatterplot = sns.scatterplot(x='Total', y='RNA only', data=df, s=25, color='black')
+
+# Add names next to the points
+for i in range(len(df)):
+    scatterplot.text(df['Total'][i], df['RNA only'][i], df['Drug'][i], ha='left', va='bottom')
+
+plt.xlim(0.45, 1)
+plt.ylim(0.45, 1)
+
+# Add a diagonal dashed line
+plt.plot([0, 1], [0, 1], linestyle='--', color='gray')
+
+# Customize the plot
+plt.xlabel('AUROC transcriptomics', fontsize=16)
+plt.ylabel('AUROC multiomics', fontsize=16)
+plt.title('Comparing performances of multiomics')
+# plt.legend(title='Drug', loc='upper left')
+
+# Show the plot
+plt.show()

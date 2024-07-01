@@ -78,8 +78,8 @@ trained_models = config.get_models(dataset=final_data, method="standard")
 config.save(to_save=trained_models, name="FINAL_explain_pre-models")
 
 ###########
-final_data = unpickle_objects("FINAL_explain_preprocessed_data_2023-04-19-23-14-46-135406.pkl")
-trained_models = unpickle_objects("FINAL_explain_pre-models_2023-04-20-01-24-31-743969.pkl")
+final_data = unpickle_objects("FINAL_explain_preprocessed_data_2024-06-25-21-07-10-041579.pkl")
+trained_models = unpickle_objects("FINAL_explain_pre-models_2024-06-25-22-59-37-868197.pkl")
 
 
 predictors = {
@@ -190,9 +190,9 @@ for target_name in targets_list:
     plt.ylim([0.0, 1.05])
     plt.xlabel("False Positive Rate", fontsize=25, **hfont)
     plt.ylabel("True Positive Rate", fontsize=25, **hfont)
-    plt.title(f"expl_{best_classifier_name}_{target_name.split('_')[0]}", fontsize=25, **hfont)
+    plt.title(f"expl_{best_classifier_name}_{target_name.split('_')[0]}_n={len(y_pred)}", fontsize=25, **hfont)
     plt.legend(loc="lower right", fontsize=20)
-    plt.savefig(f'FINAL_Expl_ROC_{target_name}.tif')
+    plt.savefig(f'FINAL_redo_Expl_ROC_{target_name}.tif')
     plt.close()
     # plt.subplots(figsize=(20, 20))
     # feat_names = [x.split('_')[0] for x in clf.feature_names_in_]
@@ -246,7 +246,7 @@ for target_name in targets_list:
     fig.subplots_adjust(right=0.8)
     cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
     fig.colorbar(cs, cax=cbar_ax)
-    plt.savefig(f'FINAL_Expl_PDP_{target_name}.tif')
+    plt.savefig(f'FINAL_redo_Expl_PDP_{target_name}.tif')
     plt.close()
 
 
