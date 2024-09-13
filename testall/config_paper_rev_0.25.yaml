@@ -308,7 +308,7 @@ data:
       target_engineering:
         - name: quantization
           upper_bound_resistant: 0.25
-          lower_bound_sensitive: 0.67
+          lower_bound_sensitive: 0.75
           enabled: true
         - name: thresholding
           threshold: 7
@@ -352,7 +352,7 @@ data:
       target_engineering:
         - name: quantization
           upper_bound_resistant: 0.25
-          lower_bound_sensitive: 0.67
+          lower_bound_sensitive: 0.75
           enabled: true
         - name: thresholding
           threshold: 7
@@ -374,7 +374,7 @@ data:
       target_engineering:
         - name: quantization
           upper_bound_resistant: 0.25
-          lower_bound_sensitive: 0.67
+          lower_bound_sensitive: 0.75
           enabled: true
         - name: thresholding
           threshold: 7
@@ -396,7 +396,7 @@ data:
       target_engineering:
         - name: quantization
           upper_bound_resistant: 0.25
-          lower_bound_sensitive: 0.67
+          lower_bound_sensitive: 0.75
           enabled: true
         - name: thresholding
           threshold: 7
@@ -418,7 +418,7 @@ data:
       target_engineering:
         - name: quantization
           upper_bound_resistant: 0.25
-          lower_bound_sensitive: 0.67
+          lower_bound_sensitive: 0.75
           enabled: true
         - name: thresholding
           threshold: 7
@@ -440,7 +440,7 @@ data:
       target_engineering:
         - name: quantization
           upper_bound_resistant: 0.25
-          lower_bound_sensitive: 0.67
+          lower_bound_sensitive: 0.75
           enabled: true
         - name: thresholding
           threshold: 7

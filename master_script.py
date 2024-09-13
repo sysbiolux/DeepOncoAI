@@ -34,8 +34,8 @@ logging.basicConfig(
 
 rng = np.random.default_rng(42)
 
-outer_folds = 10
-inner_folds = 10
+outer_folds = 5
+inner_folds = 5
 
 config = Config("testall/config_paper.yaml")  # here is the path to the config file to be used in the analysis
 
