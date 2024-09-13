@@ -159,7 +159,7 @@ class Config:
                 # TODO: IC50s,ActAreas and dose_responses are computed for all additional datasets, is this not redundant?
                 ic50s = preprocessing.extract_IC50s(additional_dataset)
                 ActAreas = preprocessing.extract_ActAreas(additional_dataset)
-                dose_responses = preprocessing.extract_dr(additional_dataset)
+                # dose_responses = preprocessing.extract_dr(additional_dataset)
                 additional_dataset = preprocessing.select_drug_metric(
                     additional_dataset, target_name + "_" + target_metric
                 )
@@ -169,11 +169,11 @@ class Config:
                 full_dataset = full_dataset.merge_with(additional_dataset)
             cols = [x for x in ic50s.columns if x in list_target_names_IC50]
             ic50s = ic50s[cols]
-            cols = [x for x in dose_responses.columns if x in list_target_names_dr]
-            dose_responses = dose_responses[cols]
+            # cols = [x for x in dose_responses.columns if x in list_target_names_dr]
+            # dose_responses = dose_responses[cols]
             logging.info("Data fully loaded!")
             print('...done...')
-        return full_dataset, ActAreas, ic50s, dose_responses
+        return full_dataset, ActAreas, ic50s#, dose_responses
 
     def quantize(self, dataset, target_omic: str, quantiles=None, ic50s=None):
 

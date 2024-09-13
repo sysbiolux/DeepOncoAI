@@ -25,7 +25,7 @@ from DBM_toolbox.data_manipulation import data_utils, dataset_class
 from config import Config  # many operations are conducted from the Config class, as it has access to the config file
 
 logging.basicConfig(
-    filename="run_paper.log",
+    filename="run_paper_rev_0.33.log",
     level=logging.INFO,
     filemode="w",
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -44,7 +44,7 @@ config = Config("testall/config_paper.yaml")  # here is the path to the config f
 ###################################
 
 logging.info("Reading data")
-data, ActAreas, ic50s, dose_responses = config.read_data()
+data, ActAreas, ic50s = config.read_data()
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
@@ -64,7 +64,7 @@ logging.info("Quantizing targets")
 quantized_data = config.quantize(engineered_data, target_omic="DRUGS", ic50s=ic50s)
 
 final_data = quantized_data.normalize().optimize_formats()
-config.save(to_save=final_data, name="FINAL_preprocessed_data")
+config.save(to_save=final_data, name="REV_preprocessed_data")
 
 missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axis=0)]
 
@@ -73,12 +73,12 @@ missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axi
 logging.info("Getting optimized models")
 
 trained_models = config.get_models(dataset=final_data, method="standard")
-config.save(to_save=trained_models, name="FINAL_pre-models")
+config.save(to_save=trained_models, name="REV_pre-models")
 
 ########################## to load previous data
 
-# final_data = data_utils.unpickle_objects('f_test_toy_data_2023-02-07-10-38-42-399466.pkl')
-# trained_models = data_utils.unpickle_objects('f_test_toy_models_2023-02-07-11-01-43-480178.pkl')
+# final_data = data_utils.unpickle_objects('FINAL_explain_preprocessed_data_2024-06-25-21-07-10-041579.pkl')
+# trained_models = data_utils.unpickle_objects('FINAL_explain_pre-models_2024-06-25-22-59-37-868197.pkl')
 
 
 final_results = dict()
@@ -220,6 +220,6 @@ for target in targets:
 
     omics = omics.drop(target)
 
-config.save(to_save=final_results, name="FINAL_results")
-config.save(to_save=feature_importances, name="FINAL_featimp")
-config.save(to_save=base_models, name="FINAL_base-models")
+config.save(to_save=final_results, name="REV_results")
+config.save(to_save=feature_importances, name="REV_featimp")
+config.save(to_save=base_models, name="REV_base-models")
