@@ -25,7 +25,7 @@ from DBM_toolbox.data_manipulation import data_utils, dataset_class
 from config import Config  # many operations are conducted from the Config class, as it has access to the config file
 
 logging.basicConfig(
-    filename="run_paper2.log",
+    filename="../paper/results/run_paper2.log",
     level=logging.INFO,
     filemode="w",
     format="%(asctime)s %(levelname)-8s %(message)s",
