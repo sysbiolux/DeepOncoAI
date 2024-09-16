@@ -202,9 +202,9 @@ class Config:
             target_omic=target_omic, quantiles_df=quantiles
         )
 
-        dataset = dataset.data_threshold_quantize(
-            target_omic=target_omic, ic50s=ic50s, thresholds=thresholds
-        )
+        # dataset = dataset.data_threshold_quantize(
+        #     target_omic=target_omic, ic50s=ic50s, thresholds=thresholds
+        # )
 
         return dataset
 
