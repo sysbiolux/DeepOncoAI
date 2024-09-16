@@ -173,7 +173,7 @@ class Config:
             # dose_responses = dose_responses[cols]
             logging.info("Data fully loaded!")
             print('...done...')
-        return full_dataset, ActAreas, ic50s#, dose_responses
+        return full_dataset, ActAreas, ic50s #, dose_responses
 
     def quantize(self, dataset, target_omic: str, quantiles=None, ic50s=None):
 

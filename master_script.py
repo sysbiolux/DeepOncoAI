@@ -25,7 +25,7 @@ from DBM_toolbox.data_manipulation import data_utils, dataset_class
 from config import Config  # many operations are conducted from the Config class, as it has access to the config file
 
 logging.basicConfig(
-    filename="run_paper_rev_0.33.log",
+    filename="run_paper_rev_0.25.log",
     level=logging.INFO,
     filemode="w",
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -34,10 +34,10 @@ logging.basicConfig(
 
 rng = np.random.default_rng(42)
 
-outer_folds = 5
-inner_folds = 5
+outer_folds = 10
+inner_folds = 10
 
-config = Config("testall/config_paper.yaml")  # here is the path to the config file to be used in the analysis
+config = Config("testall/config_paper_rev_0.25.yaml")  # here is the path to the config file to be used in the analysis
 
 ###################################
 ### READING AND PROCESSING DATA ###
@@ -48,6 +48,8 @@ data, ActAreas, ic50s = config.read_data()
 
 logging.info("Filtering data")
 filtered_data, filters = config.filter_data(data)
+
+config.save(to_save=filtered_data, name="REV_filtered_0.25")
 
 #####
 
