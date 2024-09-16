@@ -9,7 +9,7 @@
 # Authors: Sebastien De Landtsheer: sebdelandtsheer@gmail.com
 #          Prof Thomas Sauter, University of Luxembourg
 
-# This version: February 2023
+# This version: September 2024
 
 ####################
 ### HOUSEKEEPING ###
@@ -25,7 +25,7 @@ from DBM_toolbox.data_manipulation import data_utils, dataset_class
 from config import Config  # many operations are conducted from the Config class, as it has access to the config file
 
 logging.basicConfig(
-    filename="run_paper2.log",
+    filename="run_paper_rev_0.33.log",
     level=logging.INFO,
     filemode="w",
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -34,20 +34,24 @@ logging.basicConfig(
 
 rng = np.random.default_rng(42)
 
-outer_folds = 10
-inner_folds = 10
+outer_folds = 5
+inner_folds = 5
 
-config = Config("testall/config_paper.yaml")  # here is the path to the config file to be used in the analysis
+config = Config("testall/config_paper_rev_0.33.yaml")  # here is the path to the config file to be used in the analysis
 
 ###################################
 ### READING AND PROCESSING DATA ###
 ###################################
+#
+# logging.info("Reading data")
+# data, ActAreas, ic50s = config.read_data()
+#
+# logging.info("Filtering data")
+# filtered_data, filters = config.filter_data(data)
+#
+# config.save(to_save=filtered_data, name="REV_filtered")
 
-logging.info("Reading data")
-data, ActAreas, ic50s, dose_responses = config.read_data()
-
-logging.info("Filtering data")
-filtered_data, filters = config.filter_data(data)
+filtered_data = data_utils.unpickle_objects('REV_filtered_2024-09-15-05-25-10-904618.pkl')
 
 #####
 
@@ -61,10 +65,10 @@ logging.info("Merging engineered features")
 engineered_data = filtered_data.merge_with(engineered_features)
 
 logging.info("Quantizing targets")
-quantized_data = config.quantize(engineered_data, target_omic="DRUGS", ic50s=ic50s)
+quantized_data = config.quantize(engineered_data, target_omic="DRUGS")
 
 final_data = quantized_data.normalize().optimize_formats()
-config.save(to_save=final_data, name="FINAL_preprocessed_data")
+config.save(to_save=final_data, name="REV_033_preprocessed_data")
 
 missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axis=0)]
 
@@ -73,12 +77,12 @@ missing_data = final_data.dataframe.loc[:, final_data.dataframe.isnull().any(axi
 logging.info("Getting optimized models")
 
 trained_models = config.get_models(dataset=final_data, method="standard")
-config.save(to_save=trained_models, name="FINAL_pre-models")
+config.save(to_save=trained_models, name="REV_033_pre-models")
 
 ########################## to load previous data
 
-final_data = data_utils.unpickle_objects('FINAL_preprocessed_data_2023-02-16-10-30-39-935233.pkl')
-trained_models = data_utils.unpickle_objects('FINAL_pre-models_2023-02-16-12-02-22-649910.pkl')
+# final_data = data_utils.unpickle_objects('FINAL_explain_preprocessed_data_2024-06-25-21-07-10-041579.pkl')
+# trained_models = data_utils.unpickle_objects('FINAL_explain_pre-models_2024-06-25-22-59-37-868197.pkl')
 
 
 final_results = dict()
@@ -148,7 +152,7 @@ for target in targets:
             base_models[target][outer_loop][inner_loop] = dict()
 
             for omic in trained_models[target].keys():  # for each omic type
-                if omic == 'PATHWAYS':
+                if omic != 'complete':
                     print(f'omic: {omic}')
                     train_features = train_dataset.to_pandas(omic=omic)
                     train_labels = train_dataset.to_pandas(omic='DRUGS').values.ravel()
@@ -177,7 +181,7 @@ for target in targets:
                                 base_models[target][outer_loop][inner_loop][omic][algo] = 'None'
 
         for omic in trained_models[target].keys():  # for each omic type
-            if omic == 'PATHWAYS':
+            if omic != 'complete':
                 print(f'omic: {omic}')
                 train_features = rest_dataset.to_pandas(omic=omic)
                 train_labels = rest_dataset.to_pandas(omic='DRUGS').values.ravel()
@@ -220,6 +224,6 @@ for target in targets:
 
     omics = omics.drop(target)
 
-config.save(to_save=final_results, name="FINAL_restrict_PATHWAYS_results")
-config.save(to_save=feature_importances, name="FINAL_restrict_PATHWAYS_featimp")
-config.save(to_save=base_models, name="FINAL_restrict_PATHWAYS_base-models")
+config.save(to_save=final_results, name="REV_033_results")
+config.save(to_save=feature_importances, name="REV_033_featimp")
+config.save(to_save=base_models, name="REV_033_base-models")

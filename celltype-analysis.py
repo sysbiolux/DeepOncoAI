@@ -15,7 +15,7 @@ import glob
 ### 1 Tables with performances per cell type
 
 
-final_results = unpickle_objects('f_test_toy_final_results_2023-04-14-03-23-43-046807.pkl')
+final_results = unpickle_objects('')
 config = Config("testall/config_test_topo_1.yaml")
 
 
