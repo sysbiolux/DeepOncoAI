@@ -9,14 +9,18 @@ from DBM_toolbox.data_manipulation.data_utils import pickle_objects, unpickle_ob
 from sklearn.metrics import roc_curve, auc
 import seaborn as sns
 import glob
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 ############## 0.25 vs 0.33 vs 0.475
+#####################################################################
+##################| ROC Curves
 
 final_025 = unpickle_objects('REV_025_results_2024-09-16-14-11-19-178278.pkl')
-final_033 = unpickle_objects('REV_033_results_')
-final_0475 = unpickle_objects('REV_0475_results_')
+final_033 = unpickle_objects('REV_033_results_2024-09-18-20-42-08-180382.pkl')
+final_0475 = unpickle_objects('REV_0475_results_2024-09-18-23-34-50-658789.pkl')
 
-final_033LR = unpickle_objects('REV_033LR_results_')
+final_033LR = unpickle_objects('REV_033LR_results_2024-09-18-20-36-57-565161.pkl')
 
 targets = final_025.keys()
 
@@ -46,9 +50,11 @@ for target in targets:
     roc_auc0475 = auc(fpr0475, tpr0475)
 
     plt.subplots(figsize=(8, 8))
-    plt.plot(fpr025, tpr025, linewidth=3, color='green' , label=f"AUC[0.25]: {round(roc_auc025, 3)}")
+    plt.plot(fpr025, tpr025, linewidth=3, color='green', label=f"AUC[0.25]: {round(roc_auc025, 3)}")
     plt.plot(fpr033, tpr033, linewidth=3, color='blue', label=f"AUC[0.33]: {round(roc_auc033, 3)}")
     plt.plot(fpr0475, tpr0475, linewidth=3, color='red', label=f"AUC[0.475]: {round(roc_auc0475, 3)}")
+    plt.legend()
+    plt.title(f"{target.split('_')[0]}")
     plt.savefig(f'REV_splits_{target}_ROC')
 
 for target in targets:
@@ -56,33 +62,46 @@ for target in targets:
     y_true = res033[target]
     y_score = res033['pred2_RFC']
     y_score = y_score.fillna(0.5)
-    res033['accurate'] = np.abs(y_true - y_score) < 0.5
+    # res033['accurate'] = np.abs(y_true - y_score) < 0.5
     fpr033, tpr033, _ = roc_curve(y_true, y_score)
     roc_auc033 = auc(fpr033, tpr033)
 
     res033LR = final_033LR[target]
     y_true = res033LR[target]
-    y_score = res033LR['pred2_RFC']
+    y_score = res033LR['pred2_Logistic']
     y_score = y_score.fillna(0.5)
-    res033LR['accurate'] = np.abs(y_true - y_score) < 0.5
+    # res033LR['accurate'] = np.abs(y_true - y_score) < 0.5
     fpr033LR, tpr033LR, _ = roc_curve(y_true, y_score)
     roc_auc033LR = auc(fpr033LR, tpr033LR)
 
     plt.subplots(figsize=(8, 8))
     plt.plot(fpr033, tpr033, linewidth=3, color='blue', label=f"AUC[RF]: {round(roc_auc033, 3)}")
     plt.plot(fpr033LR, tpr033LR, linewidth=3, color='red', label=f"AUC[LR]: {round(roc_auc033LR, 3)}")
+    plt.legend()
+    plt.title(f"{target.split('_')[0]}")
     plt.savefig(f'REV_integrate_{target}_ROC')
 
+#############################################
+
+# Load the TSV file into a pandas DataFrame
+file_path = 'data/Cell_line_RMA_proc_basalExp_.tsv'
+df = pd.read_csv(file_path, sep='\t')
+
+df.columns = [col.replace("DATA.", "") for col in df.columns]
+
+df_transposed = df.T
+
+df_transposed.to_csv('Cell_line_RMA_proc_basalExp_transposed.tsv', sep='\t', header=False)
 
 
 
 
 
-#####################################################################
-##################| ROC Curves
 
 
 
+#########################################################################
+#########################################################################
 
 
 hfont = {'fontname':'Times New Roman'}
