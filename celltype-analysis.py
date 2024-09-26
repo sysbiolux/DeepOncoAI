@@ -226,7 +226,7 @@ roc_aucs_df.to_csv('ROC_AUCS_All_meas_all_cancers_RNA.csv')
 ###################################################################
 ### clustergrams
 
-fi = unpickle_objects('f_test_toy_features_2023-03-24-13-55-24-586681.pkl')
+fi = unpickle_objects('FINAL_featimp_2023-02-20-12-35-21-592650.pkl')
 
 fi_names = fi['Lapatinib_ActArea'][0]['RFC'].index
 
@@ -251,7 +251,125 @@ res_fi.index = indexnames
 res_sd.columns = colnames
 res_sd.index = indexnames
 
+###################
 
+res_fi_l = pd.concat([res_fi.iloc[:6], res_fi.iloc[[-1]]])
+columns_per_bar = 10
+
+# Loop through each row and create a bar plot for each
+for i in range(len(res_fi_l)):
+    # Get the current row
+    row_data = res_fi_l.iloc[i, :]
+
+    # Reshape the row data into chunks of 10 columns
+    row_chunks = [row_data[j:j + columns_per_bar] for j in range(0, len(row_data), columns_per_bar)]
+
+    # Calculate the cumulative sum for each chunk (sum of the 10 consecutive columns)
+    cumulative_sums = [chunk.sum() for chunk in row_chunks]
+
+    # Create the bar plot
+    x_labels = ['RPPA', 'RNA', 'miRNA', 'Meta', 'DNA', 'Pathways', 'Type']
+    plt.figure(figsize=(8, 5))
+    plt.bar(range(len(cumulative_sums)), cumulative_sums)
+    plt.title(f'Bar Plot for {res_fi_l.index[i]}')
+
+    plt.ylim(0, 0.5)
+    plt.title(f'{res_fi_l.index[i]}')
+    plt.xticks(ticks=range(len(x_labels)), labels=x_labels)
+    plt.xlabel('Data Type')
+    plt.ylabel('Cumulative Importance across algorithms')
+    plt.show()
+    plt.savefig(f'new_barplot_{res_fi_l.index[i]}')
+
+    cumulative_sums2 = []
+
+    # Loop through each group (1st group: columns 1, 11, 21, etc.; 2nd group: 2, 12, 22, etc.)
+    for start in range(10):
+        # Get the cumulative sum of the columns at intervals (e.g., 1, 11, 21 for the first iteration)
+        cumulative_sum = row_data[start::10].sum()
+        cumulative_sums2.append(cumulative_sum)
+
+    # Create the bar plot
+    x_labels2 = ['SVC', 'RFC', 'SVM', 'Logistic', 'Ridge', 'EN', 'ET', 'KNN', 'XGB', 'Ada']
+    plt.figure(figsize=(8, 5))
+    plt.bar(range(len(cumulative_sums2)), cumulative_sums2)
+    plt.title(f'{res_fi_l.index[i]}')
+    plt.xlabel('Algorithm')
+    plt.ylabel('Cumulative Importance across data types')
+    plt.ylim(0, 0.5)
+    plt.xticks(ticks=range(len(x_labels2)), labels=x_labels2)
+    plt.show()
+    plt.savefig(f'new_barplot2_{res_fi_l.index[i]}')
+
+#################################
+### everything in one plot
+
+
+# Assuming res_fi_l is already computed
+columns_per_bar = 10
+
+# Number of rows (for each target) and number of columns (2 plots for each target)
+n_rows = len(res_fi_l)
+n_cols = 2  # One plot for data type, one for algorithm
+
+# Create a figure with subplots (2 columns since we need 2 plots per row)
+fig, axes = plt.subplots(n_rows, n_cols, figsize=(16, 5 * n_rows))
+
+# Define font size and bold style
+font_title = {'fontsize': 14, 'fontweight': 'bold'}
+font_labels = {'fontsize': 12, 'fontweight': 'bold'}
+
+# Loop through each row and create a bar plot for each
+for i in range(n_rows):
+    # Get the current row
+    row_data = res_fi_l.iloc[i, :]
+
+    # Reshape the row data into chunks of 10 columns
+    row_chunks = [row_data[j:j + columns_per_bar] for j in range(0, len(row_data), columns_per_bar)]
+
+    # Calculate the cumulative sum for each chunk (sum of the 10 consecutive columns)
+    cumulative_sums = [chunk.sum() for chunk in row_chunks]
+
+    # Plot 1: Cumulative Importance across Data Types
+    x_labels = ['RPPA', 'RNA', 'miRNA', 'Meta', 'DNA', 'Pathways', 'Type']
+    axes[i, 0].bar(range(len(cumulative_sums)), cumulative_sums)
+    axes[i, 0].set_ylim(0, 0.5)
+    axes[i, 0].set_title(f'{res_fi_l.index[i]} - Data Types', **font_title)
+    axes[i, 0].set_xticks(ticks=range(len(x_labels)))
+    axes[i, 0].set_xticklabels(x_labels, fontsize=10)
+    axes[i, 0].set_xlabel('Data Type', **font_labels)
+    axes[i, 0].set_ylabel('Cumulative Importance', **font_labels)
+
+    # Cumulative Importance across algorithms (group by intervals)
+    cumulative_sums2 = []
+    for start in range(10):
+        cumulative_sum = row_data[start::10].sum()
+        cumulative_sums2.append(cumulative_sum)
+
+    # Plot 2: Cumulative Importance across Algorithms
+    x_labels2 = ['SVC', 'RFC', 'SVM', 'Logistic', 'Ridge', 'EN', 'ET', 'KNN', 'XGB', 'Ada']
+    axes[i, 1].bar(range(len(cumulative_sums2)), cumulative_sums2)
+    axes[i, 1].set_ylim(0, 0.5)
+    axes[i, 1].set_title(f'{res_fi_l.index[i]} - Algorithms', **font_title)
+    axes[i, 1].set_xticks(ticks=range(len(x_labels2)))
+    axes[i, 1].set_xticklabels(x_labels2, fontsize=10)
+    axes[i, 1].set_xlabel('Algorithm', **font_labels)
+    axes[i, 1].set_ylabel('Cumulative Importance', **font_labels)
+
+# Adjust layout to prevent overlap
+plt.tight_layout()
+
+# Save the figure
+plt.savefig('combined_barplots_readable.png')
+
+# Show the plot
+plt.show()
+
+
+
+
+
+##################################
 res_fi.to_csv('FINAL_RFC_contributions_table.csv')
 res_sd.to_csv('FINAL_RFC_contributions_sd_table.csv')
 
